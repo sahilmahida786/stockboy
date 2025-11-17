@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard – Stockboy Premium</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          gold: {
+            light: '#f6d67c',
+            DEFAULT: '#d9a520',
+            dark: '#c4941a'
+          },
+          dark: {
+            bg1: '#0f2027',
+            bg2: '#203a43',
+            bg3: '#2c5364'
+          }
+        },
+        fontFamily: {
+          sans: ['Poppins', 'sans-serif']
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .bg-gradient-dark {
+    background: linear-gradient(160deg, #0f2027, #203a43, #2c5364);
+  }
+  .text-gradient-gold {
+    background: linear-gradient(90deg, #f6d67c, #d9a520);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease forwards;
+  }
+</style>
+</head>
+<body class="bg-gradient-dark text-white font-sans min-h-screen">
+
+<!-- Top Navigation Bar -->
+<nav class="sticky top-0 z-50 bg-black/55 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="logo" class="w-10 h-10 rounded-full shadow-lg shadow-yellow-500/45">
+    <h1 class="text-gradient-gold text-xl font-bold">Stockboy Premium</h1>
+  </div>
+  <div class="text-sm text-gray-300">
+    Welcome, <span class="text-gold-DEFAULT font-semibold">{{ name }}</span>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+  <div class="text-center mb-8 animate-fade-in">
+    <h2 class="text-3xl font-bold text-gradient-gold mb-2">Your Premium Dashboard</h2>
+    <p class="text-gray-400">Access your exclusive trading resources</p>
+  </div>
+
+  <!-- Modules Grid -->
+  <div class="space-y-8">
+    {% for module_name, files in modules.items() %}
+    <div class="bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-2xl animate-fade-in">
+      <h3 class="text-2xl font-bold text-gold-DEFAULT mb-4 flex items-center gap-2">
+        <span class="w-10 h-10 bg-gradient-to-r from-gold-light to-gold-DEFAULT rounded-lg flex items-center justify-center text-gray-900 font-bold">
+          {{ module_name }}
+        </span>
+        Module {{ module_name }}
+      </h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for file in files %}
+        <a href="{% if file.kind == 'PDF' %}/view_pdf/{{ file.name }}{% elif file.kind == 'Video' %}/view_video/{{ file.name }}{% else %}{{ file.url }}{% endif %}" 
+           target="{% if file.kind == 'PDF' or file.kind == 'Video' %}_self{% else %}_blank{% endif %}"
+           class="group bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-4 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-yellow-500/20">
+          <div class="flex items-start gap-3">
+            <div class="flex-shrink-0">
+              {% if file.kind == 'PDF' %}
+                <div class="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+              {% elif file.kind == 'Video' %}
+                <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+              {% else %}
+                <div class="w-12 h-12 bg-gray-500/20 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                </div>
+              {% endif %}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-white font-semibold text-sm mb-1 truncate group-hover:text-gold-light transition-colors">
+                {{ file.name }}
+              </p>
+              <span class="inline-block px-2 py-1 text-xs rounded-md 
+                {% if file.kind == 'PDF' %}bg-red-500/20 text-red-400
+                {% elif file.kind == 'Video' %}bg-blue-500/20 text-blue-400
+                {% else %}bg-gray-500/20 text-gray-400{% endif %}">
+                {{ file.kind }}
+              </span>
+            </div>
+            <svg class="w-5 h-5 text-gray-400 group-hover:text-gold-DEFAULT transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if not modules %}
+  <div class="text-center py-16 animate-fade-in">
+    <div class="bg-black/40 backdrop-blur-md rounded-2xl p-12 border border-white/10 max-w-md mx-auto">
+      <svg class="w-16 h-16 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+      </svg>
+      <h3 class="text-xl font-semibold text-gray-300 mb-2">No Content Available</h3>
+      <p class="text-gray-500">Content will be available soon.</p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Footer -->
+<footer class="text-center py-8 text-gray-400 text-sm mt-12">
+  © 2025 Stockboy Officiel • Premium Access
+</footer>
+
+</body>
+</html>

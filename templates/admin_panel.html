@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Panel – Stockboy</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          gold: {
+            light: '#f6d67c',
+            DEFAULT: '#d9a520',
+            dark: '#c4941a'
+          },
+          dark: {
+            bg1: '#0f2027',
+            bg2: '#203a43',
+            bg3: '#2c5364'
+          }
+        },
+        fontFamily: {
+          sans: ['Poppins', 'sans-serif']
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .bg-gradient-dark {
+    background: linear-gradient(160deg, #0f2027, #203a43, #2c5364);
+  }
+  .text-gradient-gold {
+    background: linear-gradient(90deg, #f6d67c, #d9a520);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
+</head>
+<body class="bg-gradient-dark text-white font-sans min-h-screen">
+
+<!-- Top Navigation Bar -->
+<nav class="sticky top-0 z-50 bg-black/55 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="logo" class="w-10 h-10 rounded-full shadow-lg shadow-yellow-500/45">
+    <h1 class="text-gradient-gold text-xl font-bold">Admin Panel</h1>
+  </div>
+  <a href="/upload" class="bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 px-4 py-2 rounded-lg font-semibold hover:shadow-lg shadow-yellow-500/50 transition-all">
+    📤 Upload Files
+  </a>
+</nav>
+
+<!-- Main Content -->
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+  <div class="mb-6">
+    <h2 class="text-3xl font-bold text-gradient-gold mb-2">📌 Payment Requests</h2>
+    <p class="text-gray-400">Manage payment approvals and rejections</p>
+  </div>
+
+  <!-- Payment Requests Table -->
+  <div class="bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-black/60 border-b border-white/10">
+          <tr>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">#</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">User</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Txn ID</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Screenshot</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/10">
+          {% for entry in data %}
+          <tr class="hover:bg-white/5 transition-colors">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{{ loop.index0 }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{{ entry['user'] }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-mono">{{ entry['txn_id'] }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              {% if entry['status'] == 'pending' %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-400">
+                  Pending
+                </span>
+              {% elif entry['status'] == 'approved' %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-500/20 text-green-400">
+                  ✅ Approved
+                </span>
+              {% else %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500/20 text-red-400">
+                  ❌ Rejected
+                </span>
+              {% endif %}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              {% set filename = entry['ss_path'].split('/')[-1] %}
+              <a href="/payment_ss/{{ filename }}" 
+                 target="_blank" 
+                 class="text-cyan-400 hover:text-cyan-300 font-semibold text-sm hover:underline flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                View Screenshot
+              </a>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
+              {% if entry['status'] == "pending" %}
+                <div class="flex items-center gap-2">
+                  <a href="/approve/{{ loop.index0 }}" 
+                     class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-green-500/50">
+                    ✅ Approve
+                  </a>
+                  <a href="/reject/{{ loop.index0 }}" 
+                     class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-red-500/50">
+                    ❌ Reject
+                  </a>
+                </div>
+              {% else %}
+                <span class="text-gray-500 text-sm">Completed</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+          {% if not data %}
+          <tr>
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+              <svg class="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+              </svg>
+              <p class="text-lg">No payment requests yet</p>
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="text-center py-8 text-gray-400 text-sm mt-12">
+  © 2025 Stockboy Officiel • Admin Panel
+</footer>
+
+</body>
+</html>

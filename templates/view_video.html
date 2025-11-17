@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>View Video – Stockboy Premium</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  video {
+    width: 100%;
+    height: auto;
+    max-height: 100vh;
+    background: #000;
+  }
+</style>
+</head>
+<body>
+<video controls autoplay class="w-full h-auto max-h-screen">
+  <source src="/static/uploads/{{ filename }}" type="video/mp4">
+  <source src="/static/uploads/{{ filename }}" type="video/webm">
+  <source src="/static/uploads/{{ filename }}" type="video/mkv">
+  Your browser does not support video playback.
+</video>
+</body>
+</html>
