@@ -1,11 +1,13 @@
 import requests
 import time
+import os
 
-# Your bot token
-BOT_TOKEN = "7581428285:AAF6qwxQYniDoZnhiwERUP_k0Vlf-k6MVSQ"
+# Read bot token from environment variable
+BOT_TOKEN = os.getenv("BOT_TOKEN", "7581428285:AAF6qwxQYniDoZnhiwERUP_k0Vlf-k6MVSQ")
 
 API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
-FLASK_URL = "http://127.0.0.1:5000/telegram-update"   # Flask webhook URL
+# For production, use your Render URL. For local dev, use localhost
+FLASK_URL = os.getenv("FLASK_URL", "http://127.0.0.1:5000/telegram-update")
 
 def main():
     last_update_id = None

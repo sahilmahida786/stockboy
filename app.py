@@ -4,7 +4,8 @@ from datetime import timedelta
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
-app.secret_key = "change_this_secret_key"
+# Read secret key from environment variable, fallback to default for local dev
+app.secret_key = os.getenv("SECRET_KEY", "change_this_secret_key")
 app.permanent_session_lifetime = timedelta(days=7)
 
 DATA_FILE = "payments.json"
@@ -12,8 +13,9 @@ LIKES_FILE = "likes.json"
 UPLOAD_FOLDER = "static/uploads"  # For course materials (PDFs, videos)
 PAYMENT_SS_FOLDER = "payment_ss"   # For payment screenshots only
 
-BOT_TOKEN = "7581428285:AAF6qwxQYniDoZnhiwERUP_k0Vlf-k6MVSQ"
-CHAT_ID = "1924050423"
+# Read from environment variables (set in Render dashboard)
+BOT_TOKEN = os.getenv("BOT_TOKEN", "7581428285:AAF6qwxQYniDoZnhiwERUP_k0Vlf-k6MVSQ")
+CHAT_ID = os.getenv("CHAT_ID", "1924050423")
 
 
 # -------------------------------------------------
@@ -208,8 +210,8 @@ def get_likes():
 # -------------------------------------------------
 # ADMIN LOGIN + PANEL
 # -------------------------------------------------
-ADMIN_USERNAME = "stockboy"
-ADMIN_PASSWORD = "stockboy@123"
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "stockboy")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "stockboy@123")
 
 
 @app.route("/admin-login", methods=["GET", "POST"])
