@@ -1,2 +1,2 @@
-web: gunicorn app:app
+web: python bot_listener.py & gunicorn app:app
 
