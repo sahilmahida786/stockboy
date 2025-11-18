@@ -1,2 +1,2 @@
-web: python bot_listener.py & gunicorn app:app
+web: supervisord -c supervisord.conf
 
