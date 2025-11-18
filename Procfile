@@ -1,2 +1,3 @@
-web: supervisord -c supervisord.conf
+web: gunicorn app:app
+
 
