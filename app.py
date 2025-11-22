@@ -4,6 +4,51 @@ from datetime import timedelta
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
+app.secret_key = os.getenv("SECRET_KEY", "change_this_secret_key")
+
+# -------------------------------------------------
+# MAINTENANCE MODE SWITCH
+# -------------------------------------------------
+MAINTENANCE_MODE = True   # ⛔ Website OFF
+# MAINTENANCE_MODE = False  # ✅ Website ON
+
+@app.before_request
+def maintenance_blocker():
+    allowed_routes = ["maintenance", "admin_login"]  # admin can still login
+
+    if MAINTENANCE_MODE:
+        # allow access ONLY to /maintenance and /admin-login
+        if request.endpoint not in allowed_routes:
+            return redirect("/maintenance")
+
+@app.route("/maintenance")
+def maintenance():
+    return """
+    <html>
+    <head>
+        <title>Maintenance</title>
+        <style>
+            body {
+                background:#101010;
+                color:white;
+                text-align:center;
+                padding-top:120px;
+                font-family: Arial;
+            }
+            h1 { font-size:40px; color:#ffcc00; }
+            p { font-size:20px; }
+        </style>
+    </head>
+    <body>
+        <h1>🚧 Website Under Maintenance</h1>
+        <p>We’ll be back soon.</p>
+    </body>
+    </html>
+    """
+
+
+app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
 # Read secret key from environment variable, fallback to default for local dev
 app.secret_key = os.getenv("SECRET_KEY", "change_this_secret_key")
 app.permanent_session_lifetime = timedelta(days=7)
