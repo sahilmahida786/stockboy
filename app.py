@@ -557,8 +557,8 @@ def get_likes():
 # -------------------------------------------------
 # ADMIN LOGIN + PANEL
 # -------------------------------------------------
-ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "stockboy")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "stockboy@123")
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "Mahida")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "Sahil786@")
 
 
 @app.route("/admin-login", methods=["GET", "POST"])

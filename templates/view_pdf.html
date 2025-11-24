@@ -5,19 +5,48 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>View PDF – Stockboy Premium</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          gold: { light: '#f6d67c', DEFAULT: '#d9a520' },
+          dark: { bg1: '#0f2027', bg2: '#203a43', bg3: '#2c5364' }
+        },
+        fontFamily: { sans: ['Poppins', 'sans-serif'] }
+      }
+    }
+  }
+</script>
 <style>
   body {
     margin: 0;
-    background: #000;
+    background: #0f2027;
+    font-family: 'Poppins', sans-serif;
   }
   iframe {
     width: 100%;
-    height: 100vh;
+    height: calc(100vh - 60px);
     border: none;
+  }
+  .bg-gradient-dark {
+    background: linear-gradient(160deg, #0f2027, #203a43, #2c5364);
   }
 </style>
 </head>
-<body>
+<body class="bg-gradient-dark text-white">
+<!-- Back Button -->
+<nav class="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center gap-3">
+  <a href="/home" class="flex items-center gap-2 text-white hover:text-gold-DEFAULT transition-colors font-semibold">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+    </svg>
+    Back to Premium Products
+  </a>
+</nav>
 <iframe src="/static/uploads/{{ filename }}" title="PDF Viewer"></iframe>
 </body>
 </html>
