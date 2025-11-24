@@ -230,7 +230,18 @@ def save_data(data):
 
 @app.route("/")
 def home():
-    return render_template("index.html", products=PRODUCTS)
+    # If user is logged in, redirect to main website
+    if session.get("user_logged_in"):
+        return redirect("/home")
+    # If not logged in, show login/register page
+    return render_template("landing.html")
+
+@app.route("/home")
+def main_website():
+    # Require login to access main website
+    if not session.get("user_logged_in"):
+        return redirect("/")
+    return render_template("index.html", products=PRODUCTS, username=session.get("username"))
 
 # -------------------------------------------------
 # USER AUTHENTICATION ROUTES
@@ -274,7 +285,7 @@ def register():
         })
         save_users(users)
         
-        return jsonify({"success": True, "message": "Registration successful! You can now login."})
+        return jsonify({"success": True, "message": "Registration successful! Redirecting to login...", "redirect": "/login"})
     
     # GET request - show registration form
     return render_template("register.html")
@@ -320,7 +331,7 @@ def login():
             "last_activity": datetime.now()
         }
         
-        return jsonify({"success": True, "message": "Login successful!", "redirect": url_for("home")})
+        return jsonify({"success": True, "message": "Login successful!", "redirect": "/home"})
     
     return render_template("login.html")
 
@@ -407,7 +418,11 @@ if not os.path.exists(PAYMENT_SS_FOLDER):
 
 @app.route("/submit_payment", methods=["POST"])
 def submit_payment():
-    user_name = request.form.get("user_name")
+    # Require login
+    if not session.get("user_logged_in"):
+        return jsonify({"message": "⚠️ Please login to submit payment."}), 401
+    
+    user_name = request.form.get("user_name") or session.get("username", "User")
     txn_id = request.form.get("txn_id")
     screenshot = request.files.get("screenshot")
     product_id = request.form.get("product_id", "1")  # Default to product 1
@@ -767,8 +782,12 @@ def upload_file():
 # -------------------------------------------------
 @app.route("/dashboard")
 def dashboard():
+    # Require login
+    if not session.get("user_logged_in"):
+        return redirect("/")
+    
     if not session.get("approved") and not session.get("user_logged_in"):
-        return redirect(url_for("home"))
+        return redirect("/home")
     
     # Update last activity for logged-in users
     username = session.get("username")

@@ -136,7 +136,11 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
       message.textContent = '✅ Registration successful! Redirecting to login...';
       message.className = 'text-sm text-center text-green-400 min-h-[20px]';
       setTimeout(() => {
-        window.location.href = '/login';
+        if (data.redirect) {
+          window.location.href = data.redirect;
+        } else {
+          window.location.href = '/login';
+        }
       }, 2000);
     } else {
       message.textContent = data.message;
