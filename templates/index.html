@@ -100,15 +100,37 @@
   <div class="relative z-10 px-5 py-10 text-center">
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-32 h-32 mx-auto mb-4 animate-float">
     
-    <h2 class="text-gradient-gold text-2xl font-bold mb-2">Premium Access</h2>
-    <p class="text-gray-300 mb-6">Your trading journey starts with clarity & real skill.</p>
+    <h2 class="text-gradient-gold text-2xl font-bold mb-2">Premium Products</h2>
+    <p class="text-gray-300 mb-6">Choose your course and start learning today!</p>
 
-    <button id="showPayment" class="w-full max-w-md mx-auto bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 font-bold py-3 px-6 rounded-xl shadow-lg shadow-yellow-500/50 hover:shadow-yellow-500/70 transition-all duration-300 active:scale-95">
-      Get Premium Access
-    </button>
+    <!-- Products Grid -->
+    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      {% for product_id, product in products.items() %}
+      <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:border-gold-DEFAULT transition-all duration-300 hover:scale-105">
+        <div class="text-center">
+          <h3 class="text-xl font-bold text-gold-DEFAULT mb-2">{{ product.name }}</h3>
+          <p class="text-sm text-gray-300 mb-3">{{ product.description }}</p>
+          <p class="text-2xl font-bold text-white mb-4">₹{{ product.price_min }}-₹{{ product.price_max }}</p>
+          <button class="product-buy-btn w-full bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 font-bold py-2 px-4 rounded-lg shadow-lg shadow-yellow-500/50 hover:shadow-yellow-500/70 transition-all duration-300 active:scale-95"
+                  data-product-id="{{ product_id }}"
+                  data-product-name="{{ product.name }}"
+                  data-price-min="{{ product.price_min }}"
+                  data-price-max="{{ product.price_max }}">
+            Buy Now
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
 
     <!-- Payment Section -->
     <div id="paymentSection" class="hidden mt-6 max-w-lg mx-auto space-y-4">
+      <div id="selectedProductInfo" class="bg-white/10 backdrop-blur-md rounded-xl p-4 mb-4 border border-gold-DEFAULT/50">
+        <p class="text-gold-DEFAULT font-semibold mb-1">Selected Product:</p>
+        <p id="selectedProductName" class="text-white font-bold text-lg"></p>
+        <p id="selectedProductPrice" class="text-gray-300 text-sm"></p>
+      </div>
+      
       <img src="{{ url_for('static', filename='qr.png') }}" 
            alt="QR Code" 
            class="w-56 mx-auto rounded-lg border-2 border-white/20 shadow-xl animate-pop">
@@ -122,6 +144,10 @@
              type="text"
              class="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT focus:border-transparent transition-all animate-pop"
              placeholder="Transaction ID (UPI Ref No.)">
+      
+      <input id="productId" 
+             type="hidden"
+             value="">
 
       <label class="block text-sm text-gray-300 mb-1 font-semibold animate-pop">
         📸 Upload Payment Screenshot
@@ -235,19 +261,47 @@ const obs = new IntersectionObserver(entries => {
 });
 document.querySelectorAll(".reveal").forEach(el => obs.observe(el));
 
-/* Toggle payment form */
-document.getElementById("showPayment").onclick = function(){
+/* Show payment form for specific product */
+function showPaymentForProduct(productId, productName, priceMin, priceMax) {
   document.getElementById("paymentSection").classList.remove("hidden");
-  this.classList.add("hidden");
+  document.getElementById("selectedProductName").innerText = productName;
+  document.getElementById("selectedProductPrice").innerText = "Price: ₹" + priceMin + "-₹" + priceMax;
+  document.getElementById("productId").value = productId;
+  
+  // Hide all product cards
+  document.querySelectorAll('.bg-white\\/10.backdrop-blur-md.rounded-xl').forEach(card => {
+    if (card.querySelector('button')) {
+      card.style.display = 'none';
+    }
+  });
 };
+
+// Add event listeners to product buy buttons
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.product-buy-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const productId = this.getAttribute('data-product-id');
+      const productName = this.getAttribute('data-product-name');
+      const priceMin = this.getAttribute('data-price-min');
+      const priceMax = this.getAttribute('data-price-max');
+      showPaymentForProduct(productId, productName, priceMin, priceMax);
+    });
+  });
+});
 
 /* Submit payment */
 function submitPayment() {
     const n = document.getElementById("name").value.trim();
     const t = document.getElementById("txn").value.trim();
     const file = document.getElementById("ss").files[0];
+    const productId = document.getElementById("productId").value;
     const m = document.getElementById("msg");
 
+    if (!productId) {
+        m.innerHTML = "⚠️ Please select a product first.";
+        m.className = "text-sm text-red-400 mt-2 min-h-[20px]";
+        return;
+    }
     if (!n || !t) {
         m.innerHTML = "⚠️ Enter name & transaction ID.";
         m.className = "text-sm text-red-400 mt-2 min-h-[20px]";
@@ -263,6 +317,7 @@ function submitPayment() {
     fd.append("user_name", n);
     fd.append("txn_id", t);
     fd.append("screenshot", file);
+    fd.append("product_id", productId);
 
     m.innerHTML = "⏳ Submitting...";
     m.className = "text-sm text-yellow-400 mt-2 min-h-[20px]";

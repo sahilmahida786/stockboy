@@ -67,7 +67,12 @@
 <div class="container mx-auto px-4 py-8 max-w-7xl">
   <div class="text-center mb-8 animate-fade-in">
     <h2 class="text-3xl font-bold text-gradient-gold mb-2">Your Premium Dashboard</h2>
-    <p class="text-gray-400">Access your exclusive trading resources</p>
+    <p class="text-gray-400">Access your purchased courses</p>
+    {% if not purchased_products %}
+    <div class="mt-4 bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4 max-w-md mx-auto">
+      <p class="text-yellow-400 text-sm">You haven't purchased any products yet. <a href="/" class="underline font-semibold">Browse Products</a></p>
+    </div>
+    {% endif %}
   </div>
 
   <!-- Modules Grid -->

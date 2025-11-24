@@ -9,7 +9,7 @@ app.secret_key = os.getenv("SECRET_KEY", "change_this_secret_key")
 # -------------------------------------------------
 # MAINTENANCE MODE SWITCH
 # -------------------------------------------------
-MAINTENANCE_MODE = True   # ⛔ Website OFF
+MAINTENANCE_MODE = False   # ⛔ Website OFF
 # MAINTENANCE_MODE = False  # ✅ Website ON
 
 @app.before_request
@@ -61,6 +61,36 @@ PAYMENT_SS_FOLDER = "payment_ss"   # For payment screenshots only
 # Read from environment variables (set in Render dashboard)
 BOT_TOKEN = os.getenv("BOT_TOKEN", "7581428285:AAF6qwxQYniDoZnhiwERUP_k0Vlf-k6MVSQ")
 CHAT_ID = os.getenv("CHAT_ID", "1924050423")
+
+# -------------------------------------------------
+# PRODUCT DEFINITIONS
+# -------------------------------------------------
+PRODUCTS = {
+    "1": {
+        "name": "Stock Market Basics PDF",
+        "price_min": 99,
+        "price_max": 149,
+        "type": "PDF",
+        "folder": "product1",  # Files for this product should be in static/uploads/product1/
+        "description": "Learn the fundamentals of stock market trading"
+    },
+    "2": {
+        "name": "Candlestick Patterns PDF",
+        "price_min": 149,
+        "price_max": 199,
+        "type": "PDF",
+        "folder": "product2",  # Files for this product should be in static/uploads/product2/
+        "description": "Master candlestick patterns for better trading decisions"
+    },
+    "3": {
+        "name": "Small Beginner Course (Video Lessons)",
+        "price_min": 299,
+        "price_max": 499,
+        "type": "Video",
+        "folder": "product3",  # Files for this product should be in static/uploads/product3/
+        "description": "Complete video course for beginners"
+    }
+}
 
 
 # -------------------------------------------------
@@ -145,7 +175,7 @@ def save_data(data):
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("index.html", products=PRODUCTS)
 
 import os
 from werkzeug.utils import secure_filename
@@ -159,6 +189,11 @@ def submit_payment():
     user_name = request.form.get("user_name")
     txn_id = request.form.get("txn_id")
     screenshot = request.files.get("screenshot")
+    product_id = request.form.get("product_id", "1")  # Default to product 1
+
+    # Validate product_id
+    if product_id not in PRODUCTS:
+        return jsonify({"message": "⚠️ Invalid product selected!"})
 
     # Load old data
     data = load_data()
@@ -173,19 +208,24 @@ def submit_payment():
     filepath = os.path.join(PAYMENT_SS_FOLDER, filename)
     screenshot.save(filepath)
 
-    # Save new data
+    product = PRODUCTS[product_id]
+    
+    # Save new data with product information
     data.append({
         "user": user_name,
         "txn_id": txn_id,
         "status": "pending",
-        "ss_path": filepath
+        "ss_path": filepath,
+        "product_id": product_id,
+        "product_name": product["name"],
+        "product_price": f"₹{product['price_min']}-₹{product['price_max']}"
     })
     save_data(data)
 
     # Send Telegram message with inline buttons (use relative path for Telegram)
     send_telegram_photo(
         filepath,
-        f"📩 *New Payment Request*\n\n👤 *Name:* {user_name}\n💳 *Txn ID:* `{txn_id}`\n⏳ *Status:* Pending Approval",
+        f"📩 *New Payment Request*\n\n👤 *Name:* {user_name}\n💳 *Txn ID:* `{txn_id}`\n📦 *Product:* {product['name']}\n💰 *Price:* ₹{product['price_min']}-₹{product['price_max']}\n⏳ *Status:* Pending Approval",
         txn_id=txn_id
     )
     
@@ -213,13 +253,39 @@ def start_session():
     user_name = request.form.get("user_name", "User")
 
     data = load_data()
-    approved = any(x["txn_id"] == txn_id and x["status"] == "approved" for x in data)
+    approved_entry = None
+    for x in data:
+        if x["txn_id"] == txn_id and x["status"] == "approved":
+            approved_entry = x
+            break
 
-    if not approved:
+    if not approved_entry:
         return jsonify({"ok": False})
 
+    # Store approved status and purchased products in session
     session["approved"] = True
     session["user_name"] = user_name
+    
+    # Get all approved products for this user (by txn_id)
+    purchased_products = []
+    for entry in data:
+        if entry.get("txn_id") == txn_id and entry.get("status") == "approved":
+            product_id = entry.get("product_id", "1")
+            if product_id not in purchased_products:
+                purchased_products.append(product_id)
+    
+    # Also check by user_name for all their purchases
+    user_purchases = []
+    for entry in data:
+        if entry.get("user") == user_name and entry.get("status") == "approved":
+            product_id = entry.get("product_id", "1")
+            if product_id not in user_purchases:
+                user_purchases.append(product_id)
+    
+    # Combine both lists
+    all_purchased = list(set(purchased_products + user_purchases))
+    session["purchased_products"] = all_purchased
+    
     return jsonify({"ok": True, "redirect": url_for("dashboard")})
 
 
@@ -440,10 +506,24 @@ def dashboard():
     if not session.get("approved"):
         return redirect(url_for("home"))
 
-    # Only get course materials from uploads folder
-    files = os.listdir(UPLOAD_FOLDER)
-    modules = {}
+    # Get purchased products from session
+    purchased_products = session.get("purchased_products", [])
+    
+    # If no purchased products in session, check from payments.json
+    if not purchased_products:
+        user_name = session.get("user_name", "")
+        data = load_data()
+        purchased_products = []
+        for entry in data:
+            if entry.get("user") == user_name and entry.get("status") == "approved":
+                product_id = entry.get("product_id", "1")
+                if product_id not in purchased_products:
+                    purchased_products.append(product_id)
+        session["purchased_products"] = purchased_products
 
+    # Only get course materials from purchased products
+    modules = {}
+    
     # Allowed course file extensions
     COURSE_EXTENSIONS = {
         "pdf": "PDF",
@@ -456,34 +536,44 @@ def dashboard():
         "wav": "Audio"
     }
 
-    for f in files:
-        # Skip payment screenshots and non-course files
-        ext = f.lower().split('.')[-1]
-        
-        # Only include course materials (PDFs, videos, audio)
-        if ext not in COURSE_EXTENSIONS:
+    # For each purchased product, get files from its folder
+    for product_id in purchased_products:
+        if product_id not in PRODUCTS:
             continue
+            
+        product = PRODUCTS[product_id]
+        product_folder = os.path.join(UPLOAD_FOLDER, product["folder"])
         
-        # Skip PNG/JPG files (these are payment screenshots, not course materials)
-        if ext in ["png", "jpg", "jpeg", "gif", "webp"]:
+        # Check if product folder exists
+        if not os.path.exists(product_folder):
             continue
+            
+        files = os.listdir(product_folder)
         
-        kind = COURSE_EXTENSIONS.get(ext, "File")
+        for f in files:
+            ext = f.lower().split('.')[-1]
+            
+            # Only include course materials
+            if ext not in COURSE_EXTENSIONS:
+                continue
+            
+            # Skip image files
+            if ext in ["png", "jpg", "jpeg", "gif", "webp"]:
+                continue
+            
+            kind = COURSE_EXTENSIONS.get(ext, "File")
+            
+            # Use product name as module name
+            mod = product["name"]
+            
+            modules.setdefault(mod, []).append({
+                "name": f,
+                "url": f"/static/uploads/{product['folder']}/{f}",
+                "kind": kind,
+                "product_id": product_id
+            })
 
-        # Extract module number from filename (e.g., M1_filename.pdf)
-        mod = "M1"  # Default module
-        if "_" in f:
-            tag = f.split("_")[0]
-            if tag.lower().startswith("m") and tag[1:].isdigit():
-                mod = tag.upper()
-
-        modules.setdefault(mod, []).append({
-            "name": f,
-            "url": f"/static/uploads/{f}",
-            "kind": kind
-        })
-
-    return render_template("dashboard.html", name=session.get("user_name"), modules=modules)
+    return render_template("dashboard.html", name=session.get("user_name"), modules=modules, products=PRODUCTS, purchased_products=purchased_products)
 
 
 # -------------------------------------------------
@@ -517,8 +607,9 @@ def telegram_update():
                     save_data(payments)
                     
                     # Update message with approved status
+                    product_name = entry.get("product_name", "Product")
                     edit_url = f"https://api.telegram.org/bot{BOT_TOKEN}/editMessageCaption"
-                    new_caption = f"✅ *Payment Approved*\n\n👤 *Name:* {entry['user']}\n💳 *Txn ID:* `{txn_id}`\n🔓 *Status:* Dashboard Unlocked"
+                    new_caption = f"✅ *Payment Approved*\n\n👤 *Name:* {entry['user']}\n💳 *Txn ID:* `{txn_id}`\n📦 *Product:* {product_name}\n🔓 *Status:* Product Unlocked"
                     requests.post(edit_url, json={
                         "chat_id": chat_id,
                         "message_id": message_id,
@@ -527,7 +618,7 @@ def telegram_update():
                     })
                     
                     # Send confirmation
-                    send_telegram(f"✅ *Approved*\n\n👤 {entry['user']}\n💳 `{txn_id}`\n🔓 Dashboard Unlocked")
+                    send_telegram(f"✅ *Approved*\n\n👤 {entry['user']}\n💳 `{txn_id}`\n📦 {product_name}\n🔓 Product Unlocked")
                     processed = True
                     break
 
@@ -586,6 +677,43 @@ def view_video(filename):
 def serve_payment_ss(filename):
     """Serve payment screenshots from payment_ss folder"""
     return send_from_directory(PAYMENT_SS_FOLDER, filename)
+
+# -------------------------------------------------
+# SERVE PRODUCT FILES
+# -------------------------------------------------
+@app.route("/static/uploads/<product_folder>/<filename>")
+def serve_product_file(product_folder, filename):
+    """Serve product files from their respective folders"""
+    if not session.get("approved"):
+        return "Unauthorized", 403
+    
+    # Check if user has access to this product
+    purchased_products = session.get("purchased_products", [])
+    user_name = session.get("user_name", "")
+    
+    # If no purchased products in session, check from payments.json
+    if not purchased_products:
+        data = load_data()
+        for entry in data:
+            if entry.get("user") == user_name and entry.get("status") == "approved":
+                product_id = entry.get("product_id", "1")
+                if product_id not in purchased_products:
+                    purchased_products.append(product_id)
+    
+    # Find which product this folder belongs to
+    product_id = None
+    for pid, product in PRODUCTS.items():
+        if product["folder"] == product_folder:
+            product_id = pid
+            break
+    
+    # Check if user has purchased this product
+    if product_id and product_id in purchased_products:
+        file_path = os.path.join(UPLOAD_FOLDER, product_folder, filename)
+        if os.path.exists(file_path):
+            return send_from_directory(os.path.join(UPLOAD_FOLDER, product_folder), filename)
+    
+    return "Access Denied", 403
 
 
 # -------------------------------------------------
