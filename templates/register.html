@@ -47,32 +47,38 @@
     </div>
     
     <div>
+      <input id="mobile" name="mobile" type="tel" placeholder="Mobile Number (10 digits)" 
+             class="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT" required>
+    </div>
+    
+    <div class="relative">
       <input id="password" name="password" type="password" placeholder="Password (min 6 characters)" 
-             class="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT" required>
+             class="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT pr-12" required>
+      <button type="button" onclick="togglePassword('password')" 
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold-DEFAULT">
+        <svg id="passwordEye" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+        </svg>
+        <svg id="passwordEyeSlash" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.29 3.29m0 0A9.97 9.97 0 015.12 5.12m3.47 3.47L12 12m-3.41-3.41L5.12 5.12m7.532 7.532L19.29 19.29M12 12l3.41 3.41M12 12l-3.41-3.41"></path>
+        </svg>
+      </button>
     </div>
     
-    <div>
+    <div class="relative">
       <input id="confirm_password" name="confirm_password" type="password" placeholder="Confirm Password" 
-             class="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT" required>
-    </div>
-    
-    <div class="bg-white/5 rounded-lg p-3">
-      <label class="text-sm text-gray-300 mb-2 block">Captcha: What is {{ captcha_question }}?</label>
-      <input id="captcha_answer" name="captcha_answer" type="number" placeholder="Enter answer" 
-             class="w-full px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT" required>
-      <input type="hidden" id="captcha_hash" value="{{ captcha_hash }}">
-    </div>
-    
-    <div>
-      <div class="flex gap-2 mb-2">
-        <input id="otp" name="otp" type="text" placeholder="Enter OTP" 
-               class="flex-1 px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT" required>
-        <button type="button" id="requestOtpBtn" 
-                class="px-4 py-3 bg-gold-DEFAULT text-gray-900 font-semibold rounded-xl hover:bg-gold-light transition-all">
-          Get OTP
-        </button>
-      </div>
-      <p id="otpMsg" class="text-xs text-gray-400"></p>
+             class="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT pr-12" required>
+      <button type="button" onclick="togglePassword('confirm_password')" 
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold-DEFAULT">
+        <svg id="confirmPasswordEye" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+        </svg>
+        <svg id="confirmPasswordEyeSlash" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.29 3.29m0 0A9.97 9.97 0 015.12 5.12m3.47 3.47L12 12m-3.41-3.41L5.12 5.12m7.532 7.532L19.29 19.29M12 12l3.41 3.41M12 12l-3.41-3.41"></path>
+        </svg>
+      </button>
     </div>
     
     <p id="message" class="text-sm text-center min-h-[20px]"></p>
@@ -89,50 +95,32 @@
 </div>
 
 <script>
-document.getElementById('requestOtpBtn').addEventListener('click', function() {
-  const username = document.getElementById('username').value.trim();
-  const otpMsg = document.getElementById('otpMsg');
-  const btn = this;
+function togglePassword(fieldId) {
+  const field = document.getElementById(fieldId);
+  const isPassword = field.type === 'password';
+  field.type = isPassword ? 'text' : 'password';
   
-  if (!username || username.length < 3) {
-    otpMsg.textContent = 'Please enter a valid username first';
-    otpMsg.className = 'text-xs text-red-400';
-    return;
+  if (fieldId === 'password') {
+    document.getElementById('passwordEye').classList.toggle('hidden');
+    document.getElementById('passwordEyeSlash').classList.toggle('hidden');
+  } else {
+    document.getElementById('confirmPasswordEye').classList.toggle('hidden');
+    document.getElementById('confirmPasswordEyeSlash').classList.toggle('hidden');
   }
-  
-  btn.disabled = true;
-  btn.textContent = 'Sending...';
-  otpMsg.textContent = 'Requesting OTP...';
-  otpMsg.className = 'text-xs text-yellow-400';
-  
-  fetch('/request_otp', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({username: username})
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (data.success) {
-      otpMsg.textContent = data.message;
-      otpMsg.className = 'text-xs text-green-400';
-    } else {
-      otpMsg.textContent = data.message;
-      otpMsg.className = 'text-xs text-red-400';
-    }
-    btn.disabled = false;
-    btn.textContent = 'Get OTP';
-  })
-  .catch(err => {
-    otpMsg.textContent = 'Error requesting OTP';
-    otpMsg.className = 'text-xs text-red-400';
-    btn.disabled = false;
-    btn.textContent = 'Get OTP';
-  });
-});
+}
 
 document.getElementById('registerForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const message = document.getElementById('message');
+  const password = document.getElementById('password').value;
+  const confirmPassword = document.getElementById('confirm_password').value;
+  
+  if (password !== confirmPassword) {
+    message.textContent = 'Passwords do not match!';
+    message.className = 'text-sm text-center text-red-400 min-h-[20px]';
+    return;
+  }
+  
   message.textContent = 'Registering...';
   message.className = 'text-sm text-center text-yellow-400 min-h-[20px]';
   
@@ -145,7 +133,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
   .then(r => r.json())
   .then(data => {
     if (data.success) {
-      message.textContent = data.message;
+      message.textContent = '✅ Registration successful! Redirecting to login...';
       message.className = 'text-sm text-center text-green-400 min-h-[20px]';
       setTimeout(() => {
         window.location.href = '/login';
@@ -176,14 +164,14 @@ document.getElementById('username').addEventListener('input', function() {
   }
   
   usernameCheckTimeout = setTimeout(() => {
-    fetch('/request_otp', {
+    fetch('/check-username', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({username: username})
     })
     .then(r => r.json())
     .then(data => {
-      if (!data.success && data.message.includes('already exists')) {
+      if (data.exists) {
         error.textContent = 'Username already taken';
         error.classList.remove('hidden');
       } else {
@@ -195,4 +183,3 @@ document.getElementById('username').addEventListener('input', function() {
 </script>
 </body>
 </html>
-

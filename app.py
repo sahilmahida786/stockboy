@@ -239,18 +239,19 @@ def home():
 def register():
     if request.method == "POST":
         username = request.form.get("username", "").strip()
+        mobile = request.form.get("mobile", "").strip()
         password = request.form.get("password", "")
         confirm_password = request.form.get("confirm_password", "")
-        captcha_answer = request.form.get("captcha_answer", "")
-        captcha_hash = request.form.get("captcha_hash", "")
-        otp = request.form.get("otp", "")
         
         # Validate inputs
-        if not username or not password:
-            return jsonify({"success": False, "message": "Username and password are required"})
+        if not username or not password or not mobile:
+            return jsonify({"success": False, "message": "Username, mobile number, and password are required"})
         
         if len(username) < 3:
             return jsonify({"success": False, "message": "Username must be at least 3 characters"})
+        
+        if len(mobile) != 10 or not mobile.isdigit():
+            return jsonify({"success": False, "message": "Mobile number must be 10 digits"})
         
         if password != confirm_password:
             return jsonify({"success": False, "message": "Passwords do not match"})
@@ -262,73 +263,32 @@ def register():
         if username_exists(username):
             return jsonify({"success": False, "message": "Username already exists. Please choose another."})
         
-        # Verify captcha
-        if captcha_hash in OTP_STORAGE:
-            stored_captcha = OTP_STORAGE[captcha_hash]
-            if int(captcha_answer) != stored_captcha["answer"]:
-                return jsonify({"success": False, "message": "Invalid captcha answer"})
-        else:
-            return jsonify({"success": False, "message": "Captcha expired. Please refresh."})
-        
-        # Verify OTP
-        otp_key = f"register_{username}"
-        if otp_key not in OTP_STORAGE:
-            return jsonify({"success": False, "message": "OTP not sent. Please request OTP first."})
-        
-        stored_otp_data = OTP_STORAGE[otp_key]
-        if stored_otp_data["otp"] != otp:
-            return jsonify({"success": False, "message": "Invalid OTP"})
-        
-        # Check OTP expiry (5 minutes)
-        if (datetime.now() - stored_otp_data["time"]).total_seconds() > 300:
-            del OTP_STORAGE[otp_key]
-            return jsonify({"success": False, "message": "OTP expired. Please request a new one."})
-        
         # Create user
         users = load_users()
         users.append({
             "username": username,
+            "mobile": mobile,
             "password": hash_password(password),
             "created_at": datetime.now().isoformat(),
             "purchased_products": []
         })
         save_users(users)
         
-        # Clean up OTP
-        del OTP_STORAGE[otp_key]
-        if captcha_hash in OTP_STORAGE:
-            del OTP_STORAGE[captcha_hash]
-        
         return jsonify({"success": True, "message": "Registration successful! You can now login."})
     
     # GET request - show registration form
-    captcha = generate_captcha()
-    captcha_hash = hashlib.md5(f"{captcha['question']}{datetime.now()}".encode()).hexdigest()
-    OTP_STORAGE[captcha_hash] = {"answer": captcha["answer"], "time": datetime.now()}
-    
-    return render_template("register.html", captcha_question=captcha["question"], captcha_hash=captcha_hash)
+    return render_template("register.html")
 
-@app.route("/request_otp", methods=["POST"])
-def request_otp():
-    username = request.json.get("username", "").strip()
+@app.route("/check-username", methods=["POST"])
+def check_username():
+    """Check if username exists"""
+    data = request.get_json()
+    username = data.get("username", "").strip()
     
     if not username:
-        return jsonify({"success": False, "message": "Username is required"})
+        return jsonify({"exists": False})
     
-    if username_exists(username):
-        return jsonify({"success": False, "message": "Username already exists"})
-    
-    # Generate and store OTP
-    otp = generate_otp()
-    otp_key = f"register_{username}"
-    OTP_STORAGE[otp_key] = {
-        "otp": otp,
-        "time": datetime.now()
-    }
-    
-    # In production, send OTP via email/SMS
-    # For now, we'll return it (remove this in production!)
-    return jsonify({"success": True, "otp": otp, "message": f"OTP sent! (For testing: {otp})"})
+    return jsonify({"exists": username_exists(username)})
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
