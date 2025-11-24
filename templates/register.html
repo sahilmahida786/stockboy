@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Register – Stockboy</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          gold: { light: '#f6d67c', DEFAULT: '#d9a520' },
+          dark: { bg1: '#0f2027', bg2: '#203a43', bg3: '#2c5364' }
+        },
+        fontFamily: { sans: ['Poppins', 'sans-serif'] }
+      }
+    }
+  }
+</script>
+<style>
+  .bg-gradient-dark { background: linear-gradient(160deg, #0f2027, #203a43, #2c5364); }
+  .text-gradient-gold {
+    background: linear-gradient(90deg, #f6d67c, #d9a520);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
+</head>
+<body class="bg-gradient-dark text-white font-sans min-h-screen flex items-center justify-center px-4">
+<div class="bg-black/40 backdrop-blur-md rounded-2xl p-8 border border-white/10 shadow-2xl max-w-md w-full">
+  <div class="text-center mb-6">
+    <img src="/static/logo.png" alt="Logo" class="w-16 h-16 mx-auto mb-4 rounded-full shadow-lg shadow-yellow-500/45">
+    <h2 class="text-2xl font-bold text-gradient-gold mb-2">Create Account</h2>
+    <p class="text-gray-400 text-sm">Join Stockboy Premium</p>
+  </div>
+  
+  <form id="registerForm" class="space-y-4">
+    <div>
+      <input id="username" name="username" type="text" placeholder="Username (min 3 characters)" 
+             class="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT" required>
+      <p id="usernameError" class="text-red-400 text-xs mt-1 hidden"></p>
+    </div>
+    
+    <div>
+      <input id="password" name="password" type="password" placeholder="Password (min 6 characters)" 
+             class="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT" required>
+    </div>
+    
+    <div>
+      <input id="confirm_password" name="confirm_password" type="password" placeholder="Confirm Password" 
+             class="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT" required>
+    </div>
+    
+    <div class="bg-white/5 rounded-lg p-3">
+      <label class="text-sm text-gray-300 mb-2 block">Captcha: What is {{ captcha_question }}?</label>
+      <input id="captcha_answer" name="captcha_answer" type="number" placeholder="Enter answer" 
+             class="w-full px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT" required>
+      <input type="hidden" id="captcha_hash" value="{{ captcha_hash }}">
+    </div>
+    
+    <div>
+      <div class="flex gap-2 mb-2">
+        <input id="otp" name="otp" type="text" placeholder="Enter OTP" 
+               class="flex-1 px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT" required>
+        <button type="button" id="requestOtpBtn" 
+                class="px-4 py-3 bg-gold-DEFAULT text-gray-900 font-semibold rounded-xl hover:bg-gold-light transition-all">
+          Get OTP
+        </button>
+      </div>
+      <p id="otpMsg" class="text-xs text-gray-400"></p>
+    </div>
+    
+    <p id="message" class="text-sm text-center min-h-[20px]"></p>
+    
+    <button type="submit" 
+            class="w-full bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 font-bold py-3 px-6 rounded-xl shadow-lg shadow-yellow-500/50 hover:shadow-yellow-500/70 transition-all duration-300 active:scale-95">
+      Register
+    </button>
+    
+    <p class="text-center text-sm text-gray-400 mt-4">
+      Already have an account? <a href="/login" class="text-gold-DEFAULT hover:underline">Login</a>
+    </p>
+  </form>
+</div>
+
+<script>
+document.getElementById('requestOtpBtn').addEventListener('click', function() {
+  const username = document.getElementById('username').value.trim();
+  const otpMsg = document.getElementById('otpMsg');
+  const btn = this;
+  
+  if (!username || username.length < 3) {
+    otpMsg.textContent = 'Please enter a valid username first';
+    otpMsg.className = 'text-xs text-red-400';
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  otpMsg.textContent = 'Requesting OTP...';
+  otpMsg.className = 'text-xs text-yellow-400';
+  
+  fetch('/request_otp', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({username: username})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      otpMsg.textContent = data.message;
+      otpMsg.className = 'text-xs text-green-400';
+    } else {
+      otpMsg.textContent = data.message;
+      otpMsg.className = 'text-xs text-red-400';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Get OTP';
+  })
+  .catch(err => {
+    otpMsg.textContent = 'Error requesting OTP';
+    otpMsg.className = 'text-xs text-red-400';
+    btn.disabled = false;
+    btn.textContent = 'Get OTP';
+  });
+});
+
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const message = document.getElementById('message');
+  message.textContent = 'Registering...';
+  message.className = 'text-sm text-center text-yellow-400 min-h-[20px]';
+  
+  const formData = new FormData(this);
+  
+  fetch('/register', {
+    method: 'POST',
+    body: formData
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      message.textContent = data.message;
+      message.className = 'text-sm text-center text-green-400 min-h-[20px]';
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 2000);
+    } else {
+      message.textContent = data.message;
+      message.className = 'text-sm text-center text-red-400 min-h-[20px]';
+    }
+  })
+  .catch(err => {
+    message.textContent = 'Registration failed. Please try again.';
+    message.className = 'text-sm text-center text-red-400 min-h-[20px]';
+  });
+});
+
+// Check username availability
+let usernameCheckTimeout;
+document.getElementById('username').addEventListener('input', function() {
+  const username = this.value.trim();
+  const error = document.getElementById('usernameError');
+  
+  clearTimeout(usernameCheckTimeout);
+  
+  if (username.length < 3) {
+    error.textContent = 'Username must be at least 3 characters';
+    error.classList.remove('hidden');
+    return;
+  }
+  
+  usernameCheckTimeout = setTimeout(() => {
+    fetch('/request_otp', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username: username})
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success && data.message.includes('already exists')) {
+        error.textContent = 'Username already taken';
+        error.classList.remove('hidden');
+      } else {
+        error.classList.add('hidden');
+      }
+    });
+  }, 500);
+});
+</script>
+</body>
+</html>
+

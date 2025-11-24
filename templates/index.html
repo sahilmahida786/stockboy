@@ -89,9 +89,15 @@
 <body class="bg-gradient-dark text-white font-sans min-h-screen animate-fade-in">
 
 <!-- Top Navigation Bar -->
-<nav class="sticky top-0 z-50 bg-black/55 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center gap-3">
-  <img src="{{ url_for('static', filename='logo.png') }}" alt="logo" class="w-10 h-10 rounded-full shadow-lg shadow-yellow-500/45">
-  <h1 class="text-gradient-gold text-xl font-bold">Stockboy Officiel</h1>
+<nav class="sticky top-0 z-50 bg-black/55 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="logo" class="w-10 h-10 rounded-full shadow-lg shadow-yellow-500/45">
+    <h1 class="text-gradient-gold text-xl font-bold">Stockboy Officiel</h1>
+  </div>
+  <div class="flex items-center gap-3">
+    <a href="/login" class="text-white hover:text-gold-DEFAULT font-semibold text-sm transition-colors">Login</a>
+    <a href="/register" class="bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 px-4 py-2 rounded-lg font-semibold text-sm hover:shadow-lg shadow-yellow-500/50 transition-all">Register</a>
+  </div>
 </nav>
 
 <!-- Main Premium Card Section -->
@@ -110,12 +116,16 @@
         <div class="text-center">
           <h3 class="text-xl font-bold text-gold-DEFAULT mb-2">{{ product.name }}</h3>
           <p class="text-sm text-gray-300 mb-3">{{ product.description }}</p>
-          <p class="text-2xl font-bold text-white mb-4">₹{{ product.price_min }}-₹{{ product.price_max }}</p>
+          <div class="mb-4">
+            <p class="text-3xl font-bold text-white">₹{{ product.price_offer }}</p>
+            <p class="text-sm text-gray-400 line-through">MRP: ₹{{ product.price_mrp }}</p>
+            <p class="text-xs text-green-400 mt-1">Save ₹{{ product.price_mrp - product.price_offer }}</p>
+          </div>
           <button class="product-buy-btn w-full bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 font-bold py-2 px-4 rounded-lg shadow-lg shadow-yellow-500/50 hover:shadow-yellow-500/70 transition-all duration-300 active:scale-95"
                   data-product-id="{{ product_id }}"
                   data-product-name="{{ product.name }}"
-                  data-price-min="{{ product.price_min }}"
-                  data-price-max="{{ product.price_max }}">
+                  data-price-offer="{{ product.price_offer }}"
+                  data-price-mrp="{{ product.price_mrp }}">
             Buy Now
           </button>
         </div>
@@ -262,10 +272,10 @@ const obs = new IntersectionObserver(entries => {
 document.querySelectorAll(".reveal").forEach(el => obs.observe(el));
 
 /* Show payment form for specific product */
-function showPaymentForProduct(productId, productName, priceMin, priceMax) {
+function showPaymentForProduct(productId, productName, priceOffer, priceMrp) {
   document.getElementById("paymentSection").classList.remove("hidden");
   document.getElementById("selectedProductName").innerText = productName;
-  document.getElementById("selectedProductPrice").innerText = "Price: ₹" + priceMin + "-₹" + priceMax;
+  document.getElementById("selectedProductPrice").innerHTML = "Price: <span class='text-2xl font-bold text-gold-DEFAULT'>₹" + priceOffer + "</span> <span class='text-sm line-through text-gray-400'>MRP: ₹" + priceMrp + "</span>";
   document.getElementById("productId").value = productId;
   
   // Hide all product cards
@@ -282,9 +292,9 @@ document.addEventListener('DOMContentLoaded', function() {
     btn.addEventListener('click', function() {
       const productId = this.getAttribute('data-product-id');
       const productName = this.getAttribute('data-product-name');
-      const priceMin = this.getAttribute('data-price-min');
-      const priceMax = this.getAttribute('data-price-max');
-      showPaymentForProduct(productId, productName, priceMin, priceMax);
+      const priceOffer = this.getAttribute('data-price-offer');
+      const priceMrp = this.getAttribute('data-price-mrp');
+      showPaymentForProduct(productId, productName, priceOffer, priceMrp);
     });
   });
 });

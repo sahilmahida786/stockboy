@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
 import requests, json, os
-from datetime import timedelta
+from datetime import timedelta, datetime
+import hashlib
+import random
+import string
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
@@ -14,10 +17,10 @@ MAINTENANCE_MODE = False   # ⛔ Website OFF
 
 @app.before_request
 def maintenance_blocker():
-    allowed_routes = ["maintenance", "admin_login"]  # admin can still login
+    allowed_routes = ["maintenance", "admin_login", "register", "login", "forgot_password", "request_otp"]  # Allow auth routes
 
     if MAINTENANCE_MODE:
-        # allow access ONLY to /maintenance and /admin-login
+        # allow access ONLY to /maintenance, /admin-login, and auth routes
         if request.endpoint not in allowed_routes:
             return redirect("/maintenance")
 
@@ -55,6 +58,9 @@ app.permanent_session_lifetime = timedelta(days=7)
 
 DATA_FILE = "payments.json"
 LIKES_FILE = "likes.json"
+USERS_FILE = "users.json"
+OTP_STORAGE = {}  # In-memory OTP storage (in production, use Redis or database)
+ACTIVE_SESSIONS = {}  # Track active user sessions
 UPLOAD_FOLDER = "static/uploads"  # For course materials (PDFs, videos)
 PAYMENT_SS_FOLDER = "payment_ss"   # For payment screenshots only
 
@@ -68,24 +74,24 @@ CHAT_ID = os.getenv("CHAT_ID", "1924050423")
 PRODUCTS = {
     "1": {
         "name": "Stock Market Basics PDF",
-        "price_min": 99,
-        "price_max": 149,
+        "price_offer": 99,  # Offer price
+        "price_mrp": 149,    # MRP (Maximum Retail Price)
         "type": "PDF",
         "folder": "product1",  # Files for this product should be in static/uploads/product1/
         "description": "Learn the fundamentals of stock market trading"
     },
     "2": {
         "name": "Candlestick Patterns PDF",
-        "price_min": 149,
-        "price_max": 199,
+        "price_offer": 149,  # Offer price
+        "price_mrp": 199,    # MRP
         "type": "PDF",
         "folder": "product2",  # Files for this product should be in static/uploads/product2/
         "description": "Master candlestick patterns for better trading decisions"
     },
     "3": {
         "name": "Small Beginner Course (Video Lessons)",
-        "price_min": 299,
-        "price_max": 499,
+        "price_offer": 299,  # Offer price
+        "price_mrp": 499,    # MRP
         "type": "Video",
         "folder": "product3",  # Files for this product should be in static/uploads/product3/
         "description": "Complete video course for beginners"
@@ -157,6 +163,55 @@ def ensure_folders():
 
 ensure_folders()
 
+# -------------------------------------------------
+# USER MANAGEMENT SYSTEM
+# -------------------------------------------------
+def hash_password(password):
+    """Hash password using SHA256"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def load_users():
+    """Load users from JSON file"""
+    if not os.path.exists(USERS_FILE):
+        with open(USERS_FILE, "w") as f:
+            json.dump([], f)
+    with open(USERS_FILE, "r") as f:
+        return json.load(f)
+
+def save_users(users):
+    """Save users to JSON file"""
+    with open(USERS_FILE, "w") as f:
+        json.dump(users, f, indent=4)
+
+def username_exists(username):
+    """Check if username already exists"""
+    users = load_users()
+    return any(user["username"].lower() == username.lower() for user in users)
+
+def generate_otp():
+    """Generate 6-digit OTP"""
+    return ''.join(random.choices(string.digits, k=6))
+
+def generate_captcha():
+    """Generate simple math captcha"""
+    a = random.randint(1, 10)
+    b = random.randint(1, 10)
+    answer = a + b
+    return {"question": f"{a} + {b}", "answer": answer}
+
+def get_active_users():
+    """Get list of currently logged-in users"""
+    active = []
+    current_time = datetime.now()
+    for username, session_data in ACTIVE_SESSIONS.items():
+        # Session expires after 24 hours of inactivity
+        if (current_time - session_data["last_activity"]).total_seconds() < 86400:
+            active.append({
+                "username": username,
+                "login_time": session_data["login_time"].isoformat(),
+                "last_activity": session_data["last_activity"].isoformat()
+            })
+    return active
 
 # -------------------------------------------------
 # PAYMENT SYSTEM
@@ -176,6 +231,212 @@ def save_data(data):
 @app.route("/")
 def home():
     return render_template("index.html", products=PRODUCTS)
+
+# -------------------------------------------------
+# USER AUTHENTICATION ROUTES
+# -------------------------------------------------
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
+        captcha_answer = request.form.get("captcha_answer", "")
+        captcha_hash = request.form.get("captcha_hash", "")
+        otp = request.form.get("otp", "")
+        
+        # Validate inputs
+        if not username or not password:
+            return jsonify({"success": False, "message": "Username and password are required"})
+        
+        if len(username) < 3:
+            return jsonify({"success": False, "message": "Username must be at least 3 characters"})
+        
+        if password != confirm_password:
+            return jsonify({"success": False, "message": "Passwords do not match"})
+        
+        if len(password) < 6:
+            return jsonify({"success": False, "message": "Password must be at least 6 characters"})
+        
+        # Check if username exists
+        if username_exists(username):
+            return jsonify({"success": False, "message": "Username already exists. Please choose another."})
+        
+        # Verify captcha
+        if captcha_hash in OTP_STORAGE:
+            stored_captcha = OTP_STORAGE[captcha_hash]
+            if int(captcha_answer) != stored_captcha["answer"]:
+                return jsonify({"success": False, "message": "Invalid captcha answer"})
+        else:
+            return jsonify({"success": False, "message": "Captcha expired. Please refresh."})
+        
+        # Verify OTP
+        otp_key = f"register_{username}"
+        if otp_key not in OTP_STORAGE:
+            return jsonify({"success": False, "message": "OTP not sent. Please request OTP first."})
+        
+        stored_otp_data = OTP_STORAGE[otp_key]
+        if stored_otp_data["otp"] != otp:
+            return jsonify({"success": False, "message": "Invalid OTP"})
+        
+        # Check OTP expiry (5 minutes)
+        if (datetime.now() - stored_otp_data["time"]).total_seconds() > 300:
+            del OTP_STORAGE[otp_key]
+            return jsonify({"success": False, "message": "OTP expired. Please request a new one."})
+        
+        # Create user
+        users = load_users()
+        users.append({
+            "username": username,
+            "password": hash_password(password),
+            "created_at": datetime.now().isoformat(),
+            "purchased_products": []
+        })
+        save_users(users)
+        
+        # Clean up OTP
+        del OTP_STORAGE[otp_key]
+        if captcha_hash in OTP_STORAGE:
+            del OTP_STORAGE[captcha_hash]
+        
+        return jsonify({"success": True, "message": "Registration successful! You can now login."})
+    
+    # GET request - show registration form
+    captcha = generate_captcha()
+    captcha_hash = hashlib.md5(f"{captcha['question']}{datetime.now()}".encode()).hexdigest()
+    OTP_STORAGE[captcha_hash] = {"answer": captcha["answer"], "time": datetime.now()}
+    
+    return render_template("register.html", captcha_question=captcha["question"], captcha_hash=captcha_hash)
+
+@app.route("/request_otp", methods=["POST"])
+def request_otp():
+    username = request.json.get("username", "").strip()
+    
+    if not username:
+        return jsonify({"success": False, "message": "Username is required"})
+    
+    if username_exists(username):
+        return jsonify({"success": False, "message": "Username already exists"})
+    
+    # Generate and store OTP
+    otp = generate_otp()
+    otp_key = f"register_{username}"
+    OTP_STORAGE[otp_key] = {
+        "otp": otp,
+        "time": datetime.now()
+    }
+    
+    # In production, send OTP via email/SMS
+    # For now, we'll return it (remove this in production!)
+    return jsonify({"success": True, "otp": otp, "message": f"OTP sent! (For testing: {otp})"})
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        
+        if not username or not password:
+            return jsonify({"success": False, "message": "Username and password are required"})
+        
+        users = load_users()
+        user = None
+        for u in users:
+            if u["username"].lower() == username.lower() and u["password"] == hash_password(password):
+                user = u
+                break
+        
+        if not user:
+            return jsonify({"success": False, "message": "Invalid username or password"})
+        
+        # Create session
+        session["user_logged_in"] = True
+        session["username"] = user["username"]
+        session["user_id"] = user["username"]
+        
+        # Track active session
+        ACTIVE_SESSIONS[user["username"]] = {
+            "login_time": datetime.now(),
+            "last_activity": datetime.now()
+        }
+        
+        return jsonify({"success": True, "message": "Login successful!", "redirect": url_for("home")})
+    
+    return render_template("login.html")
+
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        otp = request.form.get("otp", "")
+        new_password = request.form.get("new_password", "")
+        confirm_password = request.form.get("confirm_password", "")
+        
+        if not username:
+            return jsonify({"success": False, "message": "Username is required"})
+        
+        users = load_users()
+        user = None
+        for u in users:
+            if u["username"].lower() == username.lower():
+                user = u
+                break
+        
+        if not user:
+            return jsonify({"success": False, "message": "Username not found"})
+        
+        # If OTP not provided, send OTP
+        if not otp:
+            otp_code = generate_otp()
+            otp_key = f"reset_{username}"
+            OTP_STORAGE[otp_key] = {
+                "otp": otp_code,
+                "time": datetime.now()
+            }
+            # In production, send OTP via email/SMS
+            return jsonify({"success": True, "otp_sent": True, "otp": otp_code, "message": f"OTP sent! (For testing: {otp_code})"})
+        
+        # Verify OTP and reset password
+        otp_key = f"reset_{username}"
+        if otp_key not in OTP_STORAGE:
+            return jsonify({"success": False, "message": "OTP not sent. Please request OTP first."})
+        
+        stored_otp_data = OTP_STORAGE[otp_key]
+        if stored_otp_data["otp"] != otp:
+            return jsonify({"success": False, "message": "Invalid OTP"})
+        
+        # Check OTP expiry
+        if (datetime.now() - stored_otp_data["time"]).total_seconds() > 300:
+            del OTP_STORAGE[otp_key]
+            return jsonify({"success": False, "message": "OTP expired. Please request a new one."})
+        
+        # Validate new password
+        if not new_password or len(new_password) < 6:
+            return jsonify({"success": False, "message": "Password must be at least 6 characters"})
+        
+        if new_password != confirm_password:
+            return jsonify({"success": False, "message": "Passwords do not match"})
+        
+        # Update password
+        for i, u in enumerate(users):
+            if u["username"].lower() == username.lower():
+                users[i]["password"] = hash_password(new_password)
+                break
+        
+        save_users(users)
+        del OTP_STORAGE[otp_key]
+        
+        return jsonify({"success": True, "message": "Password reset successful! You can now login."})
+    
+    return render_template("forgot_password.html")
+
+@app.route("/logout")
+def logout():
+    username = session.get("username")
+    if username and username in ACTIVE_SESSIONS:
+        del ACTIVE_SESSIONS[username]
+    session.clear()
+    return redirect(url_for("home"))
 
 import os
 from werkzeug.utils import secure_filename
@@ -218,14 +479,14 @@ def submit_payment():
         "ss_path": filepath,
         "product_id": product_id,
         "product_name": product["name"],
-        "product_price": f"₹{product['price_min']}-₹{product['price_max']}"
+        "product_price": f"₹{product['price_offer']} (MRP: ₹{product['price_mrp']})"
     })
     save_data(data)
 
     # Send Telegram message with inline buttons (use relative path for Telegram)
     send_telegram_photo(
         filepath,
-        f"📩 *New Payment Request*\n\n👤 *Name:* {user_name}\n💳 *Txn ID:* `{txn_id}`\n📦 *Product:* {product['name']}\n💰 *Price:* ₹{product['price_min']}-₹{product['price_max']}\n⏳ *Status:* Pending Approval",
+        f"📩 *New Payment Request*\n\n👤 *Name:* {user_name}\n💳 *Txn ID:* `{txn_id}`\n📦 *Product:* {product['name']}\n💰 *Price:* ₹{product['price_offer']} (MRP: ₹{product['price_mrp']})\n⏳ *Status:* Pending Approval",
         txn_id=txn_id
     )
     
@@ -453,7 +714,50 @@ def admin_panel():
         return redirect("/admin-login")
 
     data = load_data()
-    return render_template("admin_panel.html", data=data)
+    users = load_users()
+    active_users = get_active_users()
+    return render_template("admin_panel.html", data=data, users=users, active_users=active_users)
+
+@app.route("/admin/remove-user/<username>")
+def remove_user(username):
+    if not session.get("admin"):
+        return redirect("/admin-login")
+    
+    users = load_users()
+    users = [u for u in users if u["username"].lower() != username.lower()]
+    save_users(users)
+    
+    # Remove from active sessions
+    if username in ACTIVE_SESSIONS:
+        del ACTIVE_SESSIONS[username]
+    
+    return redirect("/admin")
+
+@app.route("/admin/add-user", methods=["POST"])
+def admin_add_user():
+    if not session.get("admin"):
+        return jsonify({"success": False, "message": "Unauthorized"})
+    
+    username = request.json.get("username", "").strip()
+    password = request.json.get("password", "")
+    
+    if not username or not password:
+        return jsonify({"success": False, "message": "Username and password are required"})
+    
+    if username_exists(username):
+        return jsonify({"success": False, "message": "Username already exists"})
+    
+    users = load_users()
+    users.append({
+        "username": username,
+        "password": hash_password(password),
+        "created_at": datetime.now().isoformat(),
+        "purchased_products": [],
+        "created_by": "admin"
+    })
+    save_users(users)
+    
+    return jsonify({"success": True, "message": "User created successfully"})
 
 
 @app.route("/approve/<int:index>")
@@ -503,8 +807,13 @@ def upload_file():
 # -------------------------------------------------
 @app.route("/dashboard")
 def dashboard():
-    if not session.get("approved"):
+    if not session.get("approved") and not session.get("user_logged_in"):
         return redirect(url_for("home"))
+    
+    # Update last activity for logged-in users
+    username = session.get("username")
+    if username and username in ACTIVE_SESSIONS:
+        ACTIVE_SESSIONS[username]["last_activity"] = datetime.now()
 
     # Get purchased products from session
     purchased_products = session.get("purchased_products", [])

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login – Stockboy</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          gold: { light: '#f6d67c', DEFAULT: '#d9a520' },
+          dark: { bg1: '#0f2027', bg2: '#203a43', bg3: '#2c5364' }
+        },
+        fontFamily: { sans: ['Poppins', 'sans-serif'] }
+      }
+    }
+  }
+</script>
+<style>
+  .bg-gradient-dark { background: linear-gradient(160deg, #0f2027, #203a43, #2c5364); }
+  .text-gradient-gold {
+    background: linear-gradient(90deg, #f6d67c, #d9a520);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
+</head>
+<body class="bg-gradient-dark text-white font-sans min-h-screen flex items-center justify-center px-4">
+<div class="bg-black/40 backdrop-blur-md rounded-2xl p-8 border border-white/10 shadow-2xl max-w-md w-full">
+  <div class="text-center mb-6">
+    <img src="/static/logo.png" alt="Logo" class="w-16 h-16 mx-auto mb-4 rounded-full shadow-lg shadow-yellow-500/45">
+    <h2 class="text-2xl font-bold text-gradient-gold mb-2">Login</h2>
+    <p class="text-gray-400 text-sm">Welcome back to Stockboy Premium</p>
+  </div>
+  
+  <form id="loginForm" class="space-y-4">
+    <input id="username" name="username" type="text" placeholder="Username" 
+           class="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT" required>
+    
+    <input id="password" name="password" type="password" placeholder="Password" 
+           class="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT" required>
+    
+    <p id="message" class="text-sm text-center min-h-[20px]"></p>
+    
+    <button type="submit" 
+            class="w-full bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 font-bold py-3 px-6 rounded-xl shadow-lg shadow-yellow-500/50 hover:shadow-yellow-500/70 transition-all duration-300 active:scale-95">
+      Login
+    </button>
+    
+    <div class="text-center">
+      <a href="/forgot-password" class="text-sm text-gold-DEFAULT hover:underline">Forgot Password?</a>
+    </div>
+    
+    <p class="text-center text-sm text-gray-400 mt-4">
+      Don't have an account? <a href="/register" class="text-gold-DEFAULT hover:underline">Register</a>
+    </p>
+  </form>
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const message = document.getElementById('message');
+  message.textContent = 'Logging in...';
+  message.className = 'text-sm text-center text-yellow-400 min-h-[20px]';
+  
+  const formData = new FormData(this);
+  
+  fetch('/login', {
+    method: 'POST',
+    body: formData
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      message.textContent = data.message;
+      message.className = 'text-sm text-center text-green-400 min-h-[20px]';
+      setTimeout(() => {
+        window.location.href = data.redirect || '/';
+      }, 1000);
+    } else {
+      message.textContent = data.message;
+      message.className = 'text-sm text-center text-red-400 min-h-[20px]';
+    }
+  })
+  .catch(err => {
+    message.textContent = 'Login failed. Please try again.';
+    message.className = 'text-sm text-center text-red-400 min-h-[20px]';
+  });
+});
+</script>
+</body>
+</html>
+
