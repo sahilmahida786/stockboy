@@ -768,6 +768,10 @@ def reject(index):
 # -------------------------------------------------
 @app.route("/upload", methods=["GET", "POST"])
 def upload_file():
+    # Require admin login
+    if not session.get("admin"):
+        return redirect("/admin-login")
+    
     if request.method == "POST":
         f = request.files["file"]
         f.save(os.path.join(UPLOAD_FOLDER, f.filename))
@@ -782,11 +786,12 @@ def upload_file():
 # -------------------------------------------------
 @app.route("/dashboard")
 def dashboard():
-    # Require login
-    if not session.get("user_logged_in"):
+    # Allow admin or logged-in approved users
+    if not session.get("admin") and not session.get("user_logged_in"):
         return redirect("/")
     
-    if not session.get("approved") and not session.get("user_logged_in"):
+    # If not admin, require approval
+    if not session.get("admin") and not session.get("approved"):
         return redirect("/home")
     
     # Update last activity for logged-in users
@@ -972,6 +977,13 @@ def serve_payment_ss(filename):
 @app.route("/static/uploads/<product_folder>/<filename>")
 def serve_product_file(product_folder, filename):
     """Serve product files from their respective folders"""
+    # Allow admin access
+    if session.get("admin"):
+        file_path = os.path.join(UPLOAD_FOLDER, product_folder, filename)
+        if os.path.exists(file_path):
+            return send_from_directory(os.path.join(UPLOAD_FOLDER, product_folder), filename)
+    
+    # For regular users, require approval
     if not session.get("approved"):
         return "Unauthorized", 403
     
@@ -995,8 +1007,8 @@ def serve_product_file(product_folder, filename):
             product_id = pid
             break
     
-    # Check if user has purchased this product
-    if product_id and product_id in purchased_products:
+    # Check if user has purchased this product or is admin
+    if session.get("admin") or (product_id and product_id in purchased_products):
         file_path = os.path.join(UPLOAD_FOLDER, product_folder, filename)
         if os.path.exists(file_path):
             return send_from_directory(os.path.join(UPLOAD_FOLDER, product_folder), filename)
