@@ -12,19 +12,12 @@ app.permanent_session_lifetime = timedelta(days=7)
 # -------------------------------------------------
 # MAINTENANCE MODE SWITCH
 # -------------------------------------------------
-# Toggle via env var, default live (False)
-MAINTENANCE_MODE = os.getenv("MAINTENANCE_MODE", "false").lower() == "true"
+MAINTENANCE_MODE = True   # ⛔ Website OFF
+# MAINTENANCE_MODE = False  # ✅ Website ON
 
 @app.before_request
 def maintenance_blocker():
-    allowed_routes = {
-        "maintenance",
-        "admin_login",
-        "admin_panel",
-        "approve",
-        "reject",
-        "telegram_update",
-    }  # admin & bots allowed
+    allowed_routes = ["maintenance", "admin_login", "telegram_update"]  # admin & bots allowed
 
     if MAINTENANCE_MODE:
         # allow access ONLY to /maintenance and /admin-login
@@ -637,8 +630,11 @@ def dashboard():
     if not session.get("approved"):
         return redirect(url_for("home"))
 
+    # Only get course materials from uploads folder
+    files = os.listdir(UPLOAD_FOLDER)
     modules = {}
 
+    # Allowed course file extensions
     COURSE_EXTENSIONS = {
         "pdf": "PDF",
         "mp4": "Video",
@@ -650,31 +646,32 @@ def dashboard():
         "wav": "Audio"
     }
 
-    for root, _, files in os.walk(UPLOAD_FOLDER):
-        rel_dir = os.path.relpath(root, UPLOAD_FOLDER)
-        rel_dir = "" if rel_dir == "." else rel_dir.replace("\\", "/")
+    for f in files:
+        # Skip payment screenshots and non-course files
+        ext = f.lower().split('.')[-1]
+        
+        # Only include course materials (PDFs, videos, audio)
+        if ext not in COURSE_EXTENSIONS:
+            continue
+        
+        # Skip PNG/JPG files (these are payment screenshots, not course materials)
+        if ext in ["png", "jpg", "jpeg", "gif", "webp"]:
+            continue
+        
+        kind = COURSE_EXTENSIONS.get(ext, "File")
 
-        for filename in files:
-            ext = filename.rsplit(".", 1)[-1].lower()
-            if ext not in COURSE_EXTENSIONS:
-                continue
+        # Extract module number from filename (e.g., M1_filename.pdf)
+        mod = "M1"  # Default module
+        if "_" in f:
+            tag = f.split("_")[0]
+            if tag.lower().startswith("m") and tag[1:].isdigit():
+                mod = tag.upper()
 
-            kind = COURSE_EXTENSIONS.get(ext, "File")
-
-            module_name = "General"
-            if rel_dir:
-                module_name = rel_dir.title()
-            else:
-                tag = filename.split("_")[0]
-                if tag.lower().startswith("m") and tag[1:].isdigit():
-                    module_name = tag.upper()
-
-            rel_path = filename if not rel_dir else f"{rel_dir}/{filename}"
-            modules.setdefault(module_name, []).append({
-                "name": filename,
-                "url": f"/static/uploads/{rel_path}",
-                "kind": kind
-            })
+        modules.setdefault(mod, []).append({
+            "name": f,
+            "url": f"/static/uploads/{f}",
+            "kind": kind
+        })
 
     return render_template("dashboard.html", name=session.get("user_name"), modules=modules)
 
