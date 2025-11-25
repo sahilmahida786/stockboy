@@ -12,8 +12,7 @@ app.permanent_session_lifetime = timedelta(days=7)
 # -------------------------------------------------
 # MAINTENANCE MODE SWITCH
 # -------------------------------------------------
-MAINTENANCE_MODE = True   # ⛔ Website OFF
-# MAINTENANCE_MODE = False  # ✅ Website ON
+MAINTENANCE_MODE = os.getenv("MAINTENANCE_MODE", "false").lower() == "true"
 
 @app.before_request
 def maintenance_blocker():
@@ -69,6 +68,37 @@ MYSQL_CONFIG = {
 }
 
 PASSWORD_REGEX = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{6,}$"
+COURSE_EXTENSIONS = {
+    "pdf": "PDF",
+    "mp4": "Video",
+    "mkv": "Video",
+    "webm": "Video",
+    "avi": "Video",
+    "mov": "Video",
+    "mp3": "Audio",
+    "wav": "Audio"
+}
+
+PRODUCT_DETAILS = {
+    "product1": {
+        "title": "Stockboy Starter Kit",
+        "tagline": "Market basics + first profitable trades",
+        "price": "₹1,499",
+        "level": "Beginner"
+    },
+    "product2": {
+        "title": "Price Action Accelerator",
+        "tagline": "Institutional price-action systems",
+        "price": "₹3,499",
+        "level": "Intermediate"
+    },
+    "product3": {
+        "title": "Pro Options Lab",
+        "tagline": "Elite options flow + psychology",
+        "price": "₹4,999",
+        "level": "Advanced"
+    }
+}
 
 
 # -------------------------------------------------
@@ -228,6 +258,30 @@ def is_valid_password(password):
     return bool(password and re.match(PASSWORD_REGEX, password))
 
 
+def get_product_catalog():
+    """Build public product listing from configured folders."""
+    catalog = []
+    for slug, meta in PRODUCT_DETAILS.items():
+        folder = os.path.join(UPLOAD_FOLDER, slug)
+        files = []
+        if os.path.isdir(folder):
+            for name in os.listdir(folder):
+                ext = name.rsplit(".", 1)[-1].lower()
+                if ext in COURSE_EXTENSIONS:
+                    files.append(name)
+
+        catalog.append({
+            "slug": slug,
+            "title": meta["title"],
+            "tagline": meta["tagline"],
+            "price": meta["price"],
+            "level": meta["level"],
+            "file_count": len(files),
+            "preview": files[0] if files else None,
+        })
+    return catalog
+
+
 # -------------------------------------------------
 # PAYMENT SYSTEM
 # -------------------------------------------------
@@ -246,6 +300,14 @@ def save_data(data):
 @app.route("/")
 def home():
     return render_template("index.html")
+
+@app.route("/products")
+def products_page():
+    return render_template("products.html", products=get_product_catalog())
+
+@app.route("/auth")
+def auth_page():
+    return render_template("auth.html")
 
 import os
 from werkzeug.utils import secure_filename
@@ -630,48 +692,33 @@ def dashboard():
     if not session.get("approved"):
         return redirect(url_for("home"))
 
-    # Only get course materials from uploads folder
-    files = os.listdir(UPLOAD_FOLDER)
     modules = {}
 
-    # Allowed course file extensions
-    COURSE_EXTENSIONS = {
-        "pdf": "PDF",
-        "mp4": "Video",
-        "mkv": "Video",
-        "webm": "Video",
-        "avi": "Video",
-        "mov": "Video",
-        "mp3": "Audio",
-        "wav": "Audio"
-    }
+    for root, _, files in os.walk(UPLOAD_FOLDER):
+        rel_dir = os.path.relpath(root, UPLOAD_FOLDER)
+        rel_dir = "" if rel_dir == "." else rel_dir.replace("\\", "/")
 
-    for f in files:
-        # Skip payment screenshots and non-course files
-        ext = f.lower().split('.')[-1]
-        
-        # Only include course materials (PDFs, videos, audio)
-        if ext not in COURSE_EXTENSIONS:
-            continue
-        
-        # Skip PNG/JPG files (these are payment screenshots, not course materials)
-        if ext in ["png", "jpg", "jpeg", "gif", "webp"]:
-            continue
-        
-        kind = COURSE_EXTENSIONS.get(ext, "File")
+        for filename in files:
+            ext = filename.rsplit(".", 1)[-1].lower()
+            if ext not in COURSE_EXTENSIONS:
+                continue
 
-        # Extract module number from filename (e.g., M1_filename.pdf)
-        mod = "M1"  # Default module
-        if "_" in f:
-            tag = f.split("_")[0]
-            if tag.lower().startswith("m") and tag[1:].isdigit():
-                mod = tag.upper()
+            kind = COURSE_EXTENSIONS.get(ext, "File")
 
-        modules.setdefault(mod, []).append({
-            "name": f,
-            "url": f"/static/uploads/{f}",
-            "kind": kind
-        })
+            module_name = "General"
+            if rel_dir:
+                module_name = rel_dir.title()
+            else:
+                tag = filename.split("_")[0]
+                if tag.lower().startswith("m") and tag[1:].isdigit():
+                    module_name = tag.upper()
+
+            rel_path = filename if not rel_dir else f"{rel_dir}/{filename}"
+            modules.setdefault(module_name, []).append({
+                "name": filename,
+                "url": f"/static/uploads/{rel_path}",
+                "kind": kind
+            })
 
     return render_template("dashboard.html", name=session.get("user_name"), modules=modules)
 

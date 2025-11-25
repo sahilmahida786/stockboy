@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stockboy Courses – Product Catalog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .bg-dark {
+            background: radial-gradient(circle at top, rgba(217,165,32,0.18), transparent 40%),
+                        linear-gradient(160deg, #05121a, #071d29, #0a1f31);
+            min-height: 100vh;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(14px);
+        }
+    </style>
+</head>
+<body class="bg-dark text-white">
+    <nav class="sticky top-0 z-40 glass px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-10 h-10 rounded-full border border-yellow-400/40">
+            <div>
+                <p class="font-semibold leading-none text-lg text-yellow-300">Stockboy Premium</p>
+                <p class="text-xs text-gray-300">Courses & Mentorship</p>
+            </div>
+        </div>
+        <div class="flex gap-2 text-sm">
+            <a href="/" class="px-4 py-2 rounded-full border border-white/20 hover:border-yellow-400/60 transition">Home</a>
+            <a href="/auth" class="px-4 py-2 rounded-full bg-yellow-400/90 text-gray-900 font-semibold hover:bg-yellow-300">Login / Register</a>
+        </div>
+    </nav>
+
+    <header class="max-w-5xl mx-auto text-center py-12 px-4">
+        <p class="text-yellow-400 uppercase tracking-[0.3em] text-xs mb-3">Curated Programs</p>
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">Choose Your Growth Track</h1>
+        <p class="text-gray-300 text-lg">Every product unlocks a full module inside the Stockboy dashboard. Pay once, upload the receipt, and we’ll approve your access via Telegram + Admin.</p>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 pb-16 grid gap-6 md:grid-cols-2">
+        {% for product in products %}
+        <div class="glass rounded-3xl p-6 shadow-2xl border border-white/5 flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+                <span class="text-xs uppercase tracking-wide text-yellow-300">{{ product.level }}</span>
+                <span class="text-sm text-gray-300">{{ product.file_count }} modules</span>
+            </div>
+            <div>
+                <h2 class="text-2xl font-semibold text-white">{{ product.title }}</h2>
+                <p class="text-gray-300">{{ product.tagline }}</p>
+            </div>
+            <div class="text-4xl font-bold text-yellow-300">{{ product.price }}</div>
+            {% if product.preview %}
+            <div class="text-xs text-gray-400">Preview: {{ product.preview }}</div>
+            {% else %}
+            <div class="text-xs text-gray-500 italic">Upload content into static/uploads/{{ product.slug }}</div>
+            {% endif %}
+            <div class="grid gap-2 text-sm text-gray-300">
+                <p>✅ Lifetime access to dashboard modules</p>
+                <p>✅ Telegram approvals + manual support</p>
+                <p>✅ Includes PDF/video assets inside course locker</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="/#paymentSection" class="flex-1 text-center bg-yellow-400/90 hover:bg-yellow-300 text-gray-900 font-semibold py-3 rounded-2xl transition">
+                    Get Access
+                </a>
+                <a href="/products#faq" class="flex-1 text-center border border-white/20 rounded-2xl py-3 hover:border-yellow-300 transition">
+                    How it Works
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </main>
+
+    <section id="faq" class="max-w-3xl mx-auto px-4 pb-12">
+        <div class="glass rounded-3xl p-8 text-gray-200 text-sm leading-relaxed">
+            <h3 class="text-xl font-semibold text-white mb-4">How does access work?</h3>
+            <ol class="list-decimal ml-4 space-y-2">
+                <li>Pick a product above. Note the price and module description.</li>
+                <li>Pay via the QR on the home page and upload the screenshot.</li>
+                <li>You’ll get a Telegram ping for approval. Once approved, log in with your credentials and access the dashboard.</li>
+                <li>Content lives inside the Stockboy dashboard under each module.</li>
+            </ol>
+        </div>
+    </section>
+
+    <footer class="text-center text-gray-400 text-sm pb-10">
+        Need help? <a href="https://wa.me/918381930145?text=Hello%20I%20need%20premium%20course" class="text-yellow-300 underline">Chat on WhatsApp</a>
+    </footer>
+</body>
+</html>
+

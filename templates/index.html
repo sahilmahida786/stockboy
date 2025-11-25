@@ -89,9 +89,15 @@
 <body class="bg-gradient-dark text-white font-sans min-h-screen animate-fade-in">
 
 <!-- Top Navigation Bar -->
-<nav class="sticky top-0 z-50 bg-black/55 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center gap-3">
-  <img src="{{ url_for('static', filename='logo.png') }}" alt="logo" class="w-10 h-10 rounded-full shadow-lg shadow-yellow-500/45">
-  <h1 class="text-gradient-gold text-xl font-bold">Stockboy Officiel</h1>
+<nav class="sticky top-0 z-50 bg-black/55 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center justify-between gap-3">
+  <div class="flex items-center gap-3">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="logo" class="w-10 h-10 rounded-full shadow-lg shadow-yellow-500/45">
+    <h1 class="text-gradient-gold text-xl font-bold">Stockboy Officiel</h1>
+  </div>
+  <div class="flex gap-2 text-sm">
+    <a href="/products" class="px-4 py-2 rounded-full border border-white/20 hover:border-yellow-400 transition">Products</a>
+    <a href="/auth" class="px-4 py-2 rounded-full bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 font-semibold">Login / Register</a>
+  </div>
 </nav>
 
 <!-- Main Premium Card Section -->
