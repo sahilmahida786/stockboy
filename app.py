@@ -12,12 +12,19 @@ app.permanent_session_lifetime = timedelta(days=7)
 # -------------------------------------------------
 # MAINTENANCE MODE SWITCH
 # -------------------------------------------------
-MAINTENANCE_MODE = True   # ⛔ Website OFF
-# MAINTENANCE_MODE = False  # ✅ Website ON
+# Toggle via env var, default live (False)
+MAINTENANCE_MODE = os.getenv("MAINTENANCE_MODE", "false").lower() == "true"
 
 @app.before_request
 def maintenance_blocker():
-    allowed_routes = ["maintenance", "admin_login", "telegram_update"]  # admin & bots allowed
+    allowed_routes = {
+        "maintenance",
+        "admin_login",
+        "admin_panel",
+        "approve",
+        "reject",
+        "telegram_update",
+    }  # admin & bots allowed
 
     if MAINTENANCE_MODE:
         # allow access ONLY to /maintenance and /admin-login
