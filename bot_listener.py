@@ -35,11 +35,7 @@ def main():
                 # Only send CALLBACK events
                 if "callback_query" in update:
                     print("Forwarding callback → Flask...")
-                    try:
-                        resp = requests.post(FLASK_URL, json=update, timeout=5)
-                        print(f"Flask response: {resp.status_code}")
-                    except Exception as e:
-                        print(f"Error forwarding to Flask: {e}")
+                    requests.post(FLASK_URL, json=update)
 
         except Exception as e:
             print("Listener Error:", e)
