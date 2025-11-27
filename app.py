@@ -50,6 +50,7 @@ def maintenance():
 
 DATA_FILE = "payments.json"
 LIKES_FILE = "likes.json"
+USERS_FILE = "users.json"  # JSON fallback for user storage
 UPLOAD_FOLDER = "static/uploads"  # For course materials (PDFs, videos)
 PAYMENT_SS_FOLDER = "payment_ss"   # For payment screenshots only
 
@@ -60,6 +61,8 @@ API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 BOT_LISTENER_ENABLED = os.getenv("ENABLE_BOT_LISTENER", "true").lower() == "true"
 BOT_POLL_TIMEOUT = int(os.getenv("BOT_POLL_TIMEOUT", "10"))
 
+# MySQL Configuration - Optional (uses JSON fallback if not available)
+USE_MYSQL = os.getenv("USE_MYSQL", "false").lower() == "true"  # Set to "true" to enable MySQL
 MYSQL_CONFIG = {
     "host": os.getenv("MYSQL_HOST", "localhost"),
     "user": os.getenv("MYSQL_USER", "root"),
@@ -246,8 +249,31 @@ ensure_folders()
 
 
 # -------------------------------------------------
-# DATABASE HELPERS
+# DATABASE HELPERS (MySQL + JSON Fallback)
 # -------------------------------------------------
+_db_available = None  # Cache for database availability check
+
+def check_db_available():
+    """Check if MySQL database is available and enabled."""
+    global _db_available
+    if _db_available is not None:
+        return _db_available
+    
+    if not USE_MYSQL:
+        _db_available = False
+        return False
+    
+    try:
+        conn = mysql.connector.connect(**MYSQL_CONFIG)
+        conn.close()
+        _db_available = True
+        return True
+    except Exception as e:
+        print(f"⚠️ MySQL not available, using JSON storage: {e}")
+        _db_available = False
+        return False
+
+
 def get_db_connection():
     """Create a new MySQL connection using env config."""
     try:
@@ -258,40 +284,74 @@ def get_db_connection():
 
 
 def init_database():
-    """Create users table if it doesn't exist."""
-    conn = None
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
-        
-        # Create users table if it doesn't exist
-        create_table_sql = """
-        CREATE TABLE IF NOT EXISTS users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(100) NOT NULL,
-            mobile VARCHAR(15) NOT NULL UNIQUE,
-            password VARCHAR(255) NOT NULL,
-            registration_date DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-        """
-        cur.execute(create_table_sql)
-        conn.commit()
-        print("✅ Database table 'users' ready")
-        cur.close()
-    except mysql.connector.Error as e:
-        print(f"❌ Database initialization error: {e}")
-        print(f"   Host: {MYSQL_CONFIG.get('host')}, DB: {MYSQL_CONFIG.get('database')}")
-    except Exception as e:
-        print(f"❌ Unexpected error initializing database: {e}")
-    finally:
-        if conn and conn.is_connected():
-            conn.close()
+    """Initialize database - MySQL if available, otherwise JSON."""
+    if USE_MYSQL and check_db_available():
+        conn = None
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            
+            create_table_sql = """
+            CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(100) NOT NULL,
+                mobile VARCHAR(15) NOT NULL UNIQUE,
+                password VARCHAR(255) NOT NULL,
+                registration_date DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+            cur.execute(create_table_sql)
+            conn.commit()
+            print("✅ MySQL database ready - using database storage")
+            cur.close()
+        except mysql.connector.Error as e:
+            print(f"❌ MySQL initialization failed: {e}")
+            print(f"   Falling back to JSON file storage")
+            init_json_storage()
+        finally:
+            if conn and conn.is_connected():
+                conn.close()
+    else:
+        init_json_storage()
 
-# Initialize database on startup
+
+def init_json_storage():
+    """Initialize JSON file storage for users."""
+    if not os.path.exists(USERS_FILE):
+        with open(USERS_FILE, "w") as f:
+            json.dump([], f)
+    print("✅ JSON file storage ready - using users.json")
+
+
+# User storage functions
+def load_users_json():
+    """Load users from JSON file."""
+    if not os.path.exists(USERS_FILE):
+        return []
+    try:
+        with open(USERS_FILE, "r") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Error loading users.json: {e}")
+        return []
+
+
+def save_users_json(users):
+    """Save users to JSON file."""
+    try:
+        with open(USERS_FILE, "w") as f:
+            json.dump(users, f, indent=4)
+    except Exception as e:
+        print(f"Error saving users.json: {e}")
+        raise
+
+
+# Initialize storage on startup
 try:
     init_database()
 except Exception as e:
-    print(f"⚠️ Database initialization skipped: {e}")
+    print(f"⚠️ Storage initialization error: {e}")
+    init_json_storage()
 
 
 def is_valid_password(password):
@@ -427,7 +487,7 @@ def start_session():
 
 
 # -------------------------------------------------
-# USER REGISTRATION & LOGIN (MYSQL)
+# USER REGISTRATION & LOGIN (Hybrid: MySQL or JSON)
 # -------------------------------------------------
 @app.route("/register", methods=["POST"])
 def register_user():
@@ -442,41 +502,52 @@ def register_user():
     if not is_valid_password(password):
         return jsonify({"error": "Weak password. Include A, a, 1, @ and min 6 chars"}), 400
 
-    conn = None
+    # Try MySQL first if available
+    if check_db_available():
+        conn = None
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            sql = """
+                INSERT INTO users (username, mobile, password, registration_date)
+                VALUES (%s, %s, %s, %s)
+            """
+            cur.execute(sql, (username, mobile, password, datetime.now()))
+            conn.commit()
+            cur.close()
+            return jsonify({"message": "User registered successfully!"}), 201
+        except mysql.connector.IntegrityError:
+            return jsonify({"error": "Mobile number already registered. Please login instead."}), 409
+        except Exception as e:
+            print(f"MySQL register error, falling back to JSON: {e}")
+            # Fall through to JSON storage
+        finally:
+            if conn and conn.is_connected():
+                conn.close()
+
+    # Use JSON storage (fallback or default)
     try:
-        conn = get_db_connection()
-        cur = conn.cursor()
-        sql = """
-            INSERT INTO users (username, mobile, password, registration_date)
-            VALUES (%s, %s, %s, %s)
-        """
-        cur.execute(sql, (username, mobile, password, datetime.now()))
-        conn.commit()
-        cur.close()
+        users = load_users_json()
+        
+        # Check if mobile already exists
+        if any(u.get("mobile") == mobile for u in users):
+            return jsonify({"error": "Mobile number already registered. Please login instead."}), 409
+        
+        # Create new user
+        new_user = {
+            "id": len(users) + 1,
+            "username": username,
+            "mobile": mobile,
+            "password": password,
+            "registration_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        users.append(new_user)
+        save_users_json(users)
+        
         return jsonify({"message": "User registered successfully!"}), 201
-    except mysql.connector.IntegrityError as e:
-        return jsonify({"error": "Mobile number already registered. Please login instead."}), 409
-    except mysql.connector.ProgrammingError as e:
-        error_msg = str(e)
-        if "doesn't exist" in error_msg.lower():
-            return jsonify({"error": "Database table not found. Please contact admin."}), 500
-        return jsonify({"error": f"Database setup error: {error_msg}"}), 500
-    except mysql.connector.InterfaceError as e:
-        return jsonify({"error": "Cannot connect to database. Please check database configuration."}), 500
-    except mysql.connector.Error as exc:
-        error_msg = str(exc)
-        print(f"MySQL register error: {error_msg}")
-        if "Access denied" in error_msg:
-            return jsonify({"error": "Database access denied. Check credentials."}), 500
-        elif "Unknown database" in error_msg:
-            return jsonify({"error": "Database not found. Please create database first."}), 500
-        return jsonify({"error": f"Database error: {error_msg[:100]}"}), 500
     except Exception as e:
-        print(f"Unexpected register error: {e}")
-        return jsonify({"error": "An unexpected error occurred. Please try again."}), 500
-    finally:
-        if conn and conn.is_connected():
-            conn.close()
+        print(f"JSON register error: {e}")
+        return jsonify({"error": "Registration failed. Please try again."}), 500
 
 
 @app.route("/login", methods=["POST"])
@@ -488,48 +559,52 @@ def login_user():
     if not mobile or not password:
         return jsonify({"error": "Missing mobile or password"}), 400
 
-    conn = None
+    # Try MySQL first if available
+    if check_db_available():
+        conn = None
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            sql = """
+                SELECT id, username, password, registration_date
+                FROM users WHERE mobile=%s
+            """
+            cur.execute(sql, (mobile,))
+            row = cur.fetchone()
+            cur.close()
+            
+            if not row or row[2] != password:
+                return jsonify({"error": "Invalid mobile number or password"}), 401
+
+            session["user_id"] = row[0]
+            session["username"] = row[1]
+            reg_date = row[3]
+            session["reg_date"] = reg_date.strftime("%Y-%m-%d %H:%M:%S") if reg_date else ""
+
+            return jsonify({"message": "Login successful!", "registration_date": session["reg_date"]})
+        except Exception as e:
+            print(f"MySQL login error, falling back to JSON: {e}")
+            # Fall through to JSON storage
+        finally:
+            if conn and conn.is_connected():
+                conn.close()
+
+    # Use JSON storage (fallback or default)
     try:
-        conn = get_db_connection()
-        cur = conn.cursor()
-        sql = """
-            SELECT id, username, password, registration_date
-            FROM users WHERE mobile=%s
-        """
-        cur.execute(sql, (mobile,))
-        row = cur.fetchone()
-        cur.close()
+        users = load_users_json()
+        user = next((u for u in users if u.get("mobile") == mobile and u.get("password") == password), None)
         
-        if not row or row[2] != password:
+        if not user:
             return jsonify({"error": "Invalid mobile number or password"}), 401
 
-        session["user_id"] = row[0]
-        session["username"] = row[1]
-        reg_date = row[3]
-        session["reg_date"] = reg_date.strftime("%Y-%m-%d %H:%M:%S") if reg_date else ""
-
+        session["user_id"] = user["id"]
+        session["username"] = user["username"]
+        session["reg_date"] = user.get("registration_date", "")
+        
         return jsonify({"message": "Login successful!", "registration_date": session["reg_date"]})
-    except mysql.connector.ProgrammingError as e:
-        error_msg = str(e)
-        if "doesn't exist" in error_msg.lower():
-            return jsonify({"error": "Database table not found. Please contact admin."}), 500
-        return jsonify({"error": f"Database setup error: {error_msg}"}), 500
-    except mysql.connector.InterfaceError as e:
-        return jsonify({"error": "Cannot connect to database. Please check database configuration."}), 500
-    except mysql.connector.Error as exc:
-        error_msg = str(exc)
-        print(f"MySQL login error: {error_msg}")
-        if "Access denied" in error_msg:
-            return jsonify({"error": "Database access denied. Check credentials."}), 500
-        elif "Unknown database" in error_msg:
-            return jsonify({"error": "Database not found. Please create database first."}), 500
-        return jsonify({"error": f"Database error: {error_msg[:100]}"}), 500
     except Exception as e:
-        print(f"Unexpected login error: {e}")
-        return jsonify({"error": "An unexpected error occurred. Please try again."}), 500
-    finally:
-        if conn and conn.is_connected():
-            conn.close()
+        print(f"JSON login error: {e}")
+        return jsonify({"error": "Login failed. Please try again."}), 500
 
 
 @app.route("/check-subscription")
