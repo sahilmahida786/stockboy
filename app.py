@@ -250,7 +250,48 @@ ensure_folders()
 # -------------------------------------------------
 def get_db_connection():
     """Create a new MySQL connection using env config."""
-    return mysql.connector.connect(**MYSQL_CONFIG)
+    try:
+        return mysql.connector.connect(**MYSQL_CONFIG)
+    except mysql.connector.Error as e:
+        print(f"Database connection error: {e}")
+        raise
+
+
+def init_database():
+    """Create users table if it doesn't exist."""
+    conn = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Create users table if it doesn't exist
+        create_table_sql = """
+        CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(100) NOT NULL,
+            mobile VARCHAR(15) NOT NULL UNIQUE,
+            password VARCHAR(255) NOT NULL,
+            registration_date DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+        cur.execute(create_table_sql)
+        conn.commit()
+        print("✅ Database table 'users' ready")
+        cur.close()
+    except mysql.connector.Error as e:
+        print(f"❌ Database initialization error: {e}")
+        print(f"   Host: {MYSQL_CONFIG.get('host')}, DB: {MYSQL_CONFIG.get('database')}")
+    except Exception as e:
+        print(f"❌ Unexpected error initializing database: {e}")
+    finally:
+        if conn and conn.is_connected():
+            conn.close()
+
+# Initialize database on startup
+try:
+    init_database()
+except Exception as e:
+    print(f"⚠️ Database initialization skipped: {e}")
 
 
 def is_valid_password(password):
@@ -411,14 +452,30 @@ def register_user():
         """
         cur.execute(sql, (username, mobile, password, datetime.now()))
         conn.commit()
+        cur.close()
         return jsonify({"message": "User registered successfully!"}), 201
-    except mysql.connector.IntegrityError:
-        return jsonify({"error": "Mobile already registered"}), 409
+    except mysql.connector.IntegrityError as e:
+        return jsonify({"error": "Mobile number already registered. Please login instead."}), 409
+    except mysql.connector.ProgrammingError as e:
+        error_msg = str(e)
+        if "doesn't exist" in error_msg.lower():
+            return jsonify({"error": "Database table not found. Please contact admin."}), 500
+        return jsonify({"error": f"Database setup error: {error_msg}"}), 500
+    except mysql.connector.InterfaceError as e:
+        return jsonify({"error": "Cannot connect to database. Please check database configuration."}), 500
     except mysql.connector.Error as exc:
-        print(f"MySQL register error: {exc}")
-        return jsonify({"error": "Database error"}), 500
+        error_msg = str(exc)
+        print(f"MySQL register error: {error_msg}")
+        if "Access denied" in error_msg:
+            return jsonify({"error": "Database access denied. Check credentials."}), 500
+        elif "Unknown database" in error_msg:
+            return jsonify({"error": "Database not found. Please create database first."}), 500
+        return jsonify({"error": f"Database error: {error_msg[:100]}"}), 500
+    except Exception as e:
+        print(f"Unexpected register error: {e}")
+        return jsonify({"error": "An unexpected error occurred. Please try again."}), 500
     finally:
-        if conn:
+        if conn and conn.is_connected():
             conn.close()
 
 
@@ -441,8 +498,10 @@ def login_user():
         """
         cur.execute(sql, (mobile,))
         row = cur.fetchone()
+        cur.close()
+        
         if not row or row[2] != password:
-            return jsonify({"error": "Invalid mobile or password"}), 401
+            return jsonify({"error": "Invalid mobile number or password"}), 401
 
         session["user_id"] = row[0]
         session["username"] = row[1]
@@ -450,11 +509,26 @@ def login_user():
         session["reg_date"] = reg_date.strftime("%Y-%m-%d %H:%M:%S") if reg_date else ""
 
         return jsonify({"message": "Login successful!", "registration_date": session["reg_date"]})
+    except mysql.connector.ProgrammingError as e:
+        error_msg = str(e)
+        if "doesn't exist" in error_msg.lower():
+            return jsonify({"error": "Database table not found. Please contact admin."}), 500
+        return jsonify({"error": f"Database setup error: {error_msg}"}), 500
+    except mysql.connector.InterfaceError as e:
+        return jsonify({"error": "Cannot connect to database. Please check database configuration."}), 500
     except mysql.connector.Error as exc:
-        print(f"MySQL login error: {exc}")
-        return jsonify({"error": "Database error"}), 500
+        error_msg = str(exc)
+        print(f"MySQL login error: {error_msg}")
+        if "Access denied" in error_msg:
+            return jsonify({"error": "Database access denied. Check credentials."}), 500
+        elif "Unknown database" in error_msg:
+            return jsonify({"error": "Database not found. Please create database first."}), 500
+        return jsonify({"error": f"Database error: {error_msg[:100]}"}), 500
+    except Exception as e:
+        print(f"Unexpected login error: {e}")
+        return jsonify({"error": "An unexpected error occurred. Please try again."}), 500
     finally:
-        if conn:
+        if conn and conn.is_connected():
             conn.close()
 
 

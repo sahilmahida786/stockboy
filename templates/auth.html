@@ -72,12 +72,19 @@
                 if (resp.ok) {
                     msgEl.innerText = data.message || "Success";
                     msgEl.className = "text-sm text-green-400";
+                    // Redirect on successful login
+                    if (url === "/login") {
+                        setTimeout(() => {
+                            window.location.href = "/dashboard";
+                        }, 1500);
+                    }
                 } else {
                     msgEl.innerText = data.error || "Something went wrong";
                     msgEl.className = "text-sm text-red-400";
                 }
             } catch (err) {
-                msgEl.innerText = "Network error. Try again.";
+                console.error("Error:", err);
+                msgEl.innerText = "Network error. Please check your connection and try again.";
                 msgEl.className = "text-sm text-red-400";
             }
         }
