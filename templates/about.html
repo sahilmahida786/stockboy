@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>About Us – Stockboy Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .bg-dark {
+            background: radial-gradient(circle at top, rgba(217,165,32,0.18), transparent 40%),
+                        linear-gradient(160deg, #05121a, #071d29, #0a1f31);
+            min-height: 100vh;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(14px);
+        }
+    </style>
+</head>
+<body class="bg-dark text-white">
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-40 glass px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-10 h-10 rounded-full border border-yellow-400/40">
+            <div>
+                <p class="font-semibold leading-none text-lg text-yellow-300">Stockboy Premium</p>
+                <p class="text-xs text-gray-300">Trading Education Portal</p>
+            </div>
+        </div>
+        <div class="flex gap-2 text-sm">
+            <a href="/" class="px-4 py-2 rounded-full border border-white/20 hover:border-yellow-400/60 transition">Login</a>
+            <a href="/products" class="px-4 py-2 rounded-full border border-white/20 hover:border-yellow-400/60 transition">Products</a>
+            <a href="/about" class="px-4 py-2 rounded-full bg-yellow-400/90 text-gray-900 font-semibold">About</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="max-w-5xl mx-auto text-center py-16 px-4">
+        <h1 class="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent">
+            About Stockboy Premium
+        </h1>
+        <p class="text-gray-300 text-xl max-w-2xl mx-auto leading-relaxed">
+            Building real <strong class="text-yellow-400">price-action mastery</strong>, discipline, and consistency through structured learning—not gambling or tips.
+        </p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 pb-16 space-y-12">
+        <!-- What We Provide -->
+        <section class="glass rounded-3xl p-8 md:p-12">
+            <h2 class="text-3xl font-semibold text-yellow-400 mb-6">What We Provide</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="flex items-start gap-4">
+                    <div class="text-yellow-400 text-2xl">✓</div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">Premium Price Action Training</h3>
+                        <p class="text-gray-300">Master the art of reading price movements and understanding market dynamics from real chart patterns.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="text-yellow-400 text-2xl">✓</div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">Real Chart-Based Strategies</h3>
+                        <p class="text-gray-300">Learn proven strategies based on actual market charts, not theoretical concepts.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="text-yellow-400 text-2xl">✓</div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">Entry, Exit & Market Timing</h3>
+                        <p class="text-gray-300">Perfect your timing for market entries and exits with professional guidance.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="text-yellow-400 text-2xl">✓</div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">Risk & Money Management</h3>
+                        <p class="text-gray-300">Protect your capital first. Learn proper risk management and position sizing.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="text-yellow-400 text-2xl">✓</div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">Exclusive Member Resources</h3>
+                        <p class="text-gray-300">Access premium content, updates, and community support as a member.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="text-yellow-400 text-2xl">✓</div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">Lifetime Access</h3>
+                        <p class="text-gray-300">One-time payment gives you lifetime access to all course materials and updates.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Our Philosophy -->
+        <section class="glass rounded-3xl p-8 md:p-12">
+            <h2 class="text-3xl font-semibold text-yellow-400 mb-6">Our Philosophy</h2>
+            <div class="space-y-4 text-gray-300 text-lg leading-relaxed">
+                <p>
+                    At <strong class="text-yellow-400">Stockboy Premium</strong>, we believe that successful trading comes from understanding price action, managing risk, and maintaining discipline—not from following tips or predictions.
+                </p>
+                <p>
+                    We focus on teaching you how to read the market yourself, make informed decisions, and build consistency over time. Our approach is based on real-world experience and proven strategies.
+                </p>
+                <p class="text-yellow-300 font-semibold text-xl mt-6">
+                    "Protect capital first, profit later."
+                </p>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="glass rounded-3xl p-8 md:p-12">
+            <h2 class="text-3xl font-semibold text-yellow-400 mb-6">How It Works</h2>
+            <ol class="space-y-6 text-gray-300">
+                <li class="flex gap-4">
+                    <span class="flex-shrink-0 w-8 h-8 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold">1</span>
+                    <div>
+                        <h3 class="font-semibold text-white mb-1">Browse Our Products</h3>
+                        <p>Choose the course that matches your skill level—from beginner basics to advanced options trading.</p>
+                    </div>
+                </li>
+                <li class="flex gap-4">
+                    <span class="flex-shrink-0 w-8 h-8 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold">2</span>
+                    <div>
+                        <h3 class="font-semibold text-white mb-1">Register & Pay</h3>
+                        <p>Create your account, complete payment, and upload your payment screenshot for verification.</p>
+                    </div>
+                </li>
+                <li class="flex gap-4">
+                    <span class="flex-shrink-0 w-8 h-8 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold">3</span>
+                    <div>
+                        <h3 class="font-semibold text-white mb-1">Get Approved</h3>
+                        <p>Our team reviews and approves your payment. You'll be notified via Telegram and email.</p>
+                    </div>
+                </li>
+                <li class="flex gap-4">
+                    <span class="flex-shrink-0 w-8 h-8 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold">4</span>
+                    <div>
+                        <h3 class="font-semibold text-white mb-1">Access Dashboard</h3>
+                        <p>Log in to your dashboard and start learning from our comprehensive course materials.</p>
+                    </div>
+                </li>
+            </ol>
+        </section>
+
+        <!-- Contact & Support -->
+        <section class="glass rounded-3xl p-8 md:p-12 text-center">
+            <h2 class="text-3xl font-semibold text-yellow-400 mb-6">Need Help?</h2>
+            <p class="text-gray-300 mb-6">We're here to support your trading journey. Reach out anytime!</p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="https://wa.me/918381930145?text=Hello%20I%20need%20help%20with%20Stockboy%20Premium" 
+                   target="_blank"
+                   class="px-6 py-3 bg-[#25D366] rounded-full font-semibold hover:bg-[#20BA5A] transition flex items-center gap-2">
+                    <span>💬</span> WhatsApp
+                </a>
+                <a href="https://t.me/pennystocksboy" 
+                   target="_blank"
+                   class="px-6 py-3 bg-[#0088cc] rounded-full font-semibold hover:bg-[#0077B5] transition flex items-center gap-2">
+                    <span>✈️</span> Telegram
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-gray-400 text-sm pb-10 pt-8">
+        <p>© 2025 Stockboy Premium • All Rights Reserved</p>
+        <div class="flex justify-center gap-4 mt-4">
+            <a href="/" class="hover:text-yellow-400 transition">Home</a>
+            <span>•</span>
+            <a href="/products" class="hover:text-yellow-400 transition">Products</a>
+            <span>•</span>
+            <a href="/about" class="hover:text-yellow-400 transition">About</a>
+        </div>
+    </footer>
+</body>
+</html>
+

@@ -20,7 +20,23 @@
         }
     </style>
 </head>
-<body class="bg-grid text-white flex items-center justify-center py-10 px-4">
+<body class="bg-grid text-white">
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-50 glass border-b border-white/10 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-10 h-10 rounded-full border border-yellow-400/40">
+            <div>
+                <p class="font-semibold leading-none text-lg text-yellow-300">Stockboy Premium</p>
+                <p class="text-xs text-gray-300">Trading Education Portal</p>
+            </div>
+        </div>
+        <div class="flex gap-2 text-sm">
+            <a href="/products" class="px-4 py-2 rounded-full border border-white/20 hover:border-yellow-400/60 transition">Products</a>
+            <a href="/about" class="px-4 py-2 rounded-full border border-white/20 hover:border-yellow-400/60 transition">About</a>
+        </div>
+    </nav>
+    
+    <div class="flex items-center justify-center py-10 px-4 min-h-[calc(100vh-80px)]">
     <div class="glass max-w-4xl w-full rounded-3xl grid md:grid-cols-2 overflow-hidden shadow-2xl border border-white/10">
         <div class="p-8 space-y-6">
             <div>
@@ -51,8 +67,8 @@
             <div class="text-xs text-gray-400">
                 <p>Already paid but not approved? Ping us on Telegram with your Txn ID.</p>
                 <div class="flex gap-2 mt-3">
-                    <a href="/" class="flex-1 text-center border border-white/20 rounded-2xl py-2 hover:border-yellow-200 transition">← Home</a>
-                    <a href="/products" class="flex-1 text-center border border-white/20 rounded-2xl py-2 hover:border-yellow-200 transition">Browse products</a>
+                    <a href="/products" class="flex-1 text-center border border-white/20 rounded-2xl py-2 hover:border-yellow-200 transition">Browse Products</a>
+                    <a href="/about" class="flex-1 text-center border border-white/20 rounded-2xl py-2 hover:border-yellow-200 transition">About Us</a>
                 </div>
             </div>
         </div>
@@ -98,6 +114,7 @@
             handleForm(this, "/login", document.getElementById("loginMsg"));
         });
     </script>
+    </div>
 </body>
 </html>
 

@@ -400,14 +400,27 @@ def save_data(data):
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    """Homepage - Show login/register page"""
+    return render_template("auth.html")
 
 @app.route("/products")
 def products_page():
+    """Product catalog page"""
     return render_template("products.html", products=get_product_catalog())
+
+@app.route("/about")
+def about_page():
+    """About page"""
+    return render_template("about.html")
+
+@app.route("/payment")
+def payment_page():
+    """Payment page (for logged in/approved users)"""
+    return render_template("index.html")
 
 @app.route("/auth")
 def auth_page():
+    """Auth page (alias for homepage)"""
     return render_template("auth.html")
 
 import os
