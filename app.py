@@ -24,6 +24,25 @@ def maintenance_blocker():
         if request.endpoint not in allowed_routes:
             return redirect("/maintenance")
 
+@app.before_request
+def require_login():
+    """Require login for all pages except login, register, static files, and admin"""
+    # Skip for static files
+    if request.endpoint == "static":
+        return None
+    
+    # Pages that don't require login (public routes - only login/register and admin)
+    public_routes = ["home", "auth_page", "login", "register", "admin_login", "maintenance", 
+                     "telegram_update"]
+    
+    # Skip authentication check for public routes
+    if request.endpoint in public_routes:
+        return None
+    
+    # Check if user is logged in for all other pages
+    if not (session.get("logged_in") or session.get("user_id")):
+        return redirect(url_for("home"))
+
 @app.route("/maintenance")
 def maintenance():
     return """
@@ -427,17 +446,26 @@ def home():
 
 @app.route("/products")
 def products_page():
-    """Product catalog page"""
+    """Product catalog page - requires login"""
+    # Authentication is handled by before_request
+    if not (session.get("logged_in") or session.get("user_id")):
+        return redirect(url_for("home"))
     return render_template("products.html", products=get_product_catalog())
 
 @app.route("/about")
 def about_page():
-    """About page"""
+    """About page - requires login"""
+    # Authentication is handled by before_request
+    if not (session.get("logged_in") or session.get("user_id")):
+        return redirect(url_for("home"))
     return render_template("about.html")
 
 @app.route("/payment")
 def payment_page():
-    """Payment page (for logged in/approved users)"""
+    """Payment page - requires login"""
+    # Authentication is handled by before_request
+    if not (session.get("logged_in") or session.get("user_id")):
+        return redirect(url_for("home"))
     return render_template("index.html")
 
 @app.route("/auth")
@@ -460,43 +488,53 @@ if not os.path.exists(PAYMENT_SS_FOLDER):
 
 @app.route("/submit_payment", methods=["POST"])
 def submit_payment():
-    user_name = request.form.get("user_name")
-    txn_id = request.form.get("txn_id")
-    screenshot = request.files.get("screenshot")
+    try:
+        user_name = request.form.get("user_name")
+        txn_id = request.form.get("txn_id")
+        screenshot = request.files.get("screenshot")
 
-    # Load old data
-    data = load_data()
+        if not user_name or not txn_id:
+            return jsonify({"message": "⚠️ Please enter name and transaction ID."}), 400
 
-    # 🔥 STOP MULTIPLE SUBMISSIONS (IMPORTANT)
-    for entry in data:
-        if entry["txn_id"] == txn_id:
-            return jsonify({"message": "⚠️ This payment is already submitted!"})
+        if not screenshot:
+            return jsonify({"message": "⚠️ Please upload payment screenshot."}), 400
 
-    # Save screenshot to payment_ss folder (NOT in course uploads)
-    filename = secure_filename(f"{txn_id}.png")
-    filepath = os.path.join(PAYMENT_SS_FOLDER, filename)
-    screenshot.save(filepath)
+        # Load old data
+        data = load_data()
 
-    # Save new data
-    data.append({
-        "user": user_name,
-        "txn_id": txn_id,
-        "status": "pending",
-        "ss_path": filepath
-    })
-    save_data(data)
+        # 🔥 STOP MULTIPLE SUBMISSIONS (IMPORTANT)
+        for entry in data:
+            if entry["txn_id"] == txn_id:
+                return jsonify({"message": "⚠️ This payment is already submitted!"})
 
-    # Send Telegram message with inline buttons (use relative path for Telegram)
-    send_telegram_photo(
-        filepath,
-        f"📩 *New Payment Request*\n\n👤 *Name:* {user_name}\n💳 *Txn ID:* `{txn_id}`\n⏳ *Status:* Pending Approval",
-        txn_id=txn_id
-    )
-    
-    # Update ss_path to be relative for web access
-    data[-1]["ss_path"] = filepath  # Keep full path for file access
+        # Save screenshot to payment_ss folder (NOT in course uploads)
+        filename = secure_filename(f"{txn_id}.png")
+        filepath = os.path.join(PAYMENT_SS_FOLDER, filename)
+        screenshot.save(filepath)
 
-    return jsonify({"message": "✅ Payment Submitted! Wait for approval."})
+        # Save new data
+        data.append({
+            "user": user_name,
+            "txn_id": txn_id,
+            "status": "pending",
+            "ss_path": filepath
+        })
+        save_data(data)
+
+        # Send Telegram message with inline buttons (use relative path for Telegram)
+        send_telegram_photo(
+            filepath,
+            f"📩 *New Payment Request*\n\n👤 *Name:* {user_name}\n💳 *Txn ID:* `{txn_id}`\n⏳ *Status:* Pending Approval",
+            txn_id=txn_id
+        )
+        
+        # Update ss_path to be relative for web access
+        data[-1]["ss_path"] = filepath  # Keep full path for file access
+
+        return jsonify({"message": "✅ Payment Submitted! Wait for approval."})
+    except Exception as e:
+        print(f"Payment submission error: {e}")
+        return jsonify({"message": "❌ Error submitting payment. Please try again."}), 500
 
 
 @app.route("/check_approval", methods=["POST"])

@@ -31,51 +31,66 @@
             </div>
         </div>
         <div class="flex gap-2 text-sm">
-            <a href="/products" class="px-4 py-2 rounded-full border border-white/20 hover:border-yellow-400/60 transition">Products</a>
-            <a href="/about" class="px-4 py-2 rounded-full border border-white/20 hover:border-yellow-400/60 transition">About</a>
+            <span class="px-4 py-2 rounded-full text-gray-400">Login Required</span>
         </div>
     </nav>
     
     <div class="flex items-center justify-center py-10 px-4 min-h-[calc(100vh-80px)]">
-    <div class="glass max-w-4xl w-full rounded-3xl grid md:grid-cols-2 overflow-hidden shadow-2xl border border-white/10">
-        <div class="p-8 space-y-6">
-            <div>
-                <p class="text-yellow-300 uppercase text-xs tracking-[0.3em]">Create access</p>
-                <h1 class="text-3xl font-bold">Register</h1>
+    <div class="glass max-w-2xl w-full rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+        <!-- Tabs for Login/Register -->
+        <div class="flex border-b border-white/10">
+            <button id="loginTab" class="flex-1 py-4 px-6 text-center font-semibold bg-green-400/20 text-green-300 border-b-2 border-green-400 transition">
+                Login
+            </button>
+            <button id="registerTab" class="flex-1 py-4 px-6 text-center font-semibold text-gray-400 hover:text-white transition">
+                Register
+            </button>
+        </div>
+        
+        <!-- Login Section (Default) -->
+        <div id="loginSection" class="p-8 space-y-6">
+            <div class="text-center">
+                <p class="text-green-300 uppercase text-xs tracking-[0.3em] mb-2">Members</p>
+                <h2 class="text-3xl font-bold mb-2">Login</h2>
+                <p class="text-gray-300 text-sm">Enter your credentials to access your account</p>
+            </div>
+            <form id="loginForm" class="space-y-4">
+                <input name="mobile" placeholder="Mobile Number" class="w-full px-4 py-3 bg-white/10 rounded-2xl border border-white/10 focus:outline-none focus:border-green-300 text-white placeholder-gray-400" required>
+                <input name="password" type="password" placeholder="Password" class="w-full px-4 py-3 bg-white/10 rounded-2xl border border-white/10 focus:outline-none focus:border-green-300 text-white placeholder-gray-400" required>
+                <button type="submit" class="w-full bg-green-400/90 hover:bg-green-400 text-gray-900 font-semibold py-3 rounded-2xl transition">Sign in</button>
+            </form>
+            <p id="loginMsg" class="text-sm text-gray-300 min-h-[24px] text-center"></p>
+            <div class="text-xs text-gray-400 text-center">
+                <p>Don't have an account? Click <span class="text-yellow-300 cursor-pointer hover:underline" onclick="showRegister()">Register</span> above.</p>
+            </div>
+        </div>
+        
+        <!-- Register Section (Hidden by default) -->
+        <div id="registerSection" class="p-8 space-y-6 hidden">
+            <div class="text-center">
+                <p class="text-yellow-300 uppercase text-xs tracking-[0.3em] mb-2">Create access</p>
+                <h2 class="text-3xl font-bold mb-2">Register</h2>
                 <p class="text-gray-300 text-sm">Use the same mobile number you will use for payment verification.</p>
             </div>
             <form id="registerForm" class="space-y-4">
-                <input name="username" placeholder="Full Name" class="w-full px-4 py-3 bg-white/10 rounded-2xl border border-white/10 focus:outline-none focus:border-yellow-300" required>
-                <input name="mobile" placeholder="Mobile Number" class="w-full px-4 py-3 bg-white/10 rounded-2xl border border-white/10 focus:outline-none focus:border-yellow-300" required>
-                <input name="password" type="password" placeholder="Password (A,a,1,@, min 6)" class="w-full px-4 py-3 bg-white/10 rounded-2xl border border-white/10 focus:outline-none focus:border-yellow-300" required>
-                <button class="w-full bg-yellow-400/90 text-gray-900 font-semibold py-3 rounded-2xl">Create account</button>
+                <input name="username" placeholder="Full Name" class="w-full px-4 py-3 bg-white/10 rounded-2xl border border-white/10 focus:outline-none focus:border-yellow-300 text-white placeholder-gray-400" required>
+                <input name="mobile" placeholder="Mobile Number" class="w-full px-4 py-3 bg-white/10 rounded-2xl border border-white/10 focus:outline-none focus:border-yellow-300 text-white placeholder-gray-400" required>
+                <input name="password" type="password" placeholder="Password (A,a,1,@, min 6)" class="w-full px-4 py-3 bg-white/10 rounded-2xl border border-white/10 focus:outline-none focus:border-yellow-300 text-white placeholder-gray-400" required>
+                <button type="submit" class="w-full bg-yellow-400/90 hover:bg-yellow-400 text-gray-900 font-semibold py-3 rounded-2xl transition">Create account</button>
             </form>
-            <p id="registerMsg" class="text-sm text-gray-300 min-h-[24px]"></p>
-        </div>
-        <div class="bg-black/30 p-8 space-y-6">
-            <div>
-                <p class="text-green-300 uppercase text-xs tracking-[0.3em]">Members</p>
-                <h2 class="text-3xl font-bold">Login</h2>
-                <p class="text-gray-300 text-sm">After admin approval, log in to unlock the dashboard.</p>
-            </div>
-            <form id="loginForm" class="space-y-4">
-                <input name="mobile" placeholder="Mobile Number" class="w-full px-4 py-3 bg-white/10 rounded-2xl border border-white/10 focus:outline-none focus:border-green-300" required>
-                <input name="password" type="password" placeholder="Password" class="w-full px-4 py-3 bg-white/10 rounded-2xl border border-white/10 focus:outline-none focus:border-green-300" required>
-                <button class="w-full bg-green-400/90 text-gray-900 font-semibold py-3 rounded-2xl">Sign in</button>
-            </form>
-            <p id="loginMsg" class="text-sm text-gray-300 min-h-[24px]"></p>
-            <div class="text-xs text-gray-400">
-                <p>Already paid but not approved? Ping us on Telegram with your Txn ID.</p>
-                <div class="flex gap-2 mt-3">
-                    <a href="/products" class="flex-1 text-center border border-white/20 rounded-2xl py-2 hover:border-yellow-200 transition">Browse Products</a>
-                    <a href="/about" class="flex-1 text-center border border-white/20 rounded-2xl py-2 hover:border-yellow-200 transition">About Us</a>
-                </div>
+            <p id="registerMsg" class="text-sm text-gray-300 min-h-[24px] text-center"></p>
+            <div class="text-xs text-gray-400 text-center">
+                <p>Already have an account? Click <span class="text-green-300 cursor-pointer hover:underline" onclick="showLogin()">Login</span> above.</p>
             </div>
         </div>
     </div>
 
     <script>
         async function handleForm(form, url, msgEl) {
+            if (!form || !msgEl) {
+                console.error("Form or message element not found");
+                return;
+            }
             msgEl.innerText = "Processing...";
             msgEl.className = "text-sm text-yellow-300";
             try {
@@ -91,7 +106,7 @@
                     // Redirect on successful login or registration
                     if (data.redirect || url === "/login" || url === "/register") {
                         setTimeout(() => {
-                            window.location.href = data.redirect || "/dashboard";
+                            window.location.href = data.redirect || "/products";
                         }, 1500);
                     }
                 } else {
@@ -105,13 +120,47 @@
             }
         }
 
-        document.getElementById("registerForm").addEventListener("submit", function(e){
-            e.preventDefault();
-            handleForm(this, "/register", document.getElementById("registerMsg"));
-        });
-        document.getElementById("loginForm").addEventListener("submit", function(e){
-            e.preventDefault();
-            handleForm(this, "/login", document.getElementById("loginMsg"));
+        // Tab switching functions
+        function showLogin() {
+            document.getElementById("loginSection").classList.remove("hidden");
+            document.getElementById("registerSection").classList.add("hidden");
+            document.getElementById("loginTab").classList.add("bg-green-400/20", "text-green-300", "border-b-2", "border-green-400");
+            document.getElementById("loginTab").classList.remove("text-gray-400");
+            document.getElementById("registerTab").classList.remove("bg-yellow-400/20", "text-yellow-300", "border-b-2", "border-yellow-400");
+            document.getElementById("registerTab").classList.add("text-gray-400");
+        }
+        
+        function showRegister() {
+            document.getElementById("registerSection").classList.remove("hidden");
+            document.getElementById("loginSection").classList.add("hidden");
+            document.getElementById("registerTab").classList.add("bg-yellow-400/20", "text-yellow-300", "border-b-2", "border-yellow-400");
+            document.getElementById("registerTab").classList.remove("text-gray-400");
+            document.getElementById("loginTab").classList.remove("bg-green-400/20", "text-green-300", "border-b-2", "border-green-400");
+            document.getElementById("loginTab").classList.add("text-gray-400");
+        }
+
+        // Wait for DOM to be ready
+        document.addEventListener("DOMContentLoaded", function() {
+            const registerForm = document.getElementById("registerForm");
+            const loginForm = document.getElementById("loginForm");
+            
+            // Tab button handlers
+            document.getElementById("loginTab").addEventListener("click", showLogin);
+            document.getElementById("registerTab").addEventListener("click", showRegister);
+            
+            if (registerForm) {
+                registerForm.addEventListener("submit", function(e){
+                    e.preventDefault();
+                    handleForm(this, "/register", document.getElementById("registerMsg"));
+                });
+            }
+            
+            if (loginForm) {
+                loginForm.addEventListener("submit", function(e){
+                    e.preventDefault();
+                    handleForm(this, "/login", document.getElementById("loginMsg"));
+                });
+            }
         });
     </script>
     </div>
