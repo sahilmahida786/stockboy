@@ -417,9 +417,12 @@ def save_data(data):
 @app.route("/")
 def home():
     """Homepage - Show login/register page"""
-    # Redirect if user is already logged in
-    if session.get("logged_in") or session.get("user_id"):
+    # Only redirect if user is approved and logged in
+    if session.get("approved"):
         return redirect(url_for("dashboard"))
+    # For logged-in users without approval, show products page or auth page
+    if session.get("logged_in") or session.get("user_id"):
+        return redirect(url_for("products_page"))
     return render_template("auth.html")
 
 @app.route("/products")
@@ -442,7 +445,10 @@ def auth_page():
     """Auth page (alias for homepage)"""
     # Redirect if user is already logged in
     if session.get("logged_in") or session.get("user_id"):
-        return redirect(url_for("dashboard"))
+        # If approved, go to dashboard; otherwise go to products page
+        if session.get("approved"):
+            return redirect(url_for("dashboard"))
+        return redirect(url_for("products_page"))
     return render_template("auth.html")
 
 import os
