@@ -345,18 +345,19 @@ def check_db_available():
 
 def get_db_connection():
     """Create a new MySQL connection using env config."""
+    global _db_available
     try:
         return mysql.connector.connect(**MYSQL_CONFIG)
     except mysql.connector.Error as e:
         print(f"Database connection error: {e}")
         # Reset cache on connection failure so we can retry or fallback
-        global _db_available
         _db_available = None
         raise
 
 
 def init_database():
     """Initialize database - Try MySQL first if credentials available, otherwise JSON."""
+    global _db_available
     # Try MySQL first if credentials are provided
     if check_db_available():
         conn = None
@@ -387,13 +388,11 @@ def init_database():
                 print(f"❌ MySQL initialization failed: {e}")
             print(f"   Falling back to JSON file storage (users.json)")
             # Reset cache so we don't try MySQL again
-            global _db_available
             _db_available = False
             init_json_storage()
         except Exception as e:
             print(f"❌ Unexpected error during MySQL initialization: {e}")
             print(f"   Falling back to JSON file storage (users.json)")
-            global _db_available
             _db_available = False
             init_json_storage()
         finally:
@@ -629,6 +628,7 @@ def start_session():
 # -------------------------------------------------
 @app.route("/register", methods=["POST"])
 def register_user():
+    global _db_available
     try:
         payload = request.get_json(silent=True) or request.form
         username = (payload.get("username") or "").strip()
@@ -675,7 +675,6 @@ def register_user():
                 import traceback
                 traceback.print_exc()
                 # Reset database availability cache on error
-                global _db_available
                 _db_available = None
                 # Fall through to JSON storage
             finally:
@@ -719,6 +718,7 @@ def register_user():
 
 @app.route("/login", methods=["POST"])
 def login_user():
+    global _db_available
     try:
         payload = request.get_json(silent=True) or request.form
         mobile = (payload.get("mobile") or "").strip()
@@ -778,7 +778,6 @@ def login_user():
                 import traceback
                 traceback.print_exc()
                 # Reset database availability cache on error
-                global _db_available
                 _db_available = None
                 # Fall through to JSON storage
             finally:
