@@ -102,11 +102,11 @@ API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 BOT_LISTENER_ENABLED = os.getenv("ENABLE_BOT_LISTENER", "true").lower() == "true"
 BOT_POLL_TIMEOUT = int(os.getenv("BOT_POLL_TIMEOUT", "10"))
 
-# MySQL Configuration - Auto-detects if MySQL is available, falls back to JSON if not
+# MySQL Configuration - Force disabled (using JSON storage)
 # To use MySQL, set environment variables:
 # USE_MYSQL=true (optional, will auto-detect if MySQL credentials are provided)
 # MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
-USE_MYSQL_ENV = os.getenv("USE_MYSQL", "").lower()
+USE_MYSQL_ENV = "false"  # Force disable MySQL - always use JSON storage
 # Auto-enable MySQL if credentials are provided, or explicitly set via env var
 USE_MYSQL = USE_MYSQL_ENV == "true" or (USE_MYSQL_ENV == "" and os.getenv("MYSQL_HOST") and os.getenv("MYSQL_PASSWORD"))
 
@@ -298,7 +298,7 @@ ensure_folders()
 # -------------------------------------------------
 # DATABASE HELPERS (MySQL + JSON Fallback)
 # -------------------------------------------------
-_db_available = None  # Cache for database availability check
+_db_available = False  # Force disabled - always use JSON storage
 
 def check_db_available():
     """Check if MySQL database is available and enabled."""
