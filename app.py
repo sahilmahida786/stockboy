@@ -570,45 +570,45 @@ def start_session():
 # -------------------------------------------------
 @app.route("/register", methods=["POST"])
 def register_user():
-    payload = request.get_json(silent=True) or request.form
-    username = (payload.get("username") or "").strip()
-    mobile = (payload.get("mobile") or "").strip()
-    password = payload.get("password") or ""
-
-    if not username or not mobile or not password:
-        return jsonify({"error": "Missing username, mobile, or password"}), 400
-
-    if not is_valid_password(password):
-        return jsonify({"error": "Weak password. Include A, a, 1, @ and min 6 chars"}), 400
-
-    # Try MySQL first if available
-    if check_db_available():
-        conn = None
-        try:
-            conn = get_db_connection()
-            cur = conn.cursor()
-            sql = """
-                INSERT INTO users (username, mobile, password, registration_date)
-                VALUES (%s, %s, %s, %s)
-            """
-            cur.execute(sql, (username, mobile, password, datetime.now()))
-            user_id = cur.lastrowid
-            conn.commit()
-            cur.close()
-            
-            # Registration successful - redirect to login page (no auto-login)
-            return jsonify({"message": "User registered successfully! Please login.", "redirect": url_for("home")}), 201
-        except mysql.connector.IntegrityError:
-            return jsonify({"error": "Mobile number already registered. Please login instead."}), 409
-        except Exception as e:
-            print(f"MySQL register error, falling back to JSON: {e}")
-            # Fall through to JSON storage
-        finally:
-            if conn and conn.is_connected():
-                conn.close()
-
-    # Use JSON storage (fallback or default)
     try:
+        payload = request.get_json(silent=True) or request.form
+        username = (payload.get("username") or "").strip()
+        mobile = (payload.get("mobile") or "").strip()
+        password = payload.get("password") or ""
+
+        if not username or not mobile or not password:
+            return jsonify({"error": "Missing username, mobile, or password"}), 400
+
+        if not is_valid_password(password):
+            return jsonify({"error": "Weak password. Include A, a, 1, @ and min 6 chars"}), 400
+
+        # Try MySQL first if available
+        if check_db_available():
+            conn = None
+            try:
+                conn = get_db_connection()
+                cur = conn.cursor()
+                sql = """
+                    INSERT INTO users (username, mobile, password, registration_date)
+                    VALUES (%s, %s, %s, %s)
+                """
+                cur.execute(sql, (username, mobile, password, datetime.now()))
+                user_id = cur.lastrowid
+                conn.commit()
+                cur.close()
+                
+                # Registration successful - redirect to login page (no auto-login)
+                return jsonify({"message": "User registered successfully! Please login.", "redirect": url_for("home")}), 201
+            except mysql.connector.IntegrityError:
+                return jsonify({"error": "Mobile number already registered. Please login instead."}), 409
+            except Exception as e:
+                print(f"MySQL register error, falling back to JSON: {e}")
+                # Fall through to JSON storage
+            finally:
+                if conn and conn.is_connected():
+                    conn.close()
+
+        # Use JSON storage (fallback or default)
         users = load_users_json()
         
         # Check if mobile already exists
@@ -629,52 +629,54 @@ def register_user():
         # Registration successful - redirect to login page (no auto-login)
         return jsonify({"message": "User registered successfully! Please login.", "redirect": url_for("home")}), 201
     except Exception as e:
-        print(f"JSON register error: {e}")
+        print(f"Register route error: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": "Registration failed. Please try again."}), 500
 
 
 @app.route("/login", methods=["POST"])
 def login_user():
-    payload = request.get_json(silent=True) or request.form
-    mobile = (payload.get("mobile") or "").strip()
-    password = payload.get("password") or ""
-
-    if not mobile or not password:
-        return jsonify({"error": "Missing mobile or password"}), 400
-
-    # Try MySQL first if available
-    if check_db_available():
-        conn = None
-        try:
-            conn = get_db_connection()
-            cur = conn.cursor()
-            sql = """
-                SELECT id, username, password, registration_date
-                FROM users WHERE mobile=%s
-            """
-            cur.execute(sql, (mobile,))
-            row = cur.fetchone()
-            cur.close()
-            
-            if not row or row[2] != password:
-                return jsonify({"error": "Invalid mobile number or password"}), 401
-
-            session["user_id"] = row[0]
-            session["username"] = row[1]
-            session["logged_in"] = True
-            reg_date = row[3]
-            session["reg_date"] = reg_date.strftime("%Y-%m-%d %H:%M:%S") if reg_date else ""
-
-            return jsonify({"message": "Login successful!", "redirect": url_for("products_page"), "registration_date": session["reg_date"]})
-        except Exception as e:
-            print(f"MySQL login error, falling back to JSON: {e}")
-            # Fall through to JSON storage
-        finally:
-            if conn and conn.is_connected():
-                conn.close()
-
-    # Use JSON storage (fallback or default)
     try:
+        payload = request.get_json(silent=True) or request.form
+        mobile = (payload.get("mobile") or "").strip()
+        password = payload.get("password") or ""
+
+        if not mobile or not password:
+            return jsonify({"error": "Missing mobile or password"}), 400
+
+        # Try MySQL first if available
+        if check_db_available():
+            conn = None
+            try:
+                conn = get_db_connection()
+                cur = conn.cursor()
+                sql = """
+                    SELECT id, username, password, registration_date
+                    FROM users WHERE mobile=%s
+                """
+                cur.execute(sql, (mobile,))
+                row = cur.fetchone()
+                cur.close()
+                
+                if not row or row[2] != password:
+                    return jsonify({"error": "Invalid mobile number or password"}), 401
+
+                session["user_id"] = row[0]
+                session["username"] = row[1]
+                session["logged_in"] = True
+                reg_date = row[3]
+                session["reg_date"] = reg_date.strftime("%Y-%m-%d %H:%M:%S") if reg_date else ""
+
+                return jsonify({"message": "Login successful!", "redirect": url_for("products_page"), "registration_date": session["reg_date"]})
+            except Exception as e:
+                print(f"MySQL login error, falling back to JSON: {e}")
+                # Fall through to JSON storage
+            finally:
+                if conn and conn.is_connected():
+                    conn.close()
+
+        # Use JSON storage (fallback or default)
         users = load_users_json()
         user = next((u for u in users if u.get("mobile") == mobile and u.get("password") == password), None)
         
@@ -688,7 +690,9 @@ def login_user():
         
         return jsonify({"message": "Login successful!", "redirect": url_for("products_page"), "registration_date": session["reg_date"]})
     except Exception as e:
-        print(f"JSON login error: {e}")
+        print(f"Login route error: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": "Login failed. Please try again."}), 500
 
 
