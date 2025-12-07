@@ -312,12 +312,33 @@ def check_db_available():
     
     try:
         conn = mysql.connector.connect(**MYSQL_CONFIG)
-        conn.close()
-        _db_available = True
-        print("✅ MySQL database connection successful - using MySQL for user storage")
-        return True
+        # Test if we can actually query the database (checks if database exists)
+        try:
+            cur = conn.cursor()
+            cur.execute("SELECT 1")
+            cur.close()
+            _db_available = True
+            print("✅ MySQL database connection successful - using MySQL for user storage")
+            conn.close()
+            return True
+        except mysql.connector.Error as db_error:
+            conn.close()
+            print(f"⚠️ MySQL database not accessible: {db_error} - using JSON storage")
+            _db_available = False
+            return False
+    except mysql.connector.Error as e:
+        error_msg = str(e).lower()
+        # Handle common MySQL connection errors
+        if "unknown database" in error_msg or "1049" in str(e.args[0] if e.args else ""):
+            print(f"⚠️ MySQL database '{MYSQL_CONFIG.get('database')}' does not exist - using JSON storage")
+        elif "access denied" in error_msg or "1045" in str(e.args[0] if e.args else ""):
+            print(f"⚠️ MySQL access denied - check credentials - using JSON storage")
+        else:
+            print(f"⚠️ MySQL connection failed: {e} - using JSON storage")
+        _db_available = False
+        return False
     except Exception as e:
-        print(f"⚠️ MySQL connection failed, using JSON storage: {e}")
+        print(f"⚠️ MySQL connection failed: {e} - using JSON storage")
         _db_available = False
         return False
 
@@ -328,6 +349,9 @@ def get_db_connection():
         return mysql.connector.connect(**MYSQL_CONFIG)
     except mysql.connector.Error as e:
         print(f"Database connection error: {e}")
+        # Reset cache on connection failure so we can retry or fallback
+        global _db_available
+        _db_available = None
         raise
 
 
@@ -354,8 +378,23 @@ def init_database():
             print("✅ MySQL database initialized successfully - user data will be stored in database")
             cur.close()
         except mysql.connector.Error as e:
-            print(f"❌ MySQL initialization failed: {e}")
+            error_msg = str(e).lower()
+            if "unknown database" in error_msg or "1049" in str(e.args[0] if e.args else ""):
+                print(f"❌ MySQL database '{MYSQL_CONFIG.get('database')}' does not exist")
+            elif "access denied" in error_msg or "1045" in str(e.args[0] if e.args else ""):
+                print(f"❌ MySQL access denied - check credentials")
+            else:
+                print(f"❌ MySQL initialization failed: {e}")
             print(f"   Falling back to JSON file storage (users.json)")
+            # Reset cache so we don't try MySQL again
+            global _db_available
+            _db_available = False
+            init_json_storage()
+        except Exception as e:
+            print(f"❌ Unexpected error during MySQL initialization: {e}")
+            print(f"   Falling back to JSON file storage (users.json)")
+            global _db_available
+            _db_available = False
             init_json_storage()
         finally:
             if conn and conn.is_connected():
@@ -630,6 +669,9 @@ def register_user():
                 print(f"MySQL register error, falling back to JSON: {e}")
                 import traceback
                 traceback.print_exc()
+                # Reset database availability cache on error
+                global _db_available
+                _db_available = None
                 # Fall through to JSON storage
             finally:
                 if conn and conn.is_connected():
@@ -730,6 +772,9 @@ def login_user():
                 print(f"MySQL login error, falling back to JSON: {e}")
                 import traceback
                 traceback.print_exc()
+                # Reset database availability cache on error
+                global _db_available
+                _db_available = None
                 # Fall through to JSON storage
             finally:
                 if conn and conn.is_connected():
