@@ -97,17 +97,20 @@
                 const formData = new FormData(form);
                 const resp = await fetch(url, {
                     method: "POST",
+                    headers: {
+                        "Accept": "application/json"
+                    },
                     body: new URLSearchParams(formData)
                 });
                 
-                // Check if response is JSON
+                // Try to parse as JSON, even if status is not OK
                 let data;
-                const contentType = resp.headers.get("content-type");
-                if (contentType && contentType.includes("application/json")) {
-                    data = await resp.json();
-                } else {
+                try {
                     const text = await resp.text();
-                    console.error("Non-JSON response:", text);
+                    data = JSON.parse(text);
+                } catch (parseErr) {
+                    console.error("Failed to parse JSON response:", parseErr);
+                    console.error("Response status:", resp.status);
                     msgEl.innerText = "Server error. Please try again.";
                     msgEl.className = "text-sm text-red-400";
                     return;
@@ -127,8 +130,8 @@
                     msgEl.className = "text-sm text-red-400";
                 }
             } catch (err) {
-                console.error("Error:", err);
-                msgEl.innerText = "Server error. Please try again.";
+                console.error("Request error:", err);
+                msgEl.innerText = "Network error. Please check your connection and try again.";
                 msgEl.className = "text-sm text-red-400";
             }
         }

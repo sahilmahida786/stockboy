@@ -43,6 +43,21 @@ def require_login():
     if not (session.get("logged_in") or session.get("user_id")):
         return redirect(url_for("home"))
 
+@app.errorhandler(500)
+def handle_500_error(error):
+    """Handle 500 errors and return JSON for API routes"""
+    # For login/register routes, always return JSON
+    if request.path in ["/login", "/register"]:
+        import traceback
+        error_msg = str(error) if hasattr(error, '__str__') else "Internal server error"
+        print(f"500 Error in {request.path}: {error_msg}")
+        traceback.print_exc()
+        response = jsonify({"error": "Server error. Please try again."})
+        response.status_code = 500
+        return response
+    # For other requests, return default Flask error handling
+    return error, 500
+
 @app.route("/maintenance")
 def maintenance():
     return """
@@ -577,10 +592,14 @@ def register_user():
         password = payload.get("password") or ""
 
         if not username or not mobile or not password:
-            return jsonify({"error": "Missing username, mobile, or password"}), 400
+            response = jsonify({"error": "Missing username, mobile, or password"})
+            response.headers["Content-Type"] = "application/json"
+            return response, 400
 
         if not is_valid_password(password):
-            return jsonify({"error": "Weak password. Include A, a, 1, @ and min 6 chars"}), 400
+            response = jsonify({"error": "Weak password. Include A, a, 1, @ and min 6 chars"})
+            response.headers["Content-Type"] = "application/json"
+            return response, 400
 
         # Try MySQL first if available
         if check_db_available():
@@ -600,9 +619,13 @@ def register_user():
                 cur.close()
                 
                 # Registration successful - redirect to login page (no auto-login)
-                return jsonify({"message": "User registered successfully! Please login.", "redirect": url_for("home")}), 201
+                response = jsonify({"message": "User registered successfully! Please login.", "redirect": url_for("home")})
+                response.headers["Content-Type"] = "application/json"
+                return response, 201
             except mysql.connector.IntegrityError:
-                return jsonify({"error": "Mobile number already registered. Please login instead."}), 409
+                response = jsonify({"error": "Mobile number already registered. Please login instead."})
+                response.headers["Content-Type"] = "application/json"
+                return response, 409
             except Exception as e:
                 print(f"MySQL register error, falling back to JSON: {e}")
                 import traceback
@@ -617,7 +640,9 @@ def register_user():
         
         # Check if mobile already exists
         if any(u.get("mobile") == mobile for u in users):
-            return jsonify({"error": "Mobile number already registered. Please login instead."}), 409
+            response = jsonify({"error": "Mobile number already registered. Please login instead."})
+            response.headers["Content-Type"] = "application/json"
+            return response, 409
         
         # Hash password before storing
         hashed_password = generate_password_hash(password)
@@ -633,12 +658,16 @@ def register_user():
         save_users_json(users)
         
         # Registration successful - redirect to login page (no auto-login)
-        return jsonify({"message": "User registered successfully! Please login.", "redirect": url_for("home")}), 201
+        response = jsonify({"message": "User registered successfully! Please login.", "redirect": url_for("home")})
+        response.headers["Content-Type"] = "application/json"
+        return response, 201
     except Exception as e:
         print(f"Register route error: {e}")
         import traceback
         traceback.print_exc()
-        return jsonify({"error": "Registration failed. Please try again."}), 500
+        response = jsonify({"error": "Registration failed. Please try again."})
+        response.headers["Content-Type"] = "application/json"
+        return response, 500
 
 
 @app.route("/login", methods=["POST"])
@@ -649,7 +678,9 @@ def login_user():
         password = payload.get("password") or ""
 
         if not mobile or not password:
-            return jsonify({"error": "Missing mobile or password"}), 400
+            response = jsonify({"error": "Missing mobile or password"})
+            response.headers["Content-Type"] = "application/json"
+            return response, 400
 
         # Try MySQL first if available
         if check_db_available():
@@ -667,7 +698,9 @@ def login_user():
                 
                 # Check password using hash comparison (supports both hashed and plain text for migration)
                 if not row:
-                    return jsonify({"error": "Invalid mobile number or password"}), 401
+                    response = jsonify({"error": "Invalid mobile number or password"})
+                    response.headers["Content-Type"] = "application/json"
+                    return response, 401
                 
                 stored_password = row[2]
                 # Try checking hashed password first, then plain text (for backwards compatibility)
@@ -680,7 +713,9 @@ def login_user():
                     password_valid = (stored_password == password)
                 
                 if not password_valid:
-                    return jsonify({"error": "Invalid mobile number or password"}), 401
+                    response = jsonify({"error": "Invalid mobile number or password"})
+                    response.headers["Content-Type"] = "application/json"
+                    return response, 401
 
                 session["user_id"] = row[0]
                 session["username"] = row[1]
@@ -688,7 +723,9 @@ def login_user():
                 reg_date = row[3]
                 session["reg_date"] = reg_date.strftime("%Y-%m-%d %H:%M:%S") if reg_date else ""
 
-                return jsonify({"message": "Login successful!", "redirect": url_for("products_page"), "registration_date": session["reg_date"]})
+                response = jsonify({"message": "Login successful!", "redirect": url_for("products_page"), "registration_date": session["reg_date"]})
+                response.headers["Content-Type"] = "application/json"
+                return response
             except Exception as e:
                 print(f"MySQL login error, falling back to JSON: {e}")
                 import traceback
@@ -718,19 +755,25 @@ def login_user():
                     break
         
         if not user:
-            return jsonify({"error": "Invalid mobile number or password"}), 401
+            response = jsonify({"error": "Invalid mobile number or password"})
+            response.headers["Content-Type"] = "application/json"
+            return response, 401
 
         session["user_id"] = user["id"]
         session["username"] = user["username"]
         session["logged_in"] = True
         session["reg_date"] = user.get("registration_date", "")
         
-        return jsonify({"message": "Login successful!", "redirect": url_for("products_page"), "registration_date": session["reg_date"]})
+        response = jsonify({"message": "Login successful!", "redirect": url_for("products_page"), "registration_date": session["reg_date"]})
+        response.headers["Content-Type"] = "application/json"
+        return response
     except Exception as e:
         print(f"Login route error: {e}")
         import traceback
         traceback.print_exc()
-        return jsonify({"error": "Login failed. Please try again."}), 500
+        response = jsonify({"error": "Login failed. Please try again."})
+        response.headers["Content-Type"] = "application/json"
+        return response, 500
 
 
 @app.route("/logout")
