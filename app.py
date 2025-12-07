@@ -440,7 +440,13 @@ try:
     init_database()
 except Exception as e:
     print(f"⚠️ Storage initialization error: {e}")
-    init_json_storage()
+    import traceback
+    traceback.print_exc()
+    # Ensure JSON storage is initialized as fallback
+    try:
+        init_json_storage()
+    except Exception as json_err:
+        print(f"⚠️ JSON storage initialization also failed: {json_err}")
 
 
 def is_valid_password(password):
@@ -533,7 +539,6 @@ def auth_page():
         return redirect(url_for("products_page"))
     return render_template("auth.html")
 
-import os
 from werkzeug.utils import secure_filename
 
 # Ensure payment screenshot folder exists
@@ -1216,7 +1221,13 @@ def serve_payment_ss(filename):
 # -------------------------------------------------
 # RUN SERVER
 # -------------------------------------------------
-bootstrap_bot_listener()
+# Start bot listener (wrapped to prevent deployment failures)
+try:
+    bootstrap_bot_listener()
+except Exception as e:
+    print(f"⚠️ Bot listener initialization error (non-critical): {e}")
+    import traceback
+    traceback.print_exc()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
