@@ -25,6 +25,12 @@ def maintenance_blocker():
             return redirect("/maintenance")
 
 @app.before_request
+def allow_register_api():
+    """Allow POST requests to /register without authentication"""
+    if request.path == "/register" and request.method == "POST":
+        return None
+
+@app.before_request
 def require_login():
     """Require login for all pages except login, register, static files, and admin"""
     # Skip for static files
@@ -32,7 +38,7 @@ def require_login():
         return None
     
     # Pages that don't require login (public routes - only login/register and admin)
-    public_routes = ["home", "auth_page", "login", "register", "admin_login", "maintenance", 
+    public_routes = ["home", "auth_page", "login", "login_user", "register", "register_user", "admin_login", "maintenance", 
                      "telegram_update"]
     
     # Skip authentication check for public routes
