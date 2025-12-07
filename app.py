@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 import requests, json, os, threading, time, re
 import mysql.connector
 from datetime import timedelta, datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
@@ -61,8 +62,14 @@ API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 BOT_LISTENER_ENABLED = os.getenv("ENABLE_BOT_LISTENER", "true").lower() == "true"
 BOT_POLL_TIMEOUT = int(os.getenv("BOT_POLL_TIMEOUT", "10"))
 
-# MySQL Configuration - Optional (uses JSON fallback if not available)
-USE_MYSQL = os.getenv("USE_MYSQL", "false").lower() == "true"  # Set to "true" to enable MySQL
+# MySQL Configuration - Auto-detects if MySQL is available, falls back to JSON if not
+# To use MySQL, set environment variables:
+# USE_MYSQL=true (optional, will auto-detect if MySQL credentials are provided)
+# MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
+USE_MYSQL_ENV = os.getenv("USE_MYSQL", "").lower()
+# Auto-enable MySQL if credentials are provided, or explicitly set via env var
+USE_MYSQL = USE_MYSQL_ENV == "true" or (USE_MYSQL_ENV == "" and os.getenv("MYSQL_HOST") and os.getenv("MYSQL_PASSWORD"))
+
 MYSQL_CONFIG = {
     "host": os.getenv("MYSQL_HOST", "localhost"),
     "user": os.getenv("MYSQL_USER", "root"),
@@ -259,7 +266,13 @@ def check_db_available():
     if _db_available is not None:
         return _db_available
     
-    if not USE_MYSQL:
+    # If MySQL is explicitly disabled, don't try
+    if USE_MYSQL_ENV == "false":
+        _db_available = False
+        return False
+    
+    # If no MySQL credentials provided, use JSON
+    if not MYSQL_CONFIG.get("host") or not MYSQL_CONFIG.get("password"):
         _db_available = False
         return False
     
@@ -267,9 +280,10 @@ def check_db_available():
         conn = mysql.connector.connect(**MYSQL_CONFIG)
         conn.close()
         _db_available = True
+        print("✅ MySQL database connection successful - using MySQL for user storage")
         return True
     except Exception as e:
-        print(f"⚠️ MySQL not available, using JSON storage: {e}")
+        print(f"⚠️ MySQL connection failed, using JSON storage: {e}")
         _db_available = False
         return False
 
@@ -284,8 +298,9 @@ def get_db_connection():
 
 
 def init_database():
-    """Initialize database - MySQL if available, otherwise JSON."""
-    if USE_MYSQL and check_db_available():
+    """Initialize database - Try MySQL first if credentials available, otherwise JSON."""
+    # Try MySQL first if credentials are provided
+    if check_db_available():
         conn = None
         try:
             conn = get_db_connection()
@@ -302,16 +317,17 @@ def init_database():
             """
             cur.execute(create_table_sql)
             conn.commit()
-            print("✅ MySQL database ready - using database storage")
+            print("✅ MySQL database initialized successfully - user data will be stored in database")
             cur.close()
         except mysql.connector.Error as e:
             print(f"❌ MySQL initialization failed: {e}")
-            print(f"   Falling back to JSON file storage")
+            print(f"   Falling back to JSON file storage (users.json)")
             init_json_storage()
         finally:
             if conn and conn.is_connected():
                 conn.close()
     else:
+        # No MySQL credentials or MySQL disabled - use JSON
         init_json_storage()
 
 
@@ -401,6 +417,9 @@ def save_data(data):
 @app.route("/")
 def home():
     """Homepage - Show login/register page"""
+    # Redirect if user is already logged in
+    if session.get("logged_in") or session.get("user_id"):
+        return redirect(url_for("dashboard"))
     return render_template("auth.html")
 
 @app.route("/products")
@@ -421,6 +440,9 @@ def payment_page():
 @app.route("/auth")
 def auth_page():
     """Auth page (alias for homepage)"""
+    # Redirect if user is already logged in
+    if session.get("logged_in") or session.get("user_id"):
+        return redirect(url_for("dashboard"))
     return render_template("auth.html")
 
 import os
@@ -526,9 +548,17 @@ def register_user():
                 VALUES (%s, %s, %s, %s)
             """
             cur.execute(sql, (username, mobile, password, datetime.now()))
+            user_id = cur.lastrowid
             conn.commit()
             cur.close()
-            return jsonify({"message": "User registered successfully!"}), 201
+            
+            # Auto-login after registration
+            session["user_id"] = user_id
+            session["username"] = username
+            session["logged_in"] = True
+            session["reg_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            return jsonify({"message": "User registered successfully!", "redirect": url_for("dashboard")}), 201
         except mysql.connector.IntegrityError:
             return jsonify({"error": "Mobile number already registered. Please login instead."}), 409
         except Exception as e:
@@ -557,7 +587,13 @@ def register_user():
         users.append(new_user)
         save_users_json(users)
         
-        return jsonify({"message": "User registered successfully!"}), 201
+        # Auto-login after registration
+        session["user_id"] = new_user["id"]
+        session["username"] = username
+        session["logged_in"] = True
+        session["reg_date"] = new_user["registration_date"]
+        
+        return jsonify({"message": "User registered successfully!", "redirect": url_for("dashboard")}), 201
     except Exception as e:
         print(f"JSON register error: {e}")
         return jsonify({"error": "Registration failed. Please try again."}), 500
@@ -591,10 +627,11 @@ def login_user():
 
             session["user_id"] = row[0]
             session["username"] = row[1]
+            session["logged_in"] = True
             reg_date = row[3]
             session["reg_date"] = reg_date.strftime("%Y-%m-%d %H:%M:%S") if reg_date else ""
 
-            return jsonify({"message": "Login successful!", "registration_date": session["reg_date"]})
+            return jsonify({"message": "Login successful!", "redirect": url_for("dashboard"), "registration_date": session["reg_date"]})
         except Exception as e:
             print(f"MySQL login error, falling back to JSON: {e}")
             # Fall through to JSON storage
@@ -612,9 +649,10 @@ def login_user():
 
         session["user_id"] = user["id"]
         session["username"] = user["username"]
+        session["logged_in"] = True
         session["reg_date"] = user.get("registration_date", "")
         
-        return jsonify({"message": "Login successful!", "registration_date": session["reg_date"]})
+        return jsonify({"message": "Login successful!", "redirect": url_for("dashboard"), "registration_date": session["reg_date"]})
     except Exception as e:
         print(f"JSON login error: {e}")
         return jsonify({"error": "Login failed. Please try again."}), 500
@@ -851,7 +889,8 @@ def upload_file():
 # -------------------------------------------------
 @app.route("/dashboard")
 def dashboard():
-    if not session.get("approved"):
+    # Allow access if user is logged in OR approved (payment-based access)
+    if not (session.get("logged_in") or session.get("approved") or session.get("user_id")):
         return redirect(url_for("home"))
 
     modules = {}
@@ -882,7 +921,9 @@ def dashboard():
                 "kind": kind
             })
 
-    return render_template("dashboard.html", name=session.get("user_name"), modules=modules)
+    # Get username from session - check both payment-based and login-based sessions
+    user_name = session.get("user_name") or session.get("username") or "User"
+    return render_template("dashboard.html", name=user_name, modules=modules)
 
 
 # -------------------------------------------------

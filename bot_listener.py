@@ -8,7 +8,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN", "7581428285:AAF6qwxQYniDoZnhiwERUP_k0Vlf-k6MV
 API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 # For production, use your Render URL. For local dev, use localhost
 # Default to production URL if FLASK_URL env var is not set
-FLASK_URL = os.getenv("FLASK_URL", "https://stockboy.works/telegram-update")
+FLASK_URL = os.getenv("FLASK_URL", "https://stockwork.works/telegram-update")
 
 def main():
     last_update_id = None

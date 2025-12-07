@@ -88,10 +88,10 @@
                 if (resp.ok) {
                     msgEl.innerText = data.message || "Success";
                     msgEl.className = "text-sm text-green-400";
-                    // Redirect on successful login
-                    if (url === "/login") {
+                    // Redirect on successful login or registration
+                    if (data.redirect || url === "/login" || url === "/register") {
                         setTimeout(() => {
-                            window.location.href = "/dashboard";
+                            window.location.href = data.redirect || "/dashboard";
                         }, 1500);
                     }
                 } else {
