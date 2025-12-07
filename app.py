@@ -552,13 +552,8 @@ def register_user():
             conn.commit()
             cur.close()
             
-            # Auto-login after registration
-            session["user_id"] = user_id
-            session["username"] = username
-            session["logged_in"] = True
-            session["reg_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            
-            return jsonify({"message": "User registered successfully!", "redirect": url_for("dashboard")}), 201
+            # Registration successful - redirect to login page (no auto-login)
+            return jsonify({"message": "User registered successfully! Please login.", "redirect": url_for("home")}), 201
         except mysql.connector.IntegrityError:
             return jsonify({"error": "Mobile number already registered. Please login instead."}), 409
         except Exception as e:
@@ -587,13 +582,8 @@ def register_user():
         users.append(new_user)
         save_users_json(users)
         
-        # Auto-login after registration
-        session["user_id"] = new_user["id"]
-        session["username"] = username
-        session["logged_in"] = True
-        session["reg_date"] = new_user["registration_date"]
-        
-        return jsonify({"message": "User registered successfully!", "redirect": url_for("dashboard")}), 201
+        # Registration successful - redirect to login page (no auto-login)
+        return jsonify({"message": "User registered successfully! Please login.", "redirect": url_for("home")}), 201
     except Exception as e:
         print(f"JSON register error: {e}")
         return jsonify({"error": "Registration failed. Please try again."}), 500
@@ -631,7 +621,7 @@ def login_user():
             reg_date = row[3]
             session["reg_date"] = reg_date.strftime("%Y-%m-%d %H:%M:%S") if reg_date else ""
 
-            return jsonify({"message": "Login successful!", "redirect": url_for("dashboard"), "registration_date": session["reg_date"]})
+            return jsonify({"message": "Login successful!", "redirect": url_for("products_page"), "registration_date": session["reg_date"]})
         except Exception as e:
             print(f"MySQL login error, falling back to JSON: {e}")
             # Fall through to JSON storage
@@ -652,10 +642,17 @@ def login_user():
         session["logged_in"] = True
         session["reg_date"] = user.get("registration_date", "")
         
-        return jsonify({"message": "Login successful!", "redirect": url_for("dashboard"), "registration_date": session["reg_date"]})
+        return jsonify({"message": "Login successful!", "redirect": url_for("products_page"), "registration_date": session["reg_date"]})
     except Exception as e:
         print(f"JSON login error: {e}")
         return jsonify({"error": "Login failed. Please try again."}), 500
+
+
+@app.route("/logout")
+def logout():
+    """Clear user session and logout"""
+    session.clear()
+    return redirect(url_for("home"))
 
 
 @app.route("/check-subscription")
@@ -889,9 +886,9 @@ def upload_file():
 # -------------------------------------------------
 @app.route("/dashboard")
 def dashboard():
-    # Allow access if user is logged in OR approved (payment-based access)
-    if not (session.get("logged_in") or session.get("approved") or session.get("user_id")):
-        return redirect(url_for("home"))
+    # Only allow access if user has approved payment (dashboard is premium only)
+    if not session.get("approved"):
+        return redirect(url_for("products_page"))
 
     modules = {}
 
@@ -918,6 +915,7 @@ def dashboard():
             modules.setdefault(module_name, []).append({
                 "name": filename,
                 "url": f"/static/uploads/{rel_path}",
+                "path": rel_path,  # Relative path for PDF/Video viewer
                 "kind": kind
             })
 
@@ -1000,9 +998,34 @@ def bootstrap_bot_listener():
 # -------------------------------------------------
 # VIEW PDF AND VIDEO
 # -------------------------------------------------
-@app.route("/view_pdf/<filename>")
-def view_pdf(filename):
-    return render_template("view_pdf.html", filename=filename)
+@app.route("/view_pdf/<path:filepath>")
+def view_pdf(filepath):
+    # Check if user has approved access
+    if not session.get("approved"):
+        return redirect(url_for("products_page"))
+    
+    # Ensure the filepath is safe and exists
+    # Replace any directory traversal attempts
+    safe_path = filepath.replace("..", "").replace("\\", "/").lstrip("/")
+    
+    # Construct full path
+    full_path = os.path.join(UPLOAD_FOLDER, safe_path)
+    
+    # Verify file exists
+    if not os.path.exists(full_path) or not os.path.isfile(full_path):
+        # Try searching in subdirectories if just filename provided
+        found = False
+        for root, _, files in os.walk(UPLOAD_FOLDER):
+            if os.path.basename(safe_path) in files:
+                safe_path = os.path.relpath(os.path.join(root, os.path.basename(safe_path)), UPLOAD_FOLDER).replace("\\", "/")
+                found = True
+                break
+        
+        if not found:
+            return "File not found. Please check your spelling and try again.", 404
+    
+    # Pass the relative path to template
+    return render_template("view_pdf.html", filename=safe_path)
 
 @app.route("/view_video/<filename>")
 def view_video(filename):

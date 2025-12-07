@@ -58,8 +58,18 @@
     <img src="{{ url_for('static', filename='logo.png') }}" alt="logo" class="w-10 h-10 rounded-full shadow-lg shadow-yellow-500/45">
     <h1 class="text-gradient-gold text-xl font-bold">Stockboy Premium</h1>
   </div>
-  <div class="text-sm text-gray-300">
-    Welcome, <span class="text-gold-DEFAULT font-semibold">{{ name }}</span>
+  <div class="flex items-center gap-3">
+    <div class="text-right">
+      <div class="text-sm text-gray-300">
+        Welcome, <span class="text-gold-DEFAULT font-semibold">{{ name }}</span>
+      </div>
+      <a href="/logout" class="text-xs text-gray-400 hover:text-red-400 transition-colors flex items-center justify-end gap-1 mt-1">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+        </svg>
+        Logout
+      </a>
+    </div>
   </div>
 </nav>
 
@@ -83,7 +93,7 @@
       
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {% for file in files %}
-        <a href="{% if file.kind == 'PDF' %}/view_pdf/{{ file.name }}{% elif file.kind == 'Video' %}/view_video/{{ file.name }}{% else %}{{ file.url }}{% endif %}" 
+        <a href="{% if file.kind == 'PDF' %}/view_pdf/{{ file.path }}{% elif file.kind == 'Video' %}/view_video/{{ file.path }}{% else %}{{ file.url }}{% endif %}" 
            target="{% if file.kind == 'PDF' or file.kind == 'Video' %}_self{% else %}_blank{% endif %}"
            class="group bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-4 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-yellow-500/20">
           <div class="flex items-start gap-3">
