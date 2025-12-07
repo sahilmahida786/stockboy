@@ -91,9 +91,22 @@ def maintenance():
 
 DATA_FILE = "payments.json"
 LIKES_FILE = "likes.json"
-USERS_FILE = "users.json"  # JSON fallback for user storage
+# Use absolute path for users.json to ensure it's created in the correct location
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+USERS_FILE = os.path.join(BASE_DIR, "users.json")  # JSON fallback for user storage
 UPLOAD_FOLDER = "static/uploads"  # For course materials (PDFs, videos)
 PAYMENT_SS_FOLDER = "payment_ss"   # For payment screenshots only
+
+def init_json_storage():
+    """Initialize JSON file storage for users."""
+    if not os.path.exists(USERS_FILE):
+        with open(USERS_FILE, "w") as f:
+            f.write("[]")
+        print("⚠️ users.json created fresh on startup")
+    print("✅ JSON file storage ready - using users.json")
+
+# Force-create users.json on startup
+init_json_storage()
 
 # Read from environment variables (set in Render dashboard)
 BOT_TOKEN = os.getenv("BOT_TOKEN", "7581428285:AAF6qwxQYniDoZnhiwERUP_k0Vlf-k6MVSQ")
@@ -409,24 +422,13 @@ def init_database():
         init_json_storage()
 
 
-def init_json_storage():
-    """Initialize JSON file storage for users."""
-    if not os.path.exists(USERS_FILE):
-        with open(USERS_FILE, "w") as f:
-            json.dump([], f)
-    print("✅ JSON file storage ready - using users.json")
-
-
 # User storage functions
 def load_users_json():
     """Load users from JSON file."""
-    if not os.path.exists(USERS_FILE):
-        return []
     try:
         with open(USERS_FILE, "r") as f:
             return json.load(f)
-    except Exception as e:
-        print(f"Error loading users.json: {e}")
+    except:
         return []
 
 
