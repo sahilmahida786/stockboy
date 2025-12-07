@@ -97,15 +97,15 @@
                 const formData = new FormData(form);
                 const resp = await fetch(url, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                    },
                     body: new URLSearchParams(formData)
                 });
                 
                 // Check if response is JSON
+                let data;
                 const contentType = resp.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
+                if (contentType && contentType.includes("application/json")) {
+                    data = await resp.json();
+                } else {
                     const text = await resp.text();
                     console.error("Non-JSON response:", text);
                     msgEl.innerText = "Server error. Please try again.";
@@ -113,7 +113,6 @@
                     return;
                 }
                 
-                const data = await resp.json();
                 if (resp.ok) {
                     msgEl.innerText = data.message || "Success";
                     msgEl.className = "text-sm text-green-400";
@@ -129,7 +128,7 @@
                 }
             } catch (err) {
                 console.error("Error:", err);
-                msgEl.innerText = "Network error. Please check your connection and try again. Error: " + err.message;
+                msgEl.innerText = "Server error. Please try again.";
                 msgEl.className = "text-sm text-red-400";
             }
         }

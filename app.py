@@ -588,11 +588,13 @@ def register_user():
             try:
                 conn = get_db_connection()
                 cur = conn.cursor()
+                # Hash password before storing
+                hashed_password = generate_password_hash(password)
                 sql = """
                     INSERT INTO users (username, mobile, password, registration_date)
                     VALUES (%s, %s, %s, %s)
                 """
-                cur.execute(sql, (username, mobile, password, datetime.now()))
+                cur.execute(sql, (username, mobile, hashed_password, datetime.now()))
                 user_id = cur.lastrowid
                 conn.commit()
                 cur.close()
@@ -603,6 +605,8 @@ def register_user():
                 return jsonify({"error": "Mobile number already registered. Please login instead."}), 409
             except Exception as e:
                 print(f"MySQL register error, falling back to JSON: {e}")
+                import traceback
+                traceback.print_exc()
                 # Fall through to JSON storage
             finally:
                 if conn and conn.is_connected():
@@ -615,12 +619,14 @@ def register_user():
         if any(u.get("mobile") == mobile for u in users):
             return jsonify({"error": "Mobile number already registered. Please login instead."}), 409
         
+        # Hash password before storing
+        hashed_password = generate_password_hash(password)
         # Create new user
         new_user = {
             "id": len(users) + 1,
             "username": username,
             "mobile": mobile,
-            "password": password,
+            "password": hashed_password,
             "registration_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
         users.append(new_user)
@@ -659,7 +665,21 @@ def login_user():
                 row = cur.fetchone()
                 cur.close()
                 
-                if not row or row[2] != password:
+                # Check password using hash comparison (supports both hashed and plain text for migration)
+                if not row:
+                    return jsonify({"error": "Invalid mobile number or password"}), 401
+                
+                stored_password = row[2]
+                # Try checking hashed password first, then plain text (for backwards compatibility)
+                password_valid = False
+                if stored_password.startswith("$2b$") or stored_password.startswith("$2a$") or stored_password.startswith("pbkdf2:"):
+                    # It's a hashed password
+                    password_valid = check_password_hash(stored_password, password)
+                else:
+                    # Plain text password (legacy support)
+                    password_valid = (stored_password == password)
+                
+                if not password_valid:
                     return jsonify({"error": "Invalid mobile number or password"}), 401
 
                 session["user_id"] = row[0]
@@ -671,6 +691,8 @@ def login_user():
                 return jsonify({"message": "Login successful!", "redirect": url_for("products_page"), "registration_date": session["reg_date"]})
             except Exception as e:
                 print(f"MySQL login error, falling back to JSON: {e}")
+                import traceback
+                traceback.print_exc()
                 # Fall through to JSON storage
             finally:
                 if conn and conn.is_connected():
@@ -678,7 +700,22 @@ def login_user():
 
         # Use JSON storage (fallback or default)
         users = load_users_json()
-        user = next((u for u in users if u.get("mobile") == mobile and u.get("password") == password), None)
+        user = None
+        for u in users:
+            if u.get("mobile") == mobile:
+                stored_password = u.get("password", "")
+                # Try checking hashed password first, then plain text (for backwards compatibility)
+                password_valid = False
+                if stored_password.startswith("$2b$") or stored_password.startswith("$2a$") or stored_password.startswith("pbkdf2:"):
+                    # It's a hashed password
+                    password_valid = check_password_hash(stored_password, password)
+                else:
+                    # Plain text password (legacy support)
+                    password_valid = (stored_password == password)
+                
+                if password_valid:
+                    user = u
+                    break
         
         if not user:
             return jsonify({"error": "Invalid mobile number or password"}), 401
