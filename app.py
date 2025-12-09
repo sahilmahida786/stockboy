@@ -668,12 +668,16 @@ def submit_payment():
 @app.route("/check_approval", methods=["POST"])
 def check_approval():
     txn_id = request.form.get("txn_id")
+    print(f"🔍 Checking approval status for Txn ID: {txn_id}")
 
     data = load_data()
     for x in data:
         if x["txn_id"] == txn_id:
-            return jsonify({"status": x["status"]})
+            status = x["status"]
+            print(f"📋 Found payment - Txn ID: {txn_id}, Status: {status}")
+            return jsonify({"status": status})
 
+    print(f"⚠️ Payment not found for Txn ID: {txn_id}")
     return jsonify({"status": "not_found"})
 
 
@@ -681,15 +685,19 @@ def check_approval():
 def start_session():
     txn_id = request.form.get("txn_id")
     user_name = request.form.get("user_name", "User")
+    print(f"🚀 Starting session for Txn ID: {txn_id}, User: {user_name}")
 
     data = load_data()
     approved = any(x["txn_id"] == txn_id and x["status"] == "approved" for x in data)
+    print(f"📋 Approval check result: {approved}")
 
     if not approved:
+        print(f"❌ Payment not approved yet for Txn ID: {txn_id}")
         return jsonify({"ok": False})
 
     session["approved"] = True
     session["user_name"] = user_name
+    print(f"✅ Session started - User: {user_name}, Approved: True, Redirecting to dashboard")
     return jsonify({"ok": True, "redirect": url_for("dashboard")})
 
 
