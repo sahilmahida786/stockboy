@@ -719,6 +719,10 @@ def register_user():
         users.append(new_user)
         save_users_json(users)
         print(f"✅ New user registered: {username} (mobile: {mobile}), Total users: {len(users)}")
+        print(f"📁 USERS_FILE path: {USERS_FILE}")
+        # Verify the user was saved by reloading
+        verify_users = load_users_json()
+        print(f"✅ Verification: {len(verify_users)} users found in file after save")
         
         # Registration successful - redirect to login page (no auto-login)
         response = jsonify({"message": "User registered successfully! Please login.", "redirect": url_for("home")})
@@ -805,6 +809,9 @@ def login_user():
         # Use JSON file storage (fallback or default)
         users = load_users_json()
         print(f"🔍 Login attempt for mobile: {mobile}, Total users in file: {len(users)}")
+        print(f"📁 USERS_FILE path: {USERS_FILE}")
+        if users:
+            print(f"📋 Available mobile numbers: {[u.get('mobile') for u in users]}")
         user = None
         for u in users:
             if u.get("mobile") == mobile:
@@ -817,8 +824,11 @@ def login_user():
                     # check_password_hash handles all werkzeug hash formats (scrypt, pbkdf2, etc.)
                     password_valid = check_password_hash(stored_password, password)
                     print(f"   Password check (werkzeug hash): {password_valid}")
-                except:
+                    if not password_valid:
+                        print(f"   ⚠️ Hash check failed. Stored hash starts with: {stored_password[:20] if stored_password else 'EMPTY'}")
+                except Exception as hash_err:
                     # If check_password_hash fails (not a werkzeug hash), try plain text
+                    print(f"   ⚠️ Hash check exception: {hash_err}")
                     password_valid = (stored_password == password)
                     print(f"   Password check (plain text fallback): {password_valid}")
                 
