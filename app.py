@@ -545,7 +545,9 @@ def payment_page():
     # Authentication is handled by before_request
     if not (session.get("logged_in") or session.get("user_id")):
         return redirect(url_for("home"))
-    return render_template("index.html")
+    username = session.get("username", "User")
+    mobile = session.get("mobile", "")
+    return render_template("index.html", username=username, mobile=mobile, logged_in=True)
 
 @app.route("/auth")
 def auth_page():
