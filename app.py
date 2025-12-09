@@ -646,12 +646,17 @@ def start_session():
 def register_user():
     global _db_available
     try:
+        print(f"📝 Registration request received - Method: {request.method}, Path: {request.path}")
+        print(f"📝 Headers: {dict(request.headers)}")
         payload = request.get_json(silent=True) or request.form
+        print(f"📝 Payload type: {type(payload)}, Keys: {list(payload.keys()) if hasattr(payload, 'keys') else 'N/A'}")
         username = (payload.get("username") or "").strip()
         mobile = (payload.get("mobile") or "").strip()
         password = payload.get("password") or ""
+        print(f"📝 Extracted - Username: {username[:3]}..., Mobile: {mobile}, Password: {'*' * len(password)}")
 
         if not username or not mobile or not password:
+            print(f"❌ Missing fields - username: {bool(username)}, mobile: {bool(mobile)}, password: {bool(password)}")
             response = jsonify({"error": "Missing username, mobile, or password"})
             response.headers["Content-Type"] = "application/json"
             return response, 400
@@ -729,9 +734,11 @@ def register_user():
         response.headers["Content-Type"] = "application/json"
         return response, 201
     except Exception as e:
-        print(f"Register route error: {e}")
+        print(f"❌ Register route error: {e}")
         import traceback
         traceback.print_exc()
+        error_msg = f"Registration failed: {str(e)}"
+        print(f"❌ Returning error to client: {error_msg}")
         response = jsonify({"error": "Registration failed. Please try again."})
         response.headers["Content-Type"] = "application/json"
         return response, 500
@@ -741,11 +748,16 @@ def register_user():
 def login_user():
     global _db_available
     try:
+        print(f"🔐 Login request received - Method: {request.method}, Path: {request.path}")
+        print(f"🔐 Headers: {dict(request.headers)}")
         payload = request.get_json(silent=True) or request.form
+        print(f"🔐 Payload type: {type(payload)}, Keys: {list(payload.keys()) if hasattr(payload, 'keys') else 'N/A'}")
         mobile = (payload.get("mobile") or "").strip()
         password = payload.get("password") or ""
+        print(f"🔐 Extracted - Mobile: {mobile}, Password: {'*' * len(password)}")
 
         if not mobile or not password:
+            print(f"❌ Missing fields - mobile: {bool(mobile)}, password: {bool(password)}")
             response = jsonify({"error": "Missing mobile or password"})
             response.headers["Content-Type"] = "application/json"
             return response, 400
@@ -854,9 +866,11 @@ def login_user():
         response.headers["Content-Type"] = "application/json"
         return response
     except Exception as e:
-        print(f"Login route error: {e}")
+        print(f"❌ Login route error: {e}")
         import traceback
         traceback.print_exc()
+        error_msg = f"Login failed: {str(e)}"
+        print(f"❌ Returning error to client: {error_msg}")
         response = jsonify({"error": "Login failed. Please try again."})
         response.headers["Content-Type"] = "application/json"
         return response, 500
