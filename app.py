@@ -525,7 +525,9 @@ def products_page():
     # Authentication is handled by before_request
     if not (session.get("logged_in") or session.get("user_id")):
         return redirect(url_for("home"))
-    return render_template("products.html", products=get_product_catalog())
+    username = session.get("username", "User")
+    mobile = session.get("mobile", "")
+    return render_template("products.html", products=get_product_catalog(), username=username, mobile=mobile, logged_in=True)
 
 @app.route("/about")
 def about_page():
@@ -533,7 +535,9 @@ def about_page():
     # Authentication is handled by before_request
     if not (session.get("logged_in") or session.get("user_id")):
         return redirect(url_for("home"))
-    return render_template("about.html")
+    username = session.get("username", "User")
+    mobile = session.get("mobile", "")
+    return render_template("about.html", username=username, mobile=mobile, logged_in=True)
 
 @app.route("/payment")
 def payment_page():
@@ -800,6 +804,7 @@ def login_user():
 
                 session["user_id"] = row[0]
                 session["username"] = row[1]
+                session["mobile"] = mobile  # Store mobile from login
                 session["logged_in"] = True
                 reg_date = row[3]
                 session["reg_date"] = reg_date.strftime("%Y-%m-%d %H:%M:%S") if reg_date else ""
@@ -859,6 +864,7 @@ def login_user():
 
         session["user_id"] = user["id"]
         session["username"] = user["username"]
+        session["mobile"] = user["mobile"]
         session["logged_in"] = True
         session["reg_date"] = user.get("registration_date", "")
         
