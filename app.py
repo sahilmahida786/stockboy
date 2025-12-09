@@ -767,13 +767,14 @@ def login_user():
                     return response, 401
                 
                 stored_password = row[2]
-                # Try checking hashed password first, then plain text (for backwards compatibility)
+                # Try check_password_hash first (handles all werkzeug hash formats)
+                # If that fails, try plain text comparison (for backwards compatibility)
                 password_valid = False
-                if stored_password.startswith("$2b$") or stored_password.startswith("$2a$") or stored_password.startswith("pbkdf2:"):
-                    # It's a hashed password
+                try:
+                    # check_password_hash handles all werkzeug hash formats (scrypt, pbkdf2, etc.)
                     password_valid = check_password_hash(stored_password, password)
-                else:
-                    # Plain text password (legacy support)
+                except:
+                    # If check_password_hash fails (not a werkzeug hash), try plain text
                     password_valid = (stored_password == password)
                 
                 if not password_valid:
@@ -809,16 +810,17 @@ def login_user():
             if u.get("mobile") == mobile:
                 stored_password = u.get("password", "")
                 print(f"✅ Found user: {u.get('username')}, checking password...")
-                # Try checking hashed password first, then plain text (for backwards compatibility)
+                # Try check_password_hash first (handles all werkzeug hash formats: scrypt, pbkdf2, etc.)
+                # If that fails, try plain text comparison (for backwards compatibility)
                 password_valid = False
-                if stored_password.startswith("$2b$") or stored_password.startswith("$2a$") or stored_password.startswith("pbkdf2:"):
-                    # It's a hashed password
+                try:
+                    # check_password_hash handles all werkzeug hash formats (scrypt, pbkdf2, etc.)
                     password_valid = check_password_hash(stored_password, password)
-                    print(f"   Password check (hashed): {password_valid}")
-                else:
-                    # Plain text password (legacy support)
+                    print(f"   Password check (werkzeug hash): {password_valid}")
+                except:
+                    # If check_password_hash fails (not a werkzeug hash), try plain text
                     password_valid = (stored_password == password)
-                    print(f"   Password check (plain): {password_valid}")
+                    print(f"   Password check (plain text fallback): {password_valid}")
                 
                 if password_valid:
                     user = u
