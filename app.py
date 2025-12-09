@@ -4,13 +4,6 @@ import mysql.connector
 from datetime import timedelta, datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# Load users from Render ENV (persistent on free plan)
-USER_DATA_ENV = os.getenv("USER_DATA", "[]")
-try:
-    USERS = json.loads(USER_DATA_ENV)
-except:
-    USERS = []
-
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
 # Read secret key from environment variable, fallback to default for local dev
@@ -98,8 +91,47 @@ def maintenance():
 
 DATA_FILE = "payments.json"
 LIKES_FILE = "likes.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+USERS_FILE = os.path.join(BASE_DIR, "users.json")  # Persistent file storage for users
 UPLOAD_FOLDER = "static/uploads"  # For course materials (PDFs, videos)
 PAYMENT_SS_FOLDER = "payment_ss"   # For payment screenshots only
+
+# Initialize users.json file
+def init_json_storage():
+    """Initialize JSON file storage for users."""
+    try:
+        if not os.path.exists(USERS_FILE):
+            with open(USERS_FILE, "w") as f:
+                f.write("[]")
+            print("⚠️ users.json created fresh on startup")
+        print("✅ JSON file storage ready - using users.json")
+    except Exception as e:
+        print(f"⚠️ Error initializing users.json: {e}")
+
+def load_users_json():
+    """Load users from JSON file."""
+    try:
+        if not os.path.exists(USERS_FILE):
+            return []
+        with open(USERS_FILE, "r") as f:
+            data = json.load(f)
+            return data if isinstance(data, list) else []
+    except Exception as e:
+        print(f"⚠️ Error loading users.json: {e}")
+        return []
+
+def save_users_json(users):
+    """Save users to JSON file."""
+    try:
+        with open(USERS_FILE, "w") as f:
+            json.dump(users, f, indent=4)
+        print(f"✅ Saved {len(users)} users to users.json")
+    except Exception as e:
+        print(f"❌ Error saving users.json: {e}")
+        raise
+
+# Initialize storage on startup
+init_json_storage()
 
 # Read from environment variables (set in Render dashboard)
 BOT_TOKEN = os.getenv("BOT_TOKEN", "7581428285:AAF6qwxQYniDoZnhiwERUP_k0Vlf-k6MVSQ")
@@ -398,27 +430,24 @@ def init_database():
                 print(f"❌ MySQL access denied - check credentials")
             else:
                 print(f"❌ MySQL initialization failed: {e}")
-            print(f"   Falling back to in-memory storage")
+            print(f"   Falling back to JSON file storage (users.json)")
             # Reset cache so we don't try MySQL again
             _db_available = False
+            init_json_storage()
         except Exception as e:
             print(f"❌ Unexpected error during MySQL initialization: {e}")
-            print(f"   Falling back to in-memory storage")
+            print(f"   Falling back to JSON file storage (users.json)")
             _db_available = False
+            init_json_storage()
         finally:
             if conn and conn.is_connected():
                 conn.close()
     else:
-        # No MySQL credentials or MySQL disabled - use in-memory storage
-        print("✅ Using in-memory user storage (from USER_DATA environment variable)")
+        # No MySQL credentials or MySQL disabled - use JSON file storage
+        init_json_storage()
 
 
-# User storage functions - In-memory + Environment variable storage
-def save_users_env():
-    """Save users to environment variable (for persistence on Render)"""
-    global USERS
-    os.environ["USER_DATA"] = json.dumps(USERS)
-    print(f"✅ Saved {len(USERS)} users to USER_DATA environment variable")
+# User storage functions are defined above (load_users_json, save_users_json)
 
 
 # Initialize storage on startup
@@ -428,7 +457,11 @@ except Exception as e:
     print(f"⚠️ Storage initialization error: {e}")
     import traceback
     traceback.print_exc()
-    print(f"✅ Using in-memory user storage (from USER_DATA environment variable)")
+    # Ensure JSON storage is initialized as fallback
+    try:
+        init_json_storage()
+    except Exception as json_err:
+        print(f"⚠️ JSON storage initialization also failed: {json_err}")
 
 
 def is_valid_password(password):
@@ -664,11 +697,11 @@ def register_user():
                 if conn and conn.is_connected():
                     conn.close()
 
-        # Use in-memory storage (fallback or default)
-        global USERS
+        # Use JSON file storage (fallback or default)
+        users = load_users_json()
         
         # Check if mobile already exists
-        if any(u.get("mobile") == mobile for u in USERS):
+        if any(u.get("mobile") == mobile for u in users):
             response = jsonify({"error": "Mobile number already registered. Please login instead."})
             response.headers["Content-Type"] = "application/json"
             return response, 409
@@ -677,14 +710,15 @@ def register_user():
         hashed_password = generate_password_hash(password)
         # Create new user
         new_user = {
-            "id": len(USERS) + 1,
+            "id": len(users) + 1,
             "username": username,
             "mobile": mobile,
             "password": hashed_password,
             "registration_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
-        USERS.append(new_user)
-        save_users_env()
+        users.append(new_user)
+        save_users_json(users)
+        print(f"✅ New user registered: {username} (mobile: {mobile}), Total users: {len(users)}")
         
         # Registration successful - redirect to login page (no auto-login)
         response = jsonify({"message": "User registered successfully! Please login.", "redirect": url_for("home")})
@@ -767,27 +801,34 @@ def login_user():
                 if conn and conn.is_connected():
                     conn.close()
 
-        # Use in-memory storage (fallback or default)
-        global USERS
-        users = USERS
+        # Use JSON file storage (fallback or default)
+        users = load_users_json()
+        print(f"🔍 Login attempt for mobile: {mobile}, Total users in file: {len(users)}")
         user = None
         for u in users:
             if u.get("mobile") == mobile:
                 stored_password = u.get("password", "")
+                print(f"✅ Found user: {u.get('username')}, checking password...")
                 # Try checking hashed password first, then plain text (for backwards compatibility)
                 password_valid = False
                 if stored_password.startswith("$2b$") or stored_password.startswith("$2a$") or stored_password.startswith("pbkdf2:"):
                     # It's a hashed password
                     password_valid = check_password_hash(stored_password, password)
+                    print(f"   Password check (hashed): {password_valid}")
                 else:
                     # Plain text password (legacy support)
                     password_valid = (stored_password == password)
+                    print(f"   Password check (plain): {password_valid}")
                 
                 if password_valid:
                     user = u
+                    print(f"✅ Password valid, login successful!")
                     break
+                else:
+                    print(f"❌ Password invalid for user: {u.get('username')}")
         
         if not user:
+            print(f"❌ Login failed: User not found or password incorrect for mobile: {mobile}")
             response = jsonify({"error": "Invalid mobile number or password"})
             response.headers["Content-Type"] = "application/json"
             return response, 401
