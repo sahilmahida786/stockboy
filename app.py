@@ -265,10 +265,12 @@ def handle_telegram_callback(payload):
 
         if action.startswith("approve_"):
             txn_id = action.replace("approve_", "")
+            print(f"✅ Approval request for Txn ID: {txn_id}")
             for i, entry in enumerate(payments):
                 if entry["txn_id"] == txn_id and entry["status"] == "pending":
                     payments[i]["status"] = "approved"
                     save_data(payments)
+                    print(f"✅ Payment approved: {txn_id} for user: {entry['user']}")
 
                     edit_url = f"{API_URL}/editMessageCaption"
                     new_caption = (
@@ -289,10 +291,12 @@ def handle_telegram_callback(payload):
 
         elif action.startswith("reject_"):
             txn_id = action.replace("reject_", "")
+            print(f"❌ Rejection request for Txn ID: {txn_id}")
             for i, entry in enumerate(payments):
                 if entry["txn_id"] == txn_id and entry["status"] == "pending":
                     payments[i]["status"] = "rejected"
                     save_data(payments)
+                    print(f"❌ Payment rejected: {txn_id} for user: {entry['user']}")
 
                     edit_url = f"{API_URL}/editMessageCaption"
                     new_caption = (
@@ -569,51 +573,95 @@ if not os.path.exists(PAYMENT_SS_FOLDER):
 @app.route("/submit_payment", methods=["POST"])
 def submit_payment():
     try:
+        print(f"💳 Payment submission request received")
         user_name = request.form.get("user_name")
         txn_id = request.form.get("txn_id")
         screenshot = request.files.get("screenshot")
+        
+        print(f"💳 Received - Name: {user_name}, Txn ID: {txn_id}, Screenshot: {screenshot.filename if screenshot else 'None'}")
 
         if not user_name or not txn_id:
+            print(f"❌ Missing fields - Name: {bool(user_name)}, Txn ID: {bool(txn_id)}")
             return jsonify({"message": "⚠️ Please enter name and transaction ID."}), 400
 
         if not screenshot:
+            print(f"❌ No screenshot file uploaded")
             return jsonify({"message": "⚠️ Please upload payment screenshot."}), 400
 
         # Load old data
-        data = load_data()
+        try:
+            data = load_data()
+            print(f"✅ Loaded {len(data)} existing payment entries")
+        except Exception as e:
+            print(f"❌ Error loading payment data: {e}")
+            import traceback
+            traceback.print_exc()
+            return jsonify({"message": "❌ Error loading payment data. Please try again."}), 500
 
         # 🔥 STOP MULTIPLE SUBMISSIONS (IMPORTANT)
         for entry in data:
             if entry["txn_id"] == txn_id:
+                print(f"⚠️ Duplicate transaction ID: {txn_id}")
                 return jsonify({"message": "⚠️ This payment is already submitted!"})
 
+        # Ensure payment_ss folder exists
+        try:
+            if not os.path.exists(PAYMENT_SS_FOLDER):
+                os.makedirs(PAYMENT_SS_FOLDER)
+                print(f"✅ Created payment_ss folder: {PAYMENT_SS_FOLDER}")
+        except Exception as e:
+            print(f"❌ Error creating payment_ss folder: {e}")
+            import traceback
+            traceback.print_exc()
+
         # Save screenshot to payment_ss folder (NOT in course uploads)
-        filename = secure_filename(f"{txn_id}.png")
-        filepath = os.path.join(PAYMENT_SS_FOLDER, filename)
-        screenshot.save(filepath)
+        try:
+            filename = secure_filename(f"{txn_id}.png")
+            filepath = os.path.join(PAYMENT_SS_FOLDER, filename)
+            screenshot.save(filepath)
+            print(f"✅ Screenshot saved: {filepath}")
+        except Exception as e:
+            print(f"❌ Error saving screenshot: {e}")
+            import traceback
+            traceback.print_exc()
+            return jsonify({"message": "❌ Error saving screenshot. Please try again."}), 500
 
         # Save new data
-        data.append({
-            "user": user_name,
-            "txn_id": txn_id,
-            "status": "pending",
-            "ss_path": filepath
-        })
-        save_data(data)
+        try:
+            data.append({
+                "user": user_name,
+                "txn_id": txn_id,
+                "status": "pending",
+                "ss_path": filepath
+            })
+            save_data(data)
+            print(f"✅ Payment data saved - Total entries: {len(data)}")
+        except Exception as e:
+            print(f"❌ Error saving payment data: {e}")
+            import traceback
+            traceback.print_exc()
+            return jsonify({"message": "❌ Error saving payment data. Please try again."}), 500
 
         # Send Telegram message with inline buttons (use relative path for Telegram)
-        send_telegram_photo(
-            filepath,
-            f"📩 *New Payment Request*\n\n👤 *Name:* {user_name}\n💳 *Txn ID:* `{txn_id}`\n⏳ *Status:* Pending Approval",
-            txn_id=txn_id
-        )
-        
-        # Update ss_path to be relative for web access
-        data[-1]["ss_path"] = filepath  # Keep full path for file access
+        try:
+            print(f"📤 Sending Telegram notification...")
+            send_telegram_photo(
+                filepath,
+                f"📩 *New Payment Request*\n\n👤 *Name:* {user_name}\n💳 *Txn ID:* `{txn_id}`\n⏳ *Status:* Pending Approval",
+                txn_id=txn_id
+            )
+            print(f"✅ Telegram notification sent successfully")
+        except Exception as e:
+            print(f"⚠️ Warning: Telegram notification failed (payment still saved): {e}")
+            import traceback
+            traceback.print_exc()
+            # Don't fail the whole request if Telegram fails - payment is still saved
 
         return jsonify({"message": "✅ Payment Submitted! Wait for approval."})
     except Exception as e:
-        print(f"Payment submission error: {e}")
+        print(f"❌ Payment submission error: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"message": "❌ Error submitting payment. Please try again."}), 500
 
 
