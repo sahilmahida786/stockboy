@@ -3,6 +3,7 @@ import requests, json, os, threading, time, re
 import mysql.connector
 from datetime import timedelta, datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
@@ -17,7 +18,7 @@ MAINTENANCE_MODE = os.getenv("MAINTENANCE_MODE", "false").lower() == "true"
 
 @app.before_request
 def maintenance_blocker():
-    allowed_routes = ["maintenance", "admin_login", "telegram_update"]  # admin & bots allowed
+    allowed_routes = ["maintenance", "admin_login"]  # admin allowed
 
     if MAINTENANCE_MODE:
         # allow access ONLY to /maintenance and /admin-login
@@ -38,8 +39,7 @@ def require_login():
         return None
     
     # Pages that don't require login (public routes - only login/register and admin)
-    public_routes = ["home", "auth_page", "login", "login_user", "register", "register_user", "admin_login", "maintenance", 
-                     "telegram_update"]
+    public_routes = ["home", "auth_page", "login", "login_user", "register", "register_user", "admin_login", "maintenance", "telegram_update"]
     
     # Skip authentication check for public routes
     if request.endpoint in public_routes:
@@ -133,12 +133,394 @@ def save_users_json(users):
 # Initialize storage on startup
 init_json_storage()
 
-# Read from environment variables (set in Render dashboard)
-BOT_TOKEN = os.getenv("BOT_TOKEN", "7581428285:AAF6qwxQYniDoZnhiwERUP_k0Vlf-k6MVSQ")
-CHAT_ID = os.getenv("CHAT_ID", "1924050423")
-API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
-BOT_LISTENER_ENABLED = os.getenv("ENABLE_BOT_LISTENER", "true").lower() == "true"
-BOT_POLL_TIMEOUT = int(os.getenv("BOT_POLL_TIMEOUT", "10"))
+# Firebase Configuration
+try:
+    import firebase_admin
+    from firebase_admin import credentials, auth
+    FIREBASE_AVAILABLE = True
+except ImportError:
+    print("⚠️ firebase-admin not installed - install with: pip install firebase-admin")
+    FIREBASE_AVAILABLE = False
+    firebase_admin = None
+    auth = None
+
+# Initialize Firebase Admin SDK
+if FIREBASE_AVAILABLE:
+    import glob
+    FIREBASE_CREDENTIALS_PATH = None
+    
+    # First, try environment variable
+    env_path = os.getenv("FIREBASE_CREDENTIALS")
+    if env_path:
+        # Check if it's a JSON string
+        if env_path.strip().startswith("{"):
+            FIREBASE_CREDENTIALS_PATH = env_path
+        # Check if it's a valid file path
+        elif os.path.exists(env_path):
+            FIREBASE_CREDENTIALS_PATH = env_path
+            print(f"📄 Using FIREBASE_CREDENTIALS from environment variable")
+    
+    # If env var didn't work, auto-detect from current directory
+    if not FIREBASE_CREDENTIALS_PATH:
+        firebase_files = glob.glob(os.path.join(BASE_DIR, "*-firebase-adminsdk-*.json"))
+        if firebase_files:
+            FIREBASE_CREDENTIALS_PATH = firebase_files[0]
+            print(f"📁 Auto-detected Firebase credentials: {os.path.basename(FIREBASE_CREDENTIALS_PATH)}")
+    
+    if FIREBASE_CREDENTIALS_PATH:
+        try:
+            # Check if it's a file path
+            if os.path.exists(FIREBASE_CREDENTIALS_PATH):
+                cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
+                print(f"✅ Loading Firebase credentials from file: {os.path.basename(FIREBASE_CREDENTIALS_PATH)}")
+            # Check if it's a JSON string
+            elif FIREBASE_CREDENTIALS_PATH.strip().startswith("{"):
+                cred_dict = json.loads(FIREBASE_CREDENTIALS_PATH)
+                cred = credentials.Certificate(cred_dict)
+                print("✅ Loading Firebase credentials from JSON string")
+            else:
+                raise ValueError(f"Invalid FIREBASE_CREDENTIALS: not a file path or JSON string")
+            
+            firebase_admin.initialize_app(cred)
+            print("✅ Firebase Admin SDK initialized successfully")
+        except Exception as e:
+            print(f"⚠️ Firebase initialization error: {e}")
+            print("   Continuing without Firebase - using fallback authentication")
+            FIREBASE_AVAILABLE = False
+    else:
+        print("⚠️ FIREBASE_CREDENTIALS not set and no Firebase credentials file found")
+        print("   Place a Firebase service account JSON file in the project directory")
+        print("   Continuing without Firebase - using fallback authentication")
+        FIREBASE_AVAILABLE = False
+
+# Telegram Bot Configuration
+BOT_TOKEN = os.getenv("BOT_TOKEN", "")
+CHAT_ID = os.getenv("CHAT_ID", "")
+API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}" if BOT_TOKEN else None
+
+# Print bot status on startup
+if BOT_TOKEN:
+    print(f"✅ Telegram Bot Token configured (length: {len(BOT_TOKEN)})")
+    if CHAT_ID:
+        print(f"✅ Telegram Chat ID configured: {CHAT_ID}")
+    else:
+        print("⚠️ Telegram Chat ID not set - payment notifications will not be sent")
+        print("   Set CHAT_ID environment variable to receive notifications")
+else:
+    print("⚠️ Telegram Bot Token not set - payment notifications disabled")
+
+# Telegram Bot Functions
+def send_telegram_photo(photo_path, caption, txn_id=None):
+    """Send photo to Telegram with inline approve/reject buttons."""
+    if not BOT_TOKEN:
+        print("❌ BOT_TOKEN not set - cannot send notification")
+        return False
+    
+    if not CHAT_ID:
+        print("❌ CHAT_ID not set - cannot send notification")
+        print("   Please set CHAT_ID in start_server.bat or environment variable")
+        return False
+    
+    if not os.path.exists(photo_path):
+        print(f"❌ Screenshot file not found: {photo_path}")
+        return False
+    
+    url = f"{API_URL}/sendPhoto"
+    
+    try:
+        print(f"📤 Sending to Telegram...")
+        print(f"   URL: {url}")
+        print(f"   Chat ID: {CHAT_ID}")
+        print(f"   Photo: {photo_path}")
+        
+        with open(photo_path, "rb") as photo_file:
+            files = {"photo": photo_file}
+            data = {
+                "chat_id": CHAT_ID, 
+                "caption": caption,
+                "parse_mode": "Markdown"
+            }
+            
+            # Add inline keyboard buttons if txn_id is provided
+            if txn_id:
+                keyboard = {
+                    "inline_keyboard": [
+                        [
+                            {"text": "✅ Approve", "callback_data": f"approve_{txn_id}"},
+                            {"text": "❌ Reject", "callback_data": f"reject_{txn_id}"}
+                        ]
+                    ]
+                }
+                data["reply_markup"] = json.dumps(keyboard)
+            
+            response = requests.post(url, files=files, data=data, timeout=10)
+            response_data = response.json()
+            
+            if response.status_code == 200 and response_data.get("ok"):
+                print(f"✅ Telegram notification sent successfully for Txn ID: {txn_id}")
+                return True
+            else:
+                error_msg = response_data.get("description", response.text)
+                print(f"❌ Telegram API error: {error_msg}")
+                print(f"   Full response: {response_data}")
+                return False
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Network error sending Telegram notification: {e}")
+        return False
+    except Exception as e:
+        print(f"❌ Unexpected error sending Telegram notification: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+def send_telegram_message(chat_id, text, parse_mode="Markdown"):
+    """Send a text message to Telegram."""
+    if not BOT_TOKEN:
+        print("❌ BOT_TOKEN not set - cannot send message")
+        return False
+    
+    url = f"{API_URL}/sendMessage"
+    try:
+        response = requests.post(url, json={
+            "chat_id": chat_id,
+            "text": text,
+            "parse_mode": parse_mode
+        }, timeout=10)
+        response_data = response.json()
+        
+        if response.status_code == 200 and response_data.get("ok"):
+            print(f"✅ Telegram message sent successfully to chat {chat_id}")
+            return True
+        else:
+            error_msg = response_data.get("description", response.text)
+            print(f"❌ Telegram API error: {error_msg}")
+            return False
+    except Exception as e:
+        print(f"❌ Error sending Telegram message: {e}")
+        return False
+
+def handle_telegram_message(payload):
+    """Handle incoming Telegram messages from users."""
+    if not payload or "message" not in payload:
+        return False
+    
+    try:
+        message = payload["message"]
+        chat_id = message["chat"]["id"]
+        user_id = message["from"]["id"]
+        username = message["from"].get("username", "Unknown")
+        first_name = message["from"].get("first_name", "User")
+        text = message.get("text", "").strip()
+        
+        print(f"📨 Received message from {first_name} (@{username}): {text}")
+        
+        # Handle /start command
+        if text == "/start" or text.lower().startswith("/start"):
+            welcome_message = (
+                f"👋 *Welcome to Stockboy Bot!*\n\n"
+                f"Hello {first_name}! 👋\n\n"
+                f"I'm here to help you with:\n"
+                f"• Payment notifications\n"
+                f"• Course access updates\n"
+                f"• Support inquiries\n\n"
+                f"Send /help to see available commands."
+            )
+            send_telegram_message(chat_id, welcome_message)
+            return True
+        
+        # Handle /help command
+        elif text == "/help" or text.lower().startswith("/help"):
+            help_message = (
+                f"📚 *Stockboy Bot Commands*\n\n"
+                f"/start - Start the bot\n"
+                f"/help - Show this help message\n"
+                f"/status - Check your payment status\n\n"
+                f"💡 *Need Support?*\n"
+                f"Visit our website or contact support for assistance."
+            )
+            send_telegram_message(chat_id, help_message)
+            return True
+        
+        # Handle /status command
+        elif text == "/status" or text.lower().startswith("/status"):
+            # Try to find user's payment status
+            payments = load_data()
+            user_payments = []
+            for entry in payments:
+                # Match by username or try to find by other identifiers
+                if entry.get("user") == first_name or entry.get("user") == username:
+                    user_payments.append(entry)
+            
+            if user_payments:
+                status_message = f"📊 *Your Payment Status*\n\n"
+                for payment in user_payments[-5:]:  # Show last 5 payments
+                    status_emoji = "✅" if payment["status"] == "approved" else "⏳" if payment["status"] == "pending" else "❌"
+                    status_message += (
+                        f"{status_emoji} *{payment.get('course_name', 'Course')}*\n"
+                        f"Txn ID: `{payment['txn_id']}`\n"
+                        f"Status: {payment['status'].title()}\n"
+                        f"Amount: {payment.get('amount', 'N/A')}\n\n"
+                    )
+                send_telegram_message(chat_id, status_message)
+            else:
+                send_telegram_message(chat_id, "📭 No payment records found. Submit a payment on our website to get started!")
+            return True
+        
+        # Handle general greetings
+        elif text.lower() in ["hello", "hi", "hey", "hey there"]:
+            greeting_message = (
+                f"Hello {first_name}! 👋\n\n"
+                f"How can I help you today? Send /help to see available commands."
+            )
+            send_telegram_message(chat_id, greeting_message)
+            return True
+        
+        # Handle unknown messages
+        else:
+            response_message = (
+                f"Hi {first_name}! 👋\n\n"
+                f"I received your message: \"{text}\"\n\n"
+                f"Send /help to see what I can do for you!"
+            )
+            send_telegram_message(chat_id, response_message)
+            return True
+            
+    except Exception as exc:
+        print(f"❌ Telegram message handling error: {exc}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+def handle_telegram_callback(payload):
+    """Handle Telegram callback queries for approve/reject."""
+    if not payload or "callback_query" not in payload:
+        return False
+
+    try:
+        cb = payload["callback_query"]
+        action = cb["data"]
+        callback_id = cb["id"]
+        message_id = cb["message"]["message_id"]
+        chat_id = cb["message"]["chat"]["id"]
+
+        # Answer callback query
+        answer_url = f"{API_URL}/answerCallbackQuery"
+        requests.post(answer_url, json={"callback_query_id": callback_id})
+
+        payments = load_data()
+        processed = False
+
+        if action.startswith("approve_"):
+            txn_id = action.replace("approve_", "")
+            print(f"✅ Approval request for Txn ID: {txn_id}")
+            for i, entry in enumerate(payments):
+                if entry["txn_id"] == txn_id and entry["status"] == "pending":
+                    payments[i]["status"] = "approved"
+                    save_data(payments)
+                    print(f"✅ Payment approved: {txn_id} for user: {entry['user']}")
+
+                    # Update Telegram message
+                    edit_url = f"{API_URL}/editMessageCaption"
+                    new_caption = (
+                        f"✅ *Payment Approved*\n\n"
+                        f"👤 *User:* {entry['user']}\n"
+                        f"💳 *Txn ID:* `{txn_id}`\n"
+                        f"📦 *Course:* {entry.get('course_name', 'N/A')}\n"
+                        f"💰 *Amount:* {entry.get('amount', 'N/A')}\n"
+                        f"🔓 *Status:* Access Granted"
+                    )
+                    requests.post(edit_url, json={
+                        "chat_id": chat_id,
+                        "message_id": message_id,
+                        "caption": new_caption,
+                        "parse_mode": "Markdown"
+                    })
+                    processed = True
+                    break
+
+        elif action.startswith("reject_"):
+            txn_id = action.replace("reject_", "")
+            print(f"❌ Rejection request for Txn ID: {txn_id}")
+            for i, entry in enumerate(payments):
+                if entry["txn_id"] == txn_id and entry["status"] == "pending":
+                    payments[i]["status"] = "rejected"
+                    save_data(payments)
+                    print(f"❌ Payment rejected: {txn_id} for user: {entry['user']}")
+
+                    # Update Telegram message
+                    edit_url = f"{API_URL}/editMessageCaption"
+                    new_caption = (
+                        f"❌ *Payment Rejected*\n\n"
+                        f"👤 *User:* {entry['user']}\n"
+                        f"💳 *Txn ID:* `{txn_id}`\n"
+                        f"📦 *Course:* {entry.get('course_name', 'N/A')}\n"
+                        f"💰 *Amount:* {entry.get('amount', 'N/A')}\n"
+                        f"🚫 *Status:* Access Denied"
+                    )
+                    requests.post(edit_url, json={
+                        "chat_id": chat_id,
+                        "message_id": message_id,
+                        "caption": new_caption,
+                        "parse_mode": "Markdown"
+                    })
+                    processed = True
+                    break
+
+        if not processed:
+            requests.post(answer_url, json={
+                "callback_query_id": callback_id,
+                "text": "This payment has already been processed",
+                "show_alert": False
+            })
+
+        return True
+    except Exception as exc:
+        print(f"❌ Telegram callback error: {exc}")
+        return False
+
+@app.route("/telegram-update", methods=["POST"])
+def telegram_update():
+    """Handle Telegram webhook updates (both messages and callbacks)."""
+    data = request.get_json()
+    if not data:
+        return "OK", 200
+    
+    print(f"📥 Received Telegram update: {json.dumps(data, indent=2)}")
+    
+    # Handle callback queries (approve/reject buttons)
+    if "callback_query" in data:
+        handle_telegram_callback(data)
+    # Handle regular messages
+    elif "message" in data:
+        handle_telegram_message(data)
+    
+    return "OK", 200
+
+# Firebase token verification decorator
+def firebase_required(f):
+    """Decorator to verify Firebase ID token from Authorization header."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not FIREBASE_AVAILABLE or not auth:
+            return jsonify({"error": "Firebase authentication not configured"}), 500
+        
+        auth_header = request.headers.get("Authorization")
+        if not auth_header:
+            return jsonify({"error": "Missing authorization token"}), 401
+        
+        # Extract token from "Bearer <token>" format
+        try:
+            token = auth_header.split("Bearer ")[-1] if "Bearer " in auth_header else auth_header
+            decoded_token = auth.verify_id_token(token)
+            request.firebase_uid = decoded_token["uid"]
+            request.firebase_email = decoded_token.get("email", "")
+            request.firebase_name = decoded_token.get("name", "")
+        except Exception as e:
+            print(f"❌ Token verification error: {e}")
+            return jsonify({"error": "Invalid or expired token"}), 401
+        
+        return f(*args, **kwargs)
+    return decorated
 
 # MySQL Configuration - Force disabled (using JSON storage)
 # To use MySQL, set environment variables:
@@ -189,143 +571,6 @@ PRODUCT_DETAILS = {
 }
 
 
-# -------------------------------------------------
-# TELEGRAM SENDER (CLEAN + NO DUPLICATION)
-# -------------------------------------------------
-def send_telegram(message, txn_id=None, parse_mode="Markdown"):
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-
-    if txn_id:
-        keyboard = {
-            "inline_keyboard": [
-                [
-                    {"text": "✅ Approve", "callback_data": f"approve_{txn_id}"},
-                    {"text": "❌ Reject", "callback_data": f"reject_{txn_id}"}
-                ]
-            ]
-        }
-        payload = {
-            "chat_id": CHAT_ID,
-            "text": message,
-            "reply_markup": json.dumps(keyboard),
-            "parse_mode": parse_mode
-        }
-    else:
-        payload = {
-            "chat_id": CHAT_ID,
-            "text": message,
-            "parse_mode": parse_mode
-        }
-
-    requests.post(url, json=payload)
-
-def send_telegram_photo(photo_path, caption, txn_id=None):
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
-    
-    with open(photo_path, "rb") as photo_file:
-        files = {"photo": photo_file}
-        data = {
-            "chat_id": CHAT_ID, 
-            "caption": caption,
-            "parse_mode": "Markdown"
-        }
-        
-        # Add inline keyboard buttons if txn_id is provided
-        if txn_id:
-            keyboard = {
-                "inline_keyboard": [
-                    [
-                        {"text": "✅ Approve", "callback_data": f"approve_{txn_id}"},
-                        {"text": "❌ Reject", "callback_data": f"reject_{txn_id}"}
-                    ]
-                ]
-            }
-            data["reply_markup"] = json.dumps(keyboard)
-        
-        requests.post(url, files=files, data=data)
-
-
-def handle_telegram_callback(payload):
-    """Shared handler for Telegram callback queries."""
-    if not payload or "callback_query" not in payload:
-        return False
-
-    try:
-        cb = payload["callback_query"]
-        action = cb["data"]
-        callback_id = cb["id"]
-        message_id = cb["message"]["message_id"]
-        chat_id = cb["message"]["chat"]["id"]
-
-        answer_url = f"{API_URL}/answerCallbackQuery"
-        requests.post(answer_url, json={"callback_query_id": callback_id})
-
-        payments = load_data()
-        processed = False
-
-        if action.startswith("approve_"):
-            txn_id = action.replace("approve_", "")
-            print(f"✅ Approval request for Txn ID: {txn_id}")
-            for i, entry in enumerate(payments):
-                if entry["txn_id"] == txn_id and entry["status"] == "pending":
-                    payments[i]["status"] = "approved"
-                    save_data(payments)
-                    print(f"✅ Payment approved: {txn_id} for user: {entry['user']}")
-
-                    edit_url = f"{API_URL}/editMessageCaption"
-                    new_caption = (
-                        f"✅ *Payment Approved*\n\n"
-                        f"👤 *Name:* {entry['user']}\n"
-                        f"💳 *Txn ID:* `{txn_id}`\n"
-                        f"🔓 *Status:* Dashboard Unlocked"
-                    )
-                    requests.post(edit_url, json={
-                        "chat_id": chat_id,
-                        "message_id": message_id,
-                        "caption": new_caption,
-                        "parse_mode": "Markdown"
-                    })
-                    send_telegram(f"✅ *Approved*\n\n👤 {entry['user']}\n💳 `{txn_id}`\n🔓 Dashboard Unlocked")
-                    processed = True
-                    break
-
-        elif action.startswith("reject_"):
-            txn_id = action.replace("reject_", "")
-            print(f"❌ Rejection request for Txn ID: {txn_id}")
-            for i, entry in enumerate(payments):
-                if entry["txn_id"] == txn_id and entry["status"] == "pending":
-                    payments[i]["status"] = "rejected"
-                    save_data(payments)
-                    print(f"❌ Payment rejected: {txn_id} for user: {entry['user']}")
-
-                    edit_url = f"{API_URL}/editMessageCaption"
-                    new_caption = (
-                        f"❌ *Payment Rejected*\n\n"
-                        f"👤 *Name:* {entry['user']}\n"
-                        f"💳 *Txn ID:* `{txn_id}`\n"
-                        f"🚫 *Status:* Access Denied"
-                    )
-                    requests.post(edit_url, json={
-                        "chat_id": chat_id,
-                        "message_id": message_id,
-                        "caption": new_caption,
-                        "parse_mode": "Markdown"
-                    })
-                    send_telegram(f"❌ *Rejected*\n\n👤 {entry['user']}\n💳 `{txn_id}`\n🚫 Access Denied")
-                    processed = True
-                    break
-
-        if not processed:
-            requests.post(answer_url, json={
-                "callback_query_id": callback_id,
-                "text": "This payment has already been processed",
-                "show_alert": False
-            })
-
-        return True
-    except Exception as exc:
-        print(f"Telegram callback error: {exc}")
-        return False
 
 # -------------------------------------------------
 # FOLDER CHECK
@@ -531,7 +776,80 @@ def products_page():
         return redirect(url_for("home"))
     username = session.get("username", "User")
     mobile = session.get("mobile", "")
-    return render_template("products.html", products=get_product_catalog(), username=username, mobile=mobile, logged_in=True)
+    email = session.get("email", "")
+    return render_template("products.html", products=get_product_catalog(), username=username, mobile=mobile, email=email, logged_in=True)
+
+@app.route("/product/<product_slug>")
+def product_detail(product_slug):
+    """Individual product page with download options - requires payment approval"""
+    if not (session.get("logged_in") or session.get("user_id")):
+        return redirect(url_for("home"))
+    
+    if product_slug not in PRODUCT_DETAILS:
+        return "Product not found", 404
+    
+    product_info = PRODUCT_DETAILS[product_slug]
+    username = session.get("username", "User")
+    email = session.get("email", "")
+    user_id = session.get("user_id") or session.get("email", "")
+    
+    # Check payment approval status for this product
+    payments = load_data()
+    payment_status = "not_submitted"  # not_submitted, pending, approved, rejected
+    payment_entry = None
+    
+    # Check if user has approved access for this product (from session)
+    approved_products = session.get("approved_products", [])
+    if product_slug in approved_products:
+        payment_status = "approved"
+    else:
+        # Find payment for this user and product
+        for entry in payments:
+            if (entry.get("user") == username or entry.get("user_email") == email) and entry.get("product_slug") == product_slug:
+                payment_entry = entry
+                payment_status = entry.get("status", "pending")
+                # If approved, add to session
+                if payment_status == "approved" and product_slug not in approved_products:
+                    if "approved_products" not in session:
+                        session["approved_products"] = []
+                    session["approved_products"].append(product_slug)
+                break
+    
+    # Get files for this product (only if approved)
+    product_folder = os.path.join(UPLOAD_FOLDER, product_slug)
+    files = []
+    if payment_status == "approved":
+        if os.path.isdir(product_folder):
+            for filename in os.listdir(product_folder):
+                ext = filename.rsplit(".", 1)[-1].lower()
+                if ext in COURSE_EXTENSIONS:
+                    file_path = os.path.join(product_folder, filename)
+                    file_size = os.path.getsize(file_path)
+                    # Format file size
+                    if file_size < 1024:
+                        size_str = f"{file_size} B"
+                    elif file_size < 1024 * 1024:
+                        size_str = f"{file_size / 1024:.1f} KB"
+                    else:
+                        size_str = f"{file_size / (1024 * 1024):.1f} MB"
+                    
+                    files.append({
+                        "name": filename,
+                        "url": f"/static/uploads/{product_slug}/{filename}",
+                        "download_url": f"/download/{product_slug}/{filename}",
+                        "type": COURSE_EXTENSIONS.get(ext, "File"),
+                        "size": size_str
+                    })
+    
+    return render_template("product_detail.html", 
+                         product_slug=product_slug,
+                         product=product_info,
+                         files=files,
+                         username=username,
+                         email=email,
+                         payment_status=payment_status,
+                         payment_entry=payment_entry,
+                         logged_in=True)
 
 @app.route("/about")
 def about_page():
@@ -562,6 +880,7 @@ def auth_page():
         if session.get("approved"):
             return redirect(url_for("dashboard"))
         return redirect(url_for("products_page"))
+    
     return render_template("auth.html")
 
 from werkzeug.utils import secure_filename
@@ -576,9 +895,10 @@ def submit_payment():
         print(f"💳 Payment submission request received")
         user_name = request.form.get("user_name")
         txn_id = request.form.get("txn_id")
+        product_slug = request.form.get("product_slug", "product1")  # Default to product1
         screenshot = request.files.get("screenshot")
         
-        print(f"💳 Received - Name: {user_name}, Txn ID: {txn_id}, Screenshot: {screenshot.filename if screenshot else 'None'}")
+        print(f"💳 Received - Name: {user_name}, Txn ID: {txn_id}, Product: {product_slug}, Screenshot: {screenshot.filename if screenshot else 'None'}")
 
         if not user_name or not txn_id:
             print(f"❌ Missing fields - Name: {bool(user_name)}, Txn ID: {bool(txn_id)}")
@@ -587,6 +907,11 @@ def submit_payment():
         if not screenshot:
             print(f"❌ No screenshot file uploaded")
             return jsonify({"message": "⚠️ Please upload payment screenshot."}), 400
+
+        # Get product info
+        product_info = PRODUCT_DETAILS.get(product_slug, PRODUCT_DETAILS["product1"])
+        course_name = product_info.get("title", "Unknown Course")
+        amount = product_info.get("price", "₹0")
 
         # Load old data
         try:
@@ -626,14 +951,20 @@ def submit_payment():
             traceback.print_exc()
             return jsonify({"message": "❌ Error saving screenshot. Please try again."}), 500
 
-        # Save new data
+        # Save new data with product info
         try:
-            data.append({
+            payment_entry = {
                 "user": user_name,
                 "txn_id": txn_id,
                 "status": "pending",
-                "ss_path": filepath
-            })
+                "ss_path": filepath,
+                "product_slug": product_slug,
+                "course_name": course_name,
+                "amount": amount,
+                "user_email": session.get("email", ""),
+                "submitted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            data.append(payment_entry)
             save_data(data)
             print(f"✅ Payment data saved - Total entries: {len(data)}")
         except Exception as e:
@@ -642,20 +973,32 @@ def submit_payment():
             traceback.print_exc()
             return jsonify({"message": "❌ Error saving payment data. Please try again."}), 500
 
-        # Send Telegram message with inline buttons (use relative path for Telegram)
+        # Send Telegram notification with product info
+        print(f"📱 Attempting to send Telegram notification...")
+        print(f"   BOT_TOKEN: {'Set' if BOT_TOKEN else 'NOT SET'}")
+        print(f"   CHAT_ID: {'Set' if CHAT_ID else 'NOT SET'}")
+        print(f"   File path: {filepath}")
+        print(f"   File exists: {os.path.exists(filepath)}")
+        
         try:
-            print(f"📤 Sending Telegram notification...")
-            send_telegram_photo(
-                filepath,
-                f"📩 *New Payment Request*\n\n👤 *Name:* {user_name}\n💳 *Txn ID:* `{txn_id}`\n⏳ *Status:* Pending Approval",
-                txn_id=txn_id
+            caption = (
+                f"📩 *New Payment Request*\n\n"
+                f"👤 *User:* {user_name}\n"
+                f"💳 *Txn ID:* `{txn_id}`\n"
+                f"📦 *Course:* {course_name}\n"
+                f"💰 *Amount:* {amount}\n"
+                f"⏳ *Status:* Pending Approval"
             )
+            send_telegram_photo(filepath, caption, txn_id=txn_id)
             print(f"✅ Telegram notification sent successfully")
         except Exception as e:
-            print(f"⚠️ Warning: Telegram notification failed (payment still saved): {e}")
+            print(f"❌ ERROR: Telegram notification failed: {e}")
             import traceback
             traceback.print_exc()
-            # Don't fail the whole request if Telegram fails - payment is still saved
+            print(f"⚠️ Payment still saved - notification can be sent manually from admin panel")
+
+        # Payment saved successfully
+        print(f"✅ Payment submission completed for {user_name} with Txn ID: {txn_id}")
 
         return jsonify({"message": "✅ Payment Submitted! Wait for approval."})
     except Exception as e:
@@ -668,14 +1011,27 @@ def submit_payment():
 @app.route("/check_approval", methods=["POST"])
 def check_approval():
     txn_id = request.form.get("txn_id")
-    print(f"🔍 Checking approval status for Txn ID: {txn_id}")
+    product_slug = request.form.get("product_slug", "")
+    print(f"🔍 Checking approval status for Txn ID: {txn_id}, Product: {product_slug}")
 
     data = load_data()
     for x in data:
         if x["txn_id"] == txn_id:
             status = x["status"]
-            print(f"📋 Found payment - Txn ID: {txn_id}, Status: {status}")
-            return jsonify({"status": status})
+            product = x.get("product_slug", "")
+            print(f"📋 Found payment - Txn ID: {txn_id}, Status: {status}, Product: {product}")
+            
+            # If approved, add to session
+            if status == "approved" and product:
+                if "approved_products" not in session:
+                    session["approved_products"] = []
+                if product not in session["approved_products"]:
+                    session["approved_products"].append(product)
+            
+            return jsonify({
+                "status": status,
+                "product_slug": product
+            })
 
     print(f"⚠️ Payment not found for Txn ID: {txn_id}")
     return jsonify({"status": "not_found"})
@@ -685,256 +1041,166 @@ def check_approval():
 def start_session():
     txn_id = request.form.get("txn_id")
     user_name = request.form.get("user_name", "User")
-    print(f"🚀 Starting session for Txn ID: {txn_id}, User: {user_name}")
+    product_slug = request.form.get("product_slug", "")
+    print(f"🚀 Starting session for Txn ID: {txn_id}, User: {user_name}, Product: {product_slug}")
 
     data = load_data()
-    approved = any(x["txn_id"] == txn_id and x["status"] == "approved" for x in data)
-    print(f"📋 Approval check result: {approved}")
+    payment_entry = None
+    for x in data:
+        if x["txn_id"] == txn_id:
+            payment_entry = x
+            break
+    
+    if not payment_entry:
+        print(f"❌ Payment not found for Txn ID: {txn_id}")
+        return jsonify({"ok": False, "error": "Payment not found"})
+    
+    if payment_entry["status"] != "approved":
+        print(f"❌ Payment not approved yet for Txn ID: {txn_id}, Status: {payment_entry['status']}")
+        return jsonify({"ok": False, "error": f"Payment {payment_entry['status']}"})
 
-    if not approved:
-        print(f"❌ Payment not approved yet for Txn ID: {txn_id}")
-        return jsonify({"ok": False})
-
+    # Store approved products in session
+    if "approved_products" not in session:
+        session["approved_products"] = []
+    
+    product_slug = payment_entry.get("product_slug", product_slug)
+    if product_slug and product_slug not in session["approved_products"]:
+        session["approved_products"].append(product_slug)
+    
     session["approved"] = True
     session["user_name"] = user_name
-    print(f"✅ Session started - User: {user_name}, Approved: True, Redirecting to dashboard")
-    return jsonify({"ok": True, "redirect": url_for("dashboard")})
+    print(f"✅ Session started - User: {user_name}, Approved: True, Product: {product_slug}")
+    
+    # Redirect to product page if product specified, otherwise dashboard
+    if product_slug:
+        return jsonify({"ok": True, "redirect": url_for("product_detail", product_slug=product_slug)})
+    else:
+        return jsonify({"ok": True, "redirect": url_for("dashboard")})
 
 
 # -------------------------------------------------
-# USER REGISTRATION & LOGIN (Hybrid: MySQL or JSON)
+# USER REGISTRATION & LOGIN (Firebase Authentication)
 # -------------------------------------------------
 @app.route("/register", methods=["POST"])
 def register_user():
-    global _db_available
     try:
         print(f"📝 Registration request received - Method: {request.method}, Path: {request.path}")
-        print(f"📝 Headers: {dict(request.headers)}")
-        payload = request.get_json(silent=True) or request.form
-        print(f"📝 Payload type: {type(payload)}, Keys: {list(payload.keys()) if hasattr(payload, 'keys') else 'N/A'}")
-        username = (payload.get("username") or "").strip()
-        mobile = (payload.get("mobile") or "").strip()
-        password = payload.get("password") or ""
-        print(f"📝 Extracted - Username: {username[:3]}..., Mobile: {mobile}, Password: {'*' * len(password)}")
-
-        if not username or not mobile or not password:
-            print(f"❌ Missing fields - username: {bool(username)}, mobile: {bool(mobile)}, password: {bool(password)}")
-            response = jsonify({"error": "Missing username, mobile, or password"})
+        
+        # Get token from Authorization header first (preferred), then from body
+        auth_header = request.headers.get("Authorization")
+        if auth_header:
+            token = auth_header.split("Bearer ")[-1] if "Bearer " in auth_header else auth_header
+        else:
+            payload = request.get_json(silent=True) or request.form
+            token = payload.get("idToken") or payload.get("token")
+        
+        if not token:
+            response = jsonify({"error": "Missing Firebase ID token"})
             response.headers["Content-Type"] = "application/json"
             return response, 400
 
-        if not is_valid_password(password):
-            response = jsonify({"error": "Weak password. Include A, a, 1, @ and min 6 chars"})
-            response.headers["Content-Type"] = "application/json"
-            return response, 400
-
-        # Try MySQL first if available
-        if check_db_available():
-            conn = None
+        # Verify Firebase ID token
+        if FIREBASE_AVAILABLE and auth:
             try:
-                conn = get_db_connection()
-                cur = conn.cursor()
-                # Hash password before storing
-                hashed_password = generate_password_hash(password)
-                sql = """
-                    INSERT INTO users (username, mobile, password, registration_date)
-                    VALUES (%s, %s, %s, %s)
-                """
-                cur.execute(sql, (username, mobile, hashed_password, datetime.now()))
-                user_id = cur.lastrowid
-                conn.commit()
-                cur.close()
+                decoded_token = auth.verify_id_token(token)
+                uid = decoded_token['uid']
+                email = decoded_token.get('email', '')
+                name = decoded_token.get('name', email.split('@')[0] if email else 'User')
                 
-                # Registration successful - redirect to login page (no auto-login)
-                response = jsonify({"message": "User registered successfully! Please login.", "redirect": url_for("home")})
+                # Store user info in session
+                session["user_id"] = uid
+                session["username"] = name
+                session["email"] = email
+                session["logged_in"] = True
+                session["reg_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                
+                print(f"✅ User registered successfully: {email} (UID: {uid})")
+                response = jsonify({
+                    "message": "Registration successful!",
+                    "redirect": url_for("products_page"),
+                    "registration_date": session["reg_date"]
+                })
                 response.headers["Content-Type"] = "application/json"
                 return response, 201
-            except mysql.connector.IntegrityError:
-                response = jsonify({"error": "Mobile number already registered. Please login instead."})
-                response.headers["Content-Type"] = "application/json"
-                return response, 409
             except Exception as e:
-                print(f"MySQL register error, falling back to JSON: {e}")
-                import traceback
-                traceback.print_exc()
-                # Reset database availability cache on error
-                _db_available = None
-                # Fall through to JSON storage
-            finally:
-                if conn and conn.is_connected():
-                    conn.close()
-
-        # Use JSON file storage (fallback or default)
-        users = load_users_json()
-        
-        # Check if mobile already exists
-        if any(u.get("mobile") == mobile for u in users):
-            response = jsonify({"error": "Mobile number already registered. Please login instead."})
+                print(f"❌ Firebase token verification error: {e}")
+                response = jsonify({"error": "Invalid authentication token"})
+                response.headers["Content-Type"] = "application/json"
+                return response, 401
+        else:
+            response = jsonify({"error": "Firebase authentication not configured"})
             response.headers["Content-Type"] = "application/json"
-            return response, 409
-        
-        # Hash password before storing
-        hashed_password = generate_password_hash(password)
-        # Create new user
-        new_user = {
-            "id": len(users) + 1,
-            "username": username,
-            "mobile": mobile,
-            "password": hashed_password,
-            "registration_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }
-        users.append(new_user)
-        save_users_json(users)
-        print(f"✅ New user registered: {username} (mobile: {mobile}), Total users: {len(users)}")
-        print(f"📁 USERS_FILE path: {USERS_FILE}")
-        # Verify the user was saved by reloading
-        verify_users = load_users_json()
-        print(f"✅ Verification: {len(verify_users)} users found in file after save")
-        
-        # Registration successful - redirect to login page (no auto-login)
-        response = jsonify({"message": "User registered successfully! Please login.", "redirect": url_for("home")})
-        response.headers["Content-Type"] = "application/json"
-        return response, 201
+            return response, 500
     except Exception as e:
         print(f"❌ Register route error: {e}")
         import traceback
         traceback.print_exc()
-        error_msg = f"Registration failed: {str(e)}"
-        print(f"❌ Returning error to client: {error_msg}")
         response = jsonify({"error": "Registration failed. Please try again."})
         response.headers["Content-Type"] = "application/json"
         return response, 500
 
 
+
 @app.route("/login", methods=["POST"])
 def login_user():
-    global _db_available
     try:
         print(f"🔐 Login request received - Method: {request.method}, Path: {request.path}")
-        print(f"🔐 Headers: {dict(request.headers)}")
-        payload = request.get_json(silent=True) or request.form
-        print(f"🔐 Payload type: {type(payload)}, Keys: {list(payload.keys()) if hasattr(payload, 'keys') else 'N/A'}")
-        mobile = (payload.get("mobile") or "").strip()
-        password = payload.get("password") or ""
-        print(f"🔐 Extracted - Mobile: {mobile}, Password: {'*' * len(password)}")
-
-        if not mobile or not password:
-            print(f"❌ Missing fields - mobile: {bool(mobile)}, password: {bool(password)}")
-            response = jsonify({"error": "Missing mobile or password"})
+        
+        # Get token from Authorization header or request body
+        auth_header = request.headers.get("Authorization")
+        if auth_header:
+            token = auth_header.split("Bearer ")[-1] if "Bearer " in auth_header else auth_header
+        else:
+            payload = request.get_json(silent=True) or request.form
+            token = payload.get("idToken") or payload.get("token")
+        
+        if not token:
+            response = jsonify({"error": "Missing Firebase ID token"})
             response.headers["Content-Type"] = "application/json"
             return response, 400
 
-        # Try MySQL first if available
-        if check_db_available():
-            conn = None
+        # Verify Firebase ID token
+        if FIREBASE_AVAILABLE and auth:
             try:
-                conn = get_db_connection()
-                cur = conn.cursor()
-                sql = """
-                    SELECT id, username, password, registration_date
-                    FROM users WHERE mobile=%s
-                """
-                cur.execute(sql, (mobile,))
-                row = cur.fetchone()
-                cur.close()
+                decoded_token = auth.verify_id_token(token)
+                uid = decoded_token['uid']
+                email = decoded_token.get('email', '')
+                name = decoded_token.get('name', email.split('@')[0] if email else 'User')
                 
-                # Check password using hash comparison (supports both hashed and plain text for migration)
-                if not row:
-                    response = jsonify({"error": "Invalid mobile number or password"})
-                    response.headers["Content-Type"] = "application/json"
-                    return response, 401
-                
-                stored_password = row[2]
-                # Try check_password_hash first (handles all werkzeug hash formats)
-                # If that fails, try plain text comparison (for backwards compatibility)
-                password_valid = False
-                try:
-                    # check_password_hash handles all werkzeug hash formats (scrypt, pbkdf2, etc.)
-                    password_valid = check_password_hash(stored_password, password)
-                except:
-                    # If check_password_hash fails (not a werkzeug hash), try plain text
-                    password_valid = (stored_password == password)
-                
-                if not password_valid:
-                    response = jsonify({"error": "Invalid mobile number or password"})
-                    response.headers["Content-Type"] = "application/json"
-                    return response, 401
-
-                session["user_id"] = row[0]
-                session["username"] = row[1]
-                session["mobile"] = mobile  # Store mobile from login
+                # Store user info in session
+                session["user_id"] = uid
+                session["username"] = name
+                session["email"] = email
                 session["logged_in"] = True
-                reg_date = row[3]
-                session["reg_date"] = reg_date.strftime("%Y-%m-%d %H:%M:%S") if reg_date else ""
-
-                response = jsonify({"message": "Login successful!", "redirect": url_for("products_page"), "registration_date": session["reg_date"]})
+                
+                # Try to get registration date from token (if available)
+                if 'auth_time' in decoded_token:
+                    reg_date = datetime.fromtimestamp(decoded_token['auth_time']).strftime("%Y-%m-%d %H:%M:%S")
+                    session["reg_date"] = reg_date
+                else:
+                    session["reg_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                
+                print(f"✅ User logged in successfully: {email} (UID: {uid})")
+                response = jsonify({
+                    "message": "Login successful!",
+                    "redirect": url_for("products_page"),
+                    "registration_date": session["reg_date"]
+                })
                 response.headers["Content-Type"] = "application/json"
                 return response
             except Exception as e:
-                print(f"MySQL login error, falling back to JSON: {e}")
-                import traceback
-                traceback.print_exc()
-                # Reset database availability cache on error
-                _db_available = None
-                # Fall through to JSON storage
-            finally:
-                if conn and conn.is_connected():
-                    conn.close()
-
-        # Use JSON file storage (fallback or default)
-        users = load_users_json()
-        print(f"🔍 Login attempt for mobile: {mobile}, Total users in file: {len(users)}")
-        print(f"📁 USERS_FILE path: {USERS_FILE}")
-        if users:
-            print(f"📋 Available mobile numbers: {[u.get('mobile') for u in users]}")
-        user = None
-        for u in users:
-            if u.get("mobile") == mobile:
-                stored_password = u.get("password", "")
-                print(f"✅ Found user: {u.get('username')}, checking password...")
-                # Try check_password_hash first (handles all werkzeug hash formats: scrypt, pbkdf2, etc.)
-                # If that fails, try plain text comparison (for backwards compatibility)
-                password_valid = False
-                try:
-                    # check_password_hash handles all werkzeug hash formats (scrypt, pbkdf2, etc.)
-                    password_valid = check_password_hash(stored_password, password)
-                    print(f"   Password check (werkzeug hash): {password_valid}")
-                    if not password_valid:
-                        print(f"   ⚠️ Hash check failed. Stored hash starts with: {stored_password[:20] if stored_password else 'EMPTY'}")
-                except Exception as hash_err:
-                    # If check_password_hash fails (not a werkzeug hash), try plain text
-                    print(f"   ⚠️ Hash check exception: {hash_err}")
-                    password_valid = (stored_password == password)
-                    print(f"   Password check (plain text fallback): {password_valid}")
-                
-                if password_valid:
-                    user = u
-                    print(f"✅ Password valid, login successful!")
-                    break
-                else:
-                    print(f"❌ Password invalid for user: {u.get('username')}")
-        
-        if not user:
-            print(f"❌ Login failed: User not found or password incorrect for mobile: {mobile}")
-            response = jsonify({"error": "Invalid mobile number or password"})
+                print(f"❌ Firebase token verification error: {e}")
+                response = jsonify({"error": "Invalid authentication token"})
+                response.headers["Content-Type"] = "application/json"
+                return response, 401
+        else:
+            response = jsonify({"error": "Firebase authentication not configured"})
             response.headers["Content-Type"] = "application/json"
-            return response, 401
-
-        session["user_id"] = user["id"]
-        session["username"] = user["username"]
-        session["mobile"] = user["mobile"]
-        session["logged_in"] = True
-        session["reg_date"] = user.get("registration_date", "")
-        
-        response = jsonify({"message": "Login successful!", "redirect": url_for("products_page"), "registration_date": session["reg_date"]})
-        response.headers["Content-Type"] = "application/json"
-        return response
+            return response, 500
     except Exception as e:
         print(f"❌ Login route error: {e}")
         import traceback
         traceback.print_exc()
-        error_msg = f"Login failed: {str(e)}"
-        print(f"❌ Returning error to client: {error_msg}")
         response = jsonify({"error": "Login failed. Please try again."})
         response.headers["Content-Type"] = "application/json"
         return response, 500
@@ -1140,7 +1406,7 @@ def approve(index):
     data[index]["status"] = "approved"
     save_data(data)
 
-    send_telegram(f"✅ Payment Approved\n\n👤 {user}\n💳 {txn_id}\n🔓 Dashboard Access Granted")
+    print(f"✅ Payment approved: {txn_id} for user: {user}")
 
     return redirect("/admin")
 
@@ -1154,7 +1420,7 @@ def reject(index):
     data[index]["status"] = "rejected"
     save_data(data)
 
-    send_telegram(f"❌ Payment Rejected\n\n👤 {user}\n💳 {txn_id}\n🚫 Access Denied")
+    print(f"❌ Payment rejected: {txn_id} for user: {user}")
 
     return redirect("/admin")
 
@@ -1164,13 +1430,61 @@ def reject(index):
 # -------------------------------------------------
 @app.route("/upload", methods=["GET", "POST"])
 def upload_file():
+    """Upload files to specific product folders"""
+    if not session.get("admin"):
+        return redirect("/admin-login")
+    
     if request.method == "POST":
-        f = request.files["file"]
-        f.save(os.path.join(UPLOAD_FOLDER, f.filename))
-        return redirect("/upload")
+        product_slug = request.form.get("product", "product1")
+        f = request.files.get("file")
+        
+        if not f or f.filename == "":
+            return redirect("/upload?error=No file selected")
+        
+        # Ensure product folder exists
+        product_folder = os.path.join(UPLOAD_FOLDER, product_slug)
+        if not os.path.exists(product_folder):
+            os.makedirs(product_folder)
+        
+        # Save file to product folder
+        filename = secure_filename(f.filename)
+        filepath = os.path.join(product_folder, filename)
+        f.save(filepath)
+        
+        return redirect(f"/upload?success=File uploaded to {PRODUCT_DETAILS.get(product_slug, {}).get('title', product_slug)}")
 
-    files = os.listdir(UPLOAD_FOLDER)
-    return render_template("upload.html", files=files)
+    # Get files from all products
+    all_files = {}
+    for product_slug in PRODUCT_DETAILS.keys():
+        product_folder = os.path.join(UPLOAD_FOLDER, product_slug)
+        if os.path.isdir(product_folder):
+            all_files[product_slug] = os.listdir(product_folder)
+        else:
+            all_files[product_slug] = []
+    
+    return render_template("upload.html", files=all_files, products=PRODUCT_DETAILS)
+
+@app.route("/download/<product_slug>/<filename>")
+def download_file(product_slug, filename):
+    """Download file from product folder"""
+    if not (session.get("logged_in") or session.get("user_id")):
+        return redirect(url_for("home"))
+    
+    # Security: prevent directory traversal
+    filename = secure_filename(filename)
+    if product_slug not in PRODUCT_DETAILS:
+        return "Product not found", 404
+    
+    file_path = os.path.join(UPLOAD_FOLDER, product_slug, filename)
+    
+    if not os.path.exists(file_path) or not os.path.isfile(file_path):
+        return "File not found", 404
+    
+    return send_from_directory(
+        os.path.join(UPLOAD_FOLDER, product_slug),
+        filename,
+        as_attachment=True
+    )
 
 
 # -------------------------------------------------
@@ -1216,75 +1530,6 @@ def dashboard():
     return render_template("dashboard.html", name=user_name, modules=modules)
 
 
-# -------------------------------------------------
-# TELEGRAM CALLBACK (APPROVE/REJECT) - OPTIMIZED
-# -------------------------------------------------
-@app.route("/telegram-update", methods=["POST"])
-def telegram_update():
-    data = request.get_json()
-    if not handle_telegram_callback(data):
-        return "OK", 200
-    return "OK", 200
-
-
-# -------------------------------------------------
-# TELEGRAM BOT LISTENER (LONG POLLING)
-# -------------------------------------------------
-_listener_thread = None
-
-
-def bot_listener_loop():
-    """Continuously poll Telegram for callback updates."""
-    last_update_id = None
-    print("Telegram listener thread started")
-
-    while True:
-        try:
-            response = requests.get(
-                f"{API_URL}/getUpdates",
-                params={"offset": last_update_id, "timeout": BOT_POLL_TIMEOUT},
-                timeout=BOT_POLL_TIMEOUT + 5,
-            )
-            response.raise_for_status()
-            data = response.json()
-
-            if "result" not in data:
-                time.sleep(1)
-                continue
-
-            for update in data.get("result", []):
-                last_update_id = update["update_id"] + 1
-                if "callback_query" in update:
-                    handle_telegram_callback(update)
-
-        except Exception as exc:
-            print(f"Telegram listener error: {exc}")
-            time.sleep(5)
-
-
-def start_bot_listener():
-    """Start the listener thread exactly once."""
-    global _listener_thread
-    if not BOT_LISTENER_ENABLED:
-        return
-
-    if _listener_thread and _listener_thread.is_alive():
-        return
-
-    _listener_thread = threading.Thread(target=bot_listener_loop, daemon=True)
-    _listener_thread.start()
-
-
-def bootstrap_bot_listener():
-    """Handle dev-server reloads and production workers."""
-    if not BOT_LISTENER_ENABLED:
-        return
-
-    if app.debug:
-        if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
-            start_bot_listener()
-    else:
-        start_bot_listener()
 
 
 # -------------------------------------------------
@@ -1333,16 +1578,88 @@ def serve_payment_ss(filename):
 
 
 # -------------------------------------------------
+# TELEGRAM POLLING (Alternative to Webhook)
+# -------------------------------------------------
+_last_update_id = 0
+
+def poll_telegram_updates():
+    """Poll Telegram API for updates (runs in background thread)."""
+    global _last_update_id
+    
+    if not BOT_TOKEN:
+        print("⚠️ BOT_TOKEN not set - skipping Telegram polling")
+        return
+    
+    print("🔄 Starting Telegram polling...")
+    
+    while True:
+        try:
+            url = f"{API_URL}/getUpdates"
+            params = {
+                "offset": _last_update_id + 1,
+                "timeout": 10,
+                "allowed_updates": ["message", "callback_query"]
+            }
+            
+            response = requests.get(url, params=params, timeout=15)
+            data = response.json()
+            
+            if data.get("ok") and data.get("result"):
+                updates = data["result"]
+                for update in updates:
+                    update_id = update.get("update_id", 0)
+                    _last_update_id = max(_last_update_id, update_id)
+                    
+                    # Process the update
+                    if "callback_query" in update:
+                        handle_telegram_callback(update)
+                    elif "message" in update:
+                        handle_telegram_message(update)
+            
+            time.sleep(1)  # Small delay between polls
+            
+        except requests.exceptions.Timeout:
+            # Timeout is normal, continue polling
+            continue
+        except Exception as e:
+            print(f"❌ Error in Telegram polling: {e}")
+            time.sleep(5)  # Wait longer on error
+
+def start_telegram_polling():
+    """Start Telegram polling in a background thread."""
+    if not BOT_TOKEN:
+        return
+    
+    # Check if webhook is set (if webhook is set, don't poll)
+    try:
+        webhook_url = f"{API_URL}/getWebhookInfo"
+        response = requests.get(webhook_url, timeout=5)
+        webhook_info = response.json()
+        
+        if webhook_info.get("ok") and webhook_info.get("result", {}).get("url"):
+            webhook_url_set = webhook_info["result"]["url"]
+            print(f"✅ Webhook is set: {webhook_url_set}")
+            print("   Using webhook mode - polling disabled")
+            return
+    except:
+        pass
+    
+    # Start polling in background thread
+    polling_thread = threading.Thread(target=poll_telegram_updates, daemon=True)
+    polling_thread.start()
+    print("✅ Telegram polling started in background thread")
+
+# -------------------------------------------------
 # RUN SERVER
 # -------------------------------------------------
-# Start bot listener (wrapped to prevent deployment failures)
-try:
-    bootstrap_bot_listener()
-except Exception as e:
-    print(f"⚠️ Bot listener initialization error (non-critical): {e}")
-    import traceback
-    traceback.print_exc()
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # Start Telegram polling if bot token is configured
+    start_telegram_polling()
+    
+    # Get port from environment variable (Render requirement) or default to 5000
+    port = int(os.getenv("PORT", 5000))
+    # Disable debug mode in production (Render sets FLASK_ENV or similar)
+    debug_mode = os.getenv("FLASK_ENV", "production").lower() != "production"
+    
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)
 

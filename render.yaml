@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: stockboy
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: BOT_TOKEN
+        sync: false  # Set this in Render dashboard
+      - key: CHAT_ID
+        sync: false  # Set this in Render dashboard
+      - key: ADMIN_USERNAME
+        value: stockboy
+      - key: ADMIN_PASSWORD
+        sync: false  # Set this in Render dashboard
+      - key: MAINTENANCE_MODE
+        value: false
+      - key: FIREBASE_CREDENTIALS
+        sync: false  # Set this in Render dashboard (JSON string or file path)
+      - key: FLASK_ENV
+        value: production

@@ -8,3 +8,30 @@ __pycache__/
 *.egg-info
 dist
 build
+
+# Firebase credentials (keep secure!)
+firebase-service-account.json
+*-firebase-adminsdk-*.json
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Local data (optional - uncomment if you don't want to commit these)
+# users.json
+# payments.json
+# likes.json

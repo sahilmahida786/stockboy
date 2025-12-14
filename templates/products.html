@@ -112,11 +112,11 @@
                 <p>✅ Includes PDF/video assets inside course locker</p>
             </div>
             <div class="flex gap-3">
-                <a href="/payment" class="flex-1 text-center bg-yellow-400/90 hover:bg-yellow-300 text-gray-900 font-semibold py-3 rounded-2xl transition">
-                    Get Access
+                <a href="/product/{{ product.slug }}" class="flex-1 text-center bg-yellow-400/90 hover:bg-yellow-300 text-gray-900 font-semibold py-3 rounded-2xl transition">
+                    View & Download
                 </a>
-                <a href="/products#faq" class="flex-1 text-center border border-white/20 rounded-2xl py-3 hover:border-yellow-300 transition">
-                    How it Works
+                <a href="/payment" class="flex-1 text-center border border-white/20 rounded-2xl py-3 hover:border-yellow-300 transition">
+                    Get Access
                 </a>
             </div>
         </div>
@@ -182,7 +182,18 @@
 
         <div class="glass rounded-3xl p-8 text-gray-200 text-sm leading-relaxed mb-6">
             <h3 class="text-xl font-semibold text-white mb-4">Can I get a refund?</h3>
-            <p class="text-gray-300">We offer a 7-day money-back guarantee if you're not satisfied. Contact us via WhatsApp or Telegram with your transaction ID within 7 days of purchase.</p>
+            <p class="text-gray-300 mb-3">We offer a 7-day money-back guarantee, but only for <strong class="text-yellow-300">physical products</strong> (like books, course materials, etc.) that can be delivered to your address.</p>
+            <div class="bg-yellow-400/10 border border-yellow-400/30 rounded-lg p-4 mb-3">
+                <p class="text-yellow-300 font-semibold mb-2">⚠️ Important Refund Policy:</p>
+                <ul class="list-disc ml-5 space-y-1 text-gray-300">
+                    <li><strong>Refunds are available ONLY for physical products</strong> (books, printed materials, etc.)</li>
+                    <li><strong>Digital products (PDF, Video, Online courses) are NOT eligible for refunds</strong> once accessed</li>
+                    <li>To request a refund, contact us via WhatsApp or Telegram with your transaction ID within 7 days of purchase</li>
+                    <li>You must provide your complete delivery address for physical product refunds</li>
+                    <li>Refund processing may take 5-7 business days after approval</li>
+                </ul>
+            </div>
+            <p class="text-gray-300 text-xs italic">Note: All digital content (PDFs, videos, online modules) are non-refundable as they are instantly accessible upon approval.</p>
         </div>
 
         <div class="glass rounded-3xl p-8 text-gray-200 text-sm leading-relaxed">

@@ -3,4 +3,5 @@ gunicorn==21.2.0
 requests==2.31.0
 Werkzeug==3.0.1
 mysql-connector-python==9.0.0
+firebase-admin==6.4.0
 
