@@ -9,10 +9,6 @@ services:
         value: 3.11.0
       - key: SECRET_KEY
         generateValue: true
-      - key: BOT_TOKEN
-        sync: false  # Set this in Render dashboard
-      - key: CHAT_ID
-        sync: false  # Set this in Render dashboard
       - key: ADMIN_USERNAME
         value: stockboy
       - key: ADMIN_PASSWORD
@@ -20,6 +16,10 @@ services:
       - key: MAINTENANCE_MODE
         value: false
       - key: FIREBASE_CREDENTIALS
-        sync: false  # Set this in Render dashboard (JSON string or file path)
+        sync: false  # Set this in Render dashboard (JSON string)
+      - key: RAZORPAY_KEY_ID
+        value: rzp_live_RrRixqT6TVvpwD
+      - key: RAZORPAY_KEY_SECRET
+        sync: false  # Set this in Render dashboard (keep secret!)
       - key: FLASK_ENV
         value: production
