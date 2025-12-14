@@ -195,24 +195,58 @@ if FIREBASE_AVAILABLE:
         FIREBASE_AVAILABLE = False
 
 # Razorpay Configuration
-RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "rzp_live_RrRixqT6TVvpwD")
-RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "OIJKIACl354fuecNgdKLwRcF")
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "").strip()
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "").strip()
+
+# Fallback to hardcoded values if env vars are empty (for local dev)
+if not RAZORPAY_KEY_ID:
+    RAZORPAY_KEY_ID = "rzp_live_RrRixqT6TVvpwD"
+    print("⚠️ Using default RAZORPAY_KEY_ID (set env var in production)")
+
+if not RAZORPAY_KEY_SECRET:
+    RAZORPAY_KEY_SECRET = "OIJKIACl354fuecNgdKLwRcF"
+    print("⚠️ Using default RAZORPAY_KEY_SECRET (set env var in production)")
 
 # Initialize Razorpay client
 razorpay_client = None
+razorpay_init_error = None
+
 try:
     import razorpay
-    if RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET:
-        razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+    print(f"📦 Razorpay package imported successfully")
+    
+    # Validate keys are not empty
+    if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
+        raise ValueError("RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is empty")
+    
+    # Validate key format
+    if not RAZORPAY_KEY_ID.startswith("rzp_"):
+        raise ValueError(f"Invalid RAZORPAY_KEY_ID format: {RAZORPAY_KEY_ID[:10]}...")
+    
+    if len(RAZORPAY_KEY_SECRET) < 20:
+        raise ValueError(f"RAZORPAY_KEY_SECRET seems too short: {len(RAZORPAY_KEY_SECRET)} chars")
+    
+    # Initialize client
+    razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+    
+    # Test client by fetching account info (this validates the keys work)
+    try:
+        account = razorpay_client.account.fetch()
         print(f"✅ Razorpay client initialized successfully")
         print(f"   Key ID: {RAZORPAY_KEY_ID[:20]}...")
-    else:
-        print("⚠️ Razorpay keys not set - set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables")
+        print(f"   Account: {account.get('name', 'N/A')}")
+    except Exception as auth_error:
+        raise ValueError(f"Razorpay authentication failed: {str(auth_error)}")
+        
 except ImportError:
-    print("⚠️ razorpay package not installed - install with: pip install razorpay")
+    razorpay_init_error = "razorpay package not installed - install with: pip install razorpay"
+    print(f"⚠️ {razorpay_init_error}")
     razorpay_client = None
 except Exception as e:
-    print(f"⚠️ Razorpay initialization error: {e}")
+    razorpay_init_error = str(e)
+    print(f"❌ Razorpay initialization error: {razorpay_init_error}")
+    print(f"   RAZORPAY_KEY_ID: {'Set' if RAZORPAY_KEY_ID else 'NOT SET'} ({len(RAZORPAY_KEY_ID) if RAZORPAY_KEY_ID else 0} chars)")
+    print(f"   RAZORPAY_KEY_SECRET: {'Set' if RAZORPAY_KEY_SECRET else 'NOT SET'} ({len(RAZORPAY_KEY_SECRET) if RAZORPAY_KEY_SECRET else 0} chars)")
     import traceback
     traceback.print_exc()
     razorpay_client = None
@@ -619,13 +653,18 @@ def create_payment_order():
     try:
         # Check if Razorpay is configured
         if not razorpay_client:
-            error_msg = "Razorpay client not initialized. Check RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables."
-            print(f"❌ {error_msg}")
-            return jsonify({"error": error_msg}), 500
+            error_details = f"Razorpay client not initialized. "
+            if razorpay_init_error:
+                error_details += f"Error: {razorpay_init_error}. "
+            error_details += "Check RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables in Render dashboard."
+            print(f"❌ {error_details}")
+            print(f"   Current KEY_ID: {'Set' if RAZORPAY_KEY_ID else 'NOT SET'}")
+            print(f"   Current KEY_SECRET: {'Set' if RAZORPAY_KEY_SECRET else 'NOT SET'}")
+            return jsonify({"error": error_details}), 500
         
         # Check if keys are set
         if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
-            error_msg = "Razorpay keys not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET."
+            error_msg = "Razorpay keys not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in Render environment variables."
             print(f"❌ {error_msg}")
             return jsonify({"error": error_msg}), 500
         
