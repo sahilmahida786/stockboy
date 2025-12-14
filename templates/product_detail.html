@@ -79,15 +79,18 @@
                     Payment Approved - Full Access Granted
                 </p>
             </div>
-            {% elif payment_status == "pending" %}
+            {% elif payment_status == "pending" or payment_status == "not_submitted" %}
             <div class="bg-yellow-500/20 border border-yellow-500/50 rounded-xl p-4 mb-4">
-                <p class="text-yellow-300 font-semibold flex items-center gap-2">
+                <p class="text-yellow-300 font-semibold flex items-center gap-2 mb-4">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    Payment Pending - Complete Payment
+                    Complete Payment to Access
                 </p>
-                <p class="text-yellow-200 text-sm mt-2">Your payment is being processed. Access will be granted automatically upon verification.</p>
+                <button id="payButton" onclick="initiatePayment()" class="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-yellow-500/50 transition-all duration-300">
+                    💳 Pay {{ product.price }} - Get Instant Access
+                </button>
+                <p class="text-yellow-200 text-xs mt-3 text-center">Secure payment via Razorpay • Instant access upon success</p>
             </div>
             {% elif payment_status == "rejected" %}
             <div class="bg-red-500/20 border border-red-500/50 rounded-xl p-4 mb-4">
@@ -207,6 +210,107 @@
         </div>
         <p class="text-xs text-gray-500 mt-4">© 2025 Stockboy Premium. All rights reserved.</p>
     </footer>
+
+    <!-- Razorpay Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        const productSlug = "{{ product_slug }}";
+        
+        async function initiatePayment() {
+            const payButton = document.getElementById('payButton');
+            if (payButton) {
+                payButton.disabled = true;
+                payButton.textContent = 'Processing...';
+            }
+            
+            try {
+                // Create payment order
+                const response = await fetch('/create-payment-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        product_slug: productSlug
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to create payment order');
+                }
+                
+                const orderData = await response.json();
+                
+                // Initialize Razorpay checkout
+                const options = {
+                    "key": orderData.key_id,
+                    "amount": orderData.amount,
+                    "currency": orderData.currency,
+                    "name": "Stockboy Premium",
+                    "description": "{{ product.title }}",
+                    "order_id": orderData.order_id,
+                    "handler": async function (response) {
+                        // Payment successful - verify on backend
+                        try {
+                            const verifyResponse = await fetch('/verify-payment', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_signature: response.razorpay_signature
+                                })
+                            });
+                            
+                            const verifyData = await verifyResponse.json();
+                            
+                            if (verifyData.success) {
+                                // Redirect to product page or show success
+                                window.location.href = verifyData.redirect || '/products';
+                            } else {
+                                alert('Payment verification failed. Please contact support.');
+                                if (payButton) {
+                                    payButton.disabled = false;
+                                    payButton.textContent = '💳 Pay {{ product.price }} - Get Instant Access';
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Verification error:', error);
+                            alert('Payment successful but verification failed. Please contact support with payment ID: ' + response.razorpay_payment_id);
+                        }
+                    },
+                    "prefill": {
+                        "name": "{{ username }}",
+                        "email": "{{ email }}"
+                    },
+                    "theme": {
+                        "color": "#d9a520"
+                    },
+                    "modal": {
+                        "ondismiss": function() {
+                            if (payButton) {
+                                payButton.disabled = false;
+                                payButton.textContent = '💳 Pay {{ product.price }} - Get Instant Access';
+                            }
+                        }
+                    }
+                };
+                
+                const rzp = new Razorpay(options);
+                rzp.open();
+                
+            } catch (error) {
+                console.error('Payment initiation error:', error);
+                alert('Failed to initiate payment. Please try again.');
+                if (payButton) {
+                    payButton.disabled = false;
+                    payButton.textContent = '💳 Pay {{ product.price }} - Get Instant Access';
+                }
+            }
+        }
+    </script>
 </body>
 </html>
 

@@ -39,7 +39,7 @@ def require_login():
         return None
     
     # Pages that don't require login (public routes - Razorpay compliance pages must be public)
-    public_routes = ["home", "auth_page", "login", "login_user", "register", "register_user", "admin_login", "maintenance", "telegram_update", "privacy_policy", "terms", "refund", "contact"]
+    public_routes = ["home", "auth_page", "login", "login_user", "register", "register_user", "admin_login", "maintenance", "telegram_update", "privacy_policy", "terms", "refund", "contact", "create_payment_order", "verify_payment"]
     
     # Skip authentication check for public routes
     if request.endpoint in public_routes:
@@ -193,7 +193,23 @@ if FIREBASE_AVAILABLE:
         print("   Continuing without Firebase - using fallback authentication")
         FIREBASE_AVAILABLE = False
 
-# Telegram Bot Configuration
+# Razorpay Configuration
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "rzp_live_RrRixqT6TVvpwD")
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "OIJKIACl354fuecNgdKLwRcF")
+
+# Initialize Razorpay client
+try:
+    import razorpay
+    razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+    print(f"✅ Razorpay client initialized successfully")
+except ImportError:
+    print("⚠️ razorpay package not installed - install with: pip install razorpay")
+    razorpay_client = None
+except Exception as e:
+    print(f"⚠️ Razorpay initialization error: {e}")
+    razorpay_client = None
+
+# Telegram Bot Configuration (Disabled for Razorpay)
 BOT_TOKEN = os.getenv("BOT_TOKEN", "")
 CHAT_ID = os.getenv("CHAT_ID", "")
 API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}" if BOT_TOKEN else None
@@ -845,7 +861,8 @@ def product_detail(product_slug):
                          email=email,
                          payment_status=payment_status,
                          payment_entry=payment_entry,
-                         logged_in=True)
+                         logged_in=True,
+                         razorpay_key_id=RAZORPAY_KEY_ID)
 
 @app.route("/about")
 def about_page():
@@ -885,8 +902,135 @@ from werkzeug.utils import secure_filename
 if not os.path.exists(PAYMENT_SS_FOLDER):
     os.makedirs(PAYMENT_SS_FOLDER)
 
+# -------------------------------------------------
+# RAZORPAY PAYMENT INTEGRATION
+# -------------------------------------------------
+@app.route("/create-payment-order", methods=["POST"])
+def create_payment_order():
+    """Create Razorpay payment order"""
+    if not razorpay_client:
+        return jsonify({"error": "Razorpay not configured"}), 500
+    
+    try:
+        data = request.get_json()
+        product_slug = data.get("product_slug", "product1")
+        amount_str = PRODUCT_DETAILS.get(product_slug, {}).get("price", "₹1,499")
+        
+        # Convert amount to paise (remove ₹ and commas, multiply by 100)
+        amount_rupees = int(amount_str.replace("₹", "").replace(",", ""))
+        amount_paise = amount_rupees * 100
+        
+        # Create Razorpay order
+        order_data = {
+            "amount": amount_paise,
+            "currency": "INR",
+            "payment_capture": 1,  # Auto-capture payment
+            "notes": {
+                "product_slug": product_slug,
+                "user_email": session.get("email", ""),
+                "username": session.get("username", "")
+            }
+        }
+        
+        order = razorpay_client.order.create(data=order_data)
+        
+        print(f"✅ Razorpay order created: {order['id']} for {amount_rupees} INR")
+        
+        return jsonify({
+            "order_id": order["id"],
+            "amount": amount_paise,
+            "currency": "INR",
+            "key_id": RAZORPAY_KEY_ID
+        })
+    except Exception as e:
+        print(f"❌ Error creating Razorpay order: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": "Failed to create payment order"}), 500
+
+@app.route("/verify-payment", methods=["POST"])
+def verify_payment():
+    """Verify Razorpay payment and grant access"""
+    if not razorpay_client:
+        return jsonify({"error": "Razorpay not configured"}), 500
+    
+    try:
+        payment_data = request.get_json()
+        razorpay_payment_id = payment_data.get("razorpay_payment_id")
+        razorpay_order_id = payment_data.get("razorpay_order_id")
+        razorpay_signature = payment_data.get("razorpay_signature")
+        
+        if not all([razorpay_payment_id, razorpay_order_id, razorpay_signature]):
+            return jsonify({"error": "Missing payment details"}), 400
+        
+        # Verify payment signature
+        params_dict = {
+            "razorpay_order_id": razorpay_order_id,
+            "razorpay_payment_id": razorpay_payment_id,
+            "razorpay_signature": razorpay_signature
+        }
+        
+        try:
+            razorpay_client.utility.verify_payment_signature(params_dict)
+            print(f"✅ Payment signature verified: {razorpay_payment_id}")
+        except Exception as e:
+            print(f"❌ Payment signature verification failed: {e}")
+            return jsonify({"error": "Invalid payment signature"}), 400
+        
+        # Get order details to extract product info
+        order = razorpay_client.order.fetch(razorpay_order_id)
+        product_slug = order.get("notes", {}).get("product_slug", "product1")
+        user_email = order.get("notes", {}).get("user_email", session.get("email", ""))
+        username = order.get("notes", {}).get("username", session.get("username", ""))
+        
+        # Get product info
+        product_info = PRODUCT_DETAILS.get(product_slug, PRODUCT_DETAILS["product1"])
+        course_name = product_info.get("title", "Unknown Course")
+        amount = product_info.get("price", "₹0")
+        
+        # Save payment record
+        payments = load_data()
+        payment_entry = {
+            "user": username,
+            "txn_id": razorpay_payment_id,  # Use Razorpay payment ID
+            "razorpay_order_id": razorpay_order_id,
+            "status": "approved",  # Auto-approved via Razorpay
+            "product_slug": product_slug,
+            "course_name": course_name,
+            "amount": amount,
+            "user_email": user_email,
+            "payment_method": "Razorpay",
+            "submitted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "approved_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        payments.append(payment_entry)
+        save_data(payments)
+        
+        # Grant access automatically
+        if "approved_products" not in session:
+            session["approved_products"] = []
+        if product_slug not in session["approved_products"]:
+            session["approved_products"].append(product_slug)
+        
+        session["approved"] = True
+        
+        print(f"✅ Payment verified and access granted: {razorpay_payment_id} for {username}")
+        
+        return jsonify({
+            "success": True,
+            "message": "Payment successful! Access granted.",
+            "redirect": url_for("product_detail", product_slug=product_slug)
+        })
+    except Exception as e:
+        print(f"❌ Payment verification error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": "Payment verification failed"}), 500
+
 @app.route("/submit_payment", methods=["POST"])
 def submit_payment():
+    """Legacy route - Redirect to Razorpay payment"""
+    return jsonify({"error": "Please use Razorpay payment gateway"}), 400
     try:
         print(f"💳 Payment submission request received")
         user_name = request.form.get("user_name")
