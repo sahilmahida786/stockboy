@@ -200,11 +200,11 @@ RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "").strip()
 
 # Fallback to hardcoded values if env vars are empty (for local dev)
 if not RAZORPAY_KEY_ID:
-    RAZORPAY_KEY_ID = "rzp_live_RrRixqT6TVvpwD"
+    RAZORPAY_KEY_ID = "rzp_live_RrVTwgfzN5BkyP"
     print("⚠️ Using default RAZORPAY_KEY_ID (set env var in production)")
 
 if not RAZORPAY_KEY_SECRET:
-    RAZORPAY_KEY_SECRET = "OIJKIACl354fuecNgdKLwRcF"
+    RAZORPAY_KEY_SECRET = "jUyYy6Zre24pcrH9fMcaOBtw"
     print("⚠️ Using default RAZORPAY_KEY_SECRET (set env var in production)")
 
 # Initialize Razorpay client

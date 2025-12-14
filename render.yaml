@@ -18,7 +18,7 @@ services:
       - key: FIREBASE_CREDENTIALS
         sync: false  # Set this in Render dashboard (JSON string)
       - key: RAZORPAY_KEY_ID
-        value: rzp_live_RrRixqT6TVvpwD
+        value: rzp_live_RrVTwgfzN5BkyP
       - key: RAZORPAY_KEY_SECRET
         sync: false  # Set this in Render dashboard (keep secret!)
       - key: FLASK_ENV
