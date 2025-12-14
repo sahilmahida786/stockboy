@@ -71,3 +71,4 @@ If you see this, the fix worked! 🎉
 2. **Check variable name** - Must be exactly: `FIREBASE_CREDENTIALS`
 3. **Clear browser cache** - Press `Ctrl+Shift+R`
 4. **Check Render logs** for any error messages
+

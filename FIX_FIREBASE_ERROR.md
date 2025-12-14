@@ -101,3 +101,4 @@ If you're still having issues:
 1. Check Render deployment logs
 2. Verify the JSON is valid (use a JSON validator)
 3. Make sure the service account has proper permissions in Firebase
+

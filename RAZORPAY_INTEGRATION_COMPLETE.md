@@ -98,3 +98,4 @@ RAZORPAY_KEY_SECRET=OIJKIACl354fuecNgdKLwRcF
 - **Set environment variables in Render** for production
 - Payment verification happens automatically
 - No manual approval needed
+

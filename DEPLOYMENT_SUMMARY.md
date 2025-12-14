@@ -103,3 +103,4 @@ Replace `your-app.onrender.com` with your actual Render URL.
 Your application is now configured for Render deployment. Follow the steps above to go live!
 
 For detailed instructions, see `RENDER_DEPLOYMENT.md`.
+
