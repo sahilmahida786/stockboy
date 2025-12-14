@@ -119,86 +119,95 @@
   </div>
 </nav>
 
-<!-- Main Premium Card Section -->
+<!-- How It Works Section -->
 <section class="relative min-h-[650px] bg-premium rounded-3xl mx-4 my-6 overflow-hidden reveal">
   <div class="absolute inset-0 bg-black/45 backdrop-blur-sm"></div>
-  <div class="relative z-10 px-5 py-10 text-center">
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-32 h-32 mx-auto mb-4 animate-float">
-    
-    <h2 class="text-gradient-gold text-2xl font-bold mb-2">Premium Access</h2>
-    <p class="text-gray-300 mb-6">Your trading journey starts with clarity & real skill.</p>
-
-    <button id="showPayment" class="w-full max-w-md mx-auto bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 font-bold py-3 px-6 rounded-xl shadow-lg shadow-yellow-500/50 hover:shadow-yellow-500/70 transition-all duration-300 active:scale-95">
-      Get Premium Access
-    </button>
-
-    <!-- Payment Section -->
-    <div id="paymentSection" class="hidden mt-6 max-w-lg mx-auto space-y-4">
-      {% if product %}
-      <div class="bg-yellow-400/10 border border-yellow-400/30 rounded-xl p-4 mb-4">
-        <p class="text-yellow-300 font-semibold text-lg mb-1">{{ product.title }}</p>
-        <p class="text-yellow-200 text-sm">{{ product.tagline }}</p>
-        <p class="text-yellow-300 font-bold text-xl mt-2">Amount: {{ product.price }}</p>
-      </div>
-      {% endif %}
+  <div class="relative z-10 px-5 py-10">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-gradient-gold text-3xl md:text-4xl font-bold mb-4 text-center">How It Works</h2>
+      <p class="text-gray-300 text-center mb-12 text-lg">Get started with Stockboy Premium in 4 simple steps</p>
       
-      <img src="{{ url_for('static', filename='qr.png') }}" 
-           alt="QR Code" 
-           class="w-56 mx-auto rounded-lg border-2 border-white/20 shadow-xl animate-pop">
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Step 1 -->
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold text-xl">
+              1
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold text-white mb-2">Browse Our Products</h3>
+              <p class="text-gray-300">Choose the course that matches your skill level—from beginner basics to advanced options trading.</p>
+            </div>
+          </div>
+        </div>
 
-      <input id="name" 
-             type="text"
-             class="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT focus:border-transparent transition-all animate-pop"
-             placeholder="Your Name"
-             value="{{ username if username else '' }}">
+        <!-- Step 2 -->
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold text-xl">
+              2
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold text-white mb-2">Register & Pay</h3>
+              <p class="text-gray-300">Create your account and complete payment securely via Razorpay. Access is granted automatically upon successful payment.</p>
+            </div>
+          </div>
+        </div>
 
-      <input id="txn" 
-             type="text"
-             class="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT focus:border-transparent transition-all animate-pop"
-             placeholder="Transaction ID (UPI Ref No.)">
+        <!-- Step 3 -->
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold text-xl">
+              3
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold text-white mb-2">Get Instant Access</h3>
+              <p class="text-gray-300">Payment is verified automatically via Razorpay. You'll get instant access to your course dashboard.</p>
+            </div>
+          </div>
+        </div>
 
-      <label class="block text-sm text-gray-300 mb-1 font-semibold animate-pop">
-        📸 Upload Payment Screenshot
-      </label>
+        <!-- Step 4 -->
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold text-xl">
+              4
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold text-white mb-2">Access Dashboard</h3>
+              <p class="text-gray-300">Log in to your dashboard and start learning from our comprehensive course materials, PDFs, and videos.</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <input type="file" 
-             id="ss" 
-             accept="image/*"
-             class="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gold-DEFAULT file:text-gray-900 hover:file:bg-gold-light transition-all animate-pop">
-
-      <button onclick="submitPayment()" class="w-full bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 font-bold py-3 px-6 rounded-xl shadow-lg shadow-yellow-500/50 hover:shadow-yellow-500/70 transition-all duration-300 active:scale-95 animate-pop">
-        Submit Payment
-      </button>
-
-      <p id="msg" class="text-sm text-gray-400 mt-2 min-h-[20px]"></p>
-
-      <div class="text-xs text-gray-400 text-center mt-4">
-        ₹4999 Secure Payment • Instant Access • Razorpay
+      <!-- CTA Button -->
+      <div class="text-center mt-10">
+        <a href="/products" class="inline-block bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 font-bold py-4 px-8 rounded-xl shadow-lg shadow-yellow-500/50 hover:shadow-yellow-500/70 transition-all duration-300">
+          Browse Courses & Get Started
+        </a>
       </div>
 
       <!-- Trust Indicators -->
-      <div class="flex flex-wrap justify-center gap-3 mt-4 pt-4 border-t border-white/10">
-        <div class="flex items-center gap-1 text-xs text-gray-400">
+      <div class="flex flex-wrap justify-center gap-4 mt-8">
+        <div class="flex items-center gap-2 text-sm text-gray-300 bg-white/5 px-4 py-2 rounded-lg">
           <span>🔒</span>
           <span>SSL Secure</span>
         </div>
-        <div class="flex items-center gap-1 text-xs text-gray-400">
+        <div class="flex items-center gap-2 text-sm text-gray-300 bg-white/5 px-4 py-2 rounded-lg">
           <span>✓</span>
           <span>Verified</span>
         </div>
-        <div class="flex items-center gap-1 text-xs text-gray-400">
-          <span>🔄</span>
-          <span>7-Day Refund</span>
+        <div class="flex items-center gap-2 text-sm text-gray-300 bg-white/5 px-4 py-2 rounded-lg">
+          <span>⚡</span>
+          <span>Instant Access</span>
         </div>
-        <div class="flex items-center gap-1 text-xs text-gray-400">
+        <div class="flex items-center gap-2 text-sm text-gray-300 bg-white/5 px-4 py-2 rounded-lg">
           <span>💬</span>
           <span>24/7 Support</span>
         </div>
       </div>
     </div>
-
-    <!-- Fun Quote Box -->
-    <div id="funText" class="mt-6 bg-white/10 backdrop-blur-md rounded-xl p-4 text-sm text-center text-gray-300 border border-white/10"></div>
   </div>
 </section>
 
@@ -289,81 +298,7 @@ const obs = new IntersectionObserver(entries => {
 });
 document.querySelectorAll(".reveal").forEach(el => obs.observe(el));
 
-/* Toggle payment form */
-document.getElementById("showPayment").onclick = function(){
-  document.getElementById("paymentSection").classList.remove("hidden");
-  this.classList.add("hidden");
-};
-
-/* Submit payment */
-function submitPayment() {
-    const n = document.getElementById("name").value.trim();
-    const t = document.getElementById("txn").value.trim();
-    const file = document.getElementById("ss").files[0];
-    const m = document.getElementById("msg");
-
-    if (!n || !t) {
-        m.innerHTML = "⚠️ Enter name & transaction ID.";
-        m.className = "text-sm text-red-400 mt-2 min-h-[20px]";
-        return;
-    }
-    if (!file) {
-        m.innerHTML = "⚠️ Please complete payment.";
-        m.className = "text-sm text-red-400 mt-2 min-h-[20px]";
-        return;
-    }
-
-    let fd = new FormData();
-    fd.append("user_name", n);
-    fd.append("txn_id", t);
-    fd.append("screenshot", file);
-    {% if product_slug %}
-    fd.append("product_slug", "{{ product_slug }}");
-    {% else %}
-    fd.append("product_slug", "product1");
-    {% endif %}
-
-    m.innerHTML = "⏳ Submitting...";
-    m.className = "text-sm text-yellow-400 mt-2 min-h-[20px]";
-
-    fetch("/submit_payment", {
-        method: "POST",
-        body: fd
-    })
-    .then(r => r.json())
-    .then(d => { 
-        m.innerHTML = d.message;
-        m.className = d.message.includes("✅") ? "text-sm text-green-400 mt-2 min-h-[20px]" : "text-sm text-red-400 mt-2 min-h-[20px]";
-    })
-    .catch(err => {
-        m.innerHTML = "❌ Error submitting payment.";
-        m.className = "text-sm text-red-400 mt-2 min-h-[20px]";
-    });
-}
-
-/* Auto-redirect after approval */
-setInterval(() => {
-  const t = document.getElementById("txn").value.trim();
-  const n = document.getElementById("name").value.trim();
-  if (!t) return;
-
-  fetch("/check_approval", {
-    method: "POST",
-    headers: {"Content-Type": "application/x-www-form-urlencoded"},
-    body: new URLSearchParams({txn_id: t})
-  })
-  .then(r => r.json())
-  .then(async d => {
-    if (d.status === "approved") {
-      const j = await fetch("/start_session", {
-        method: "POST",
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: new URLSearchParams({txn_id: t, user_name: n})
-      }).then(r => r.json());
-      if (j.ok) window.location = j.redirect;
-    }
-  });
-}, 8500);
+// Payment form removed - now using Razorpay checkout on product pages
 
 /* Like system */
 function likeSite(){

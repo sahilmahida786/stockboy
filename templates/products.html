@@ -58,7 +58,7 @@
     <header class="max-w-5xl mx-auto text-center py-12 px-4">
         <p class="text-yellow-400 uppercase tracking-[0.3em] text-xs mb-3">Curated Programs</p>
         <h1 class="text-4xl md:text-5xl font-bold mb-4">Choose Your Growth Track</h1>
-        <p class="text-gray-300 text-lg mb-8">Every product unlocks a full module inside the Stockboy dashboard. Pay once, upload the receipt, and we'll approve your access via Telegram + Admin.</p>
+        <p class="text-gray-300 text-lg mb-8">Every product unlocks a full module inside the Stockboy dashboard. Pay securely via Razorpay and get instant access automatically.</p>
         
         <!-- Trust Badges -->
         <div class="flex flex-wrap justify-center gap-4 mb-8">
@@ -108,15 +108,12 @@
             {% endif %}
             <div class="grid gap-2 text-sm text-gray-300">
                 <p>✅ Lifetime access to dashboard modules</p>
-                <p>✅ Telegram approvals + manual support</p>
+                <p>✅ Instant access via Razorpay payment</p>
                 <p>✅ Includes PDF/video assets inside course locker</p>
             </div>
             <div class="flex gap-3">
-                <a href="/product/{{ product.slug }}" class="flex-1 text-center bg-yellow-400/90 hover:bg-yellow-300 text-gray-900 font-semibold py-3 rounded-2xl transition">
-                    View & Download
-                </a>
-                <a href="/payment" class="flex-1 text-center border border-white/20 rounded-2xl py-3 hover:border-yellow-300 transition">
-                    Get Access
+                <a href="/product/{{ product.slug }}" class="w-full text-center bg-yellow-400/90 hover:bg-yellow-300 text-gray-900 font-semibold py-3 rounded-2xl transition">
+                    View & Pay Now
                 </a>
             </div>
         </div>
