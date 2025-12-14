@@ -207,49 +207,48 @@ if not RAZORPAY_KEY_SECRET:
     RAZORPAY_KEY_SECRET = "jUyYy6Zre24pcrH9fMcaOBtw"
     print("⚠️ Using default RAZORPAY_KEY_SECRET (set env var in production)")
 
-# Initialize Razorpay client
+# Initialize Razorpay client - SAFE VERSION
+razorpay = None
 razorpay_client = None
 razorpay_init_error = None
 
+# Safe import with explicit error handling
 try:
     import razorpay
-    print(f"📦 Razorpay package imported successfully")
-    
-    # Validate keys are not empty
-    if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
-        raise ValueError("RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is empty")
-    
-    # Validate key format
-    if not RAZORPAY_KEY_ID.startswith("rzp_"):
-        raise ValueError(f"Invalid RAZORPAY_KEY_ID format: {RAZORPAY_KEY_ID[:10]}...")
-    
-    if len(RAZORPAY_KEY_SECRET) < 20:
-        raise ValueError(f"RAZORPAY_KEY_SECRET seems too short: {len(RAZORPAY_KEY_SECRET)} chars")
-    
-    # Initialize client
-    razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
-    
-    # Test client by fetching account info (this validates the keys work)
+    print("📦 Razorpay package imported successfully")
+except Exception as e:
+    print(f"❌ Razorpay import failed: {e}")
+    razorpay = None
+    razorpay_init_error = f"Razorpay import failed: {str(e)}"
+
+# Initialize client only if import succeeded
+if razorpay:
     try:
-        account = razorpay_client.account.fetch()
-        print(f"✅ Razorpay client initialized successfully")
-        print(f"   Key ID: {RAZORPAY_KEY_ID[:20]}...")
-        print(f"   Account: {account.get('name', 'N/A')}")
-    except Exception as auth_error:
-        raise ValueError(f"Razorpay authentication failed: {str(auth_error)}")
+        # Get keys from environment
+        key_id = os.getenv("RAZORPAY_KEY_ID", "").strip() or RAZORPAY_KEY_ID
+        key_secret = os.getenv("RAZORPAY_KEY_SECRET", "").strip() or RAZORPAY_KEY_SECRET
         
-except ImportError:
+        if not key_id or not key_secret:
+            raise ValueError("RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is empty")
+        
+        razorpay_client = razorpay.Client(auth=(key_id, key_secret))
+        print("✅ Razorpay client initialized successfully")
+        
+        # Test client by fetching account info (optional - validates keys work)
+        try:
+            account = razorpay_client.account.fetch()
+            print(f"   Key ID: {key_id[:20]}...")
+            print(f"   Account: {account.get('name', 'N/A')}")
+        except Exception as auth_error:
+            print(f"⚠️ Razorpay account fetch failed (keys may be invalid): {auth_error}")
+            # Don't fail initialization - let it try during actual payment
+    except Exception as e:
+        razorpay_init_error = str(e)
+        print(f"❌ Razorpay client init failed: {e}")
+        razorpay_client = None
+else:
     razorpay_init_error = "razorpay package not installed - install with: pip install razorpay"
     print(f"⚠️ {razorpay_init_error}")
-    razorpay_client = None
-except Exception as e:
-    razorpay_init_error = str(e)
-    print(f"❌ Razorpay initialization error: {razorpay_init_error}")
-    print(f"   RAZORPAY_KEY_ID: {'Set' if RAZORPAY_KEY_ID else 'NOT SET'} ({len(RAZORPAY_KEY_ID) if RAZORPAY_KEY_ID else 0} chars)")
-    print(f"   RAZORPAY_KEY_SECRET: {'Set' if RAZORPAY_KEY_SECRET else 'NOT SET'} ({len(RAZORPAY_KEY_SECRET) if RAZORPAY_KEY_SECRET else 0} chars)")
-    import traceback
-    traceback.print_exc()
-    razorpay_client = None
 
 # Telegram Bot Configuration - REMOVED (Replaced by Razorpay)
 # All Telegram payment approval functionality has been removed
