@@ -199,15 +199,22 @@ RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "rzp_live_RrRixqT6TVvpwD")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "OIJKIACl354fuecNgdKLwRcF")
 
 # Initialize Razorpay client
+razorpay_client = None
 try:
     import razorpay
-    razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
-    print(f"✅ Razorpay client initialized successfully")
+    if RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET:
+        razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+        print(f"✅ Razorpay client initialized successfully")
+        print(f"   Key ID: {RAZORPAY_KEY_ID[:20]}...")
+    else:
+        print("⚠️ Razorpay keys not set - set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables")
 except ImportError:
     print("⚠️ razorpay package not installed - install with: pip install razorpay")
     razorpay_client = None
 except Exception as e:
     print(f"⚠️ Razorpay initialization error: {e}")
+    import traceback
+    traceback.print_exc()
     razorpay_client = None
 
 # Telegram Bot Configuration - REMOVED (Replaced by Razorpay)
@@ -609,17 +616,45 @@ if not os.path.exists(PAYMENT_SS_FOLDER):
 @app.route("/create-payment-order", methods=["POST"])
 def create_payment_order():
     """Create Razorpay payment order"""
-    if not razorpay_client:
-        return jsonify({"error": "Razorpay not configured"}), 500
-    
     try:
+        # Check if Razorpay is configured
+        if not razorpay_client:
+            error_msg = "Razorpay client not initialized. Check RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables."
+            print(f"❌ {error_msg}")
+            return jsonify({"error": error_msg}), 500
+        
+        # Check if keys are set
+        if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
+            error_msg = "Razorpay keys not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET."
+            print(f"❌ {error_msg}")
+            return jsonify({"error": error_msg}), 500
+        
+        # Get request data
         data = request.get_json()
+        if not data:
+            return jsonify({"error": "Invalid request data"}), 400
+        
         product_slug = data.get("product_slug", "product1")
-        amount_str = PRODUCT_DETAILS.get(product_slug, {}).get("price", "₹1,499")
+        
+        # Get product details
+        product_info = PRODUCT_DETAILS.get(product_slug)
+        if not product_info:
+            return jsonify({"error": f"Product {product_slug} not found"}), 404
+        
+        amount_str = product_info.get("price", "₹1,499")
         
         # Convert amount to paise (remove ₹ and commas, multiply by 100)
-        amount_rupees = int(amount_str.replace("₹", "").replace(",", ""))
-        amount_paise = amount_rupees * 100
+        try:
+            amount_rupees = int(amount_str.replace("₹", "").replace(",", ""))
+            amount_paise = amount_rupees * 100
+        except ValueError as e:
+            error_msg = f"Invalid amount format: {amount_str}"
+            print(f"❌ {error_msg}: {e}")
+            return jsonify({"error": error_msg}), 400
+        
+        # Validate amount (minimum 100 paise = ₹1)
+        if amount_paise < 100:
+            return jsonify({"error": "Amount must be at least ₹1"}), 400
         
         # Create Razorpay order
         order_data = {
@@ -629,11 +664,19 @@ def create_payment_order():
             "notes": {
                 "product_slug": product_slug,
                 "user_email": session.get("email", ""),
-                "username": session.get("username", "")
+                "username": session.get("username", "User")
             }
         }
         
+        print(f"📦 Creating Razorpay order for {product_slug}: {amount_rupees} INR ({amount_paise} paise)")
+        print(f"   Key ID: {RAZORPAY_KEY_ID[:20]}...")
+        
         order = razorpay_client.order.create(data=order_data)
+        
+        if not order or "id" not in order:
+            error_msg = "Razorpay order creation failed - no order ID returned"
+            print(f"❌ {error_msg}")
+            return jsonify({"error": error_msg}), 500
         
         print(f"✅ Razorpay order created: {order['id']} for {amount_rupees} INR")
         
@@ -643,11 +686,13 @@ def create_payment_order():
             "currency": "INR",
             "key_id": RAZORPAY_KEY_ID
         })
+        
     except Exception as e:
-        print(f"❌ Error creating Razorpay order: {e}")
+        error_msg = f"Error creating Razorpay order: {str(e)}"
+        print(f"❌ {error_msg}")
         import traceback
         traceback.print_exc()
-        return jsonify({"error": "Failed to create payment order"}), 500
+        return jsonify({"error": error_msg}), 500
 
 @app.route("/verify-payment", methods=["POST"])
 def verify_payment():

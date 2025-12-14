@@ -235,11 +235,29 @@
                     })
                 });
                 
+                const responseData = await response.json();
+                
                 if (!response.ok) {
-                    throw new Error('Failed to create payment order');
+                    console.error('Payment order creation failed:', responseData);
+                    alert(`Payment Error: ${responseData.error || 'Failed to create payment order. Please check console for details.'}`);
+                    if (payButton) {
+                        payButton.disabled = false;
+                        payButton.textContent = '💳 Pay {{ product.price }} - Get Instant Access';
+                    }
+                    return;
                 }
                 
-                const orderData = await response.json();
+                if (!responseData.order_id || !responseData.key_id) {
+                    console.error('Invalid response from server:', responseData);
+                    alert('Invalid response from server. Please try again.');
+                    if (payButton) {
+                        payButton.disabled = false;
+                        payButton.textContent = '💳 Pay {{ product.price }} - Get Instant Access';
+                    }
+                    return;
+                }
+                
+                const orderData = responseData;
                 
                 // Initialize Razorpay checkout
                 const options = {
