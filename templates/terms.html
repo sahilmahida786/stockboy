@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Terms & Conditions - Stockboy Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .bg-grid {
+            background: radial-gradient(circle at top, rgba(217,165,32,0.15), transparent 40%),
+                        linear-gradient(160deg, #050f16, #081625, #0c2035);
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="bg-grid text-white">
+    <nav class="sticky top-0 z-50 bg-black/55 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-10 h-10 rounded-full">
+            <div>
+                <p class="font-semibold text-lg text-yellow-300">Stockboy Premium</p>
+                <p class="text-xs text-gray-300">Trading Education Portal</p>
+            </div>
+        </div>
+        <a href="/" class="text-yellow-400 hover:text-yellow-300">Home</a>
+    </nav>
+
+    <div class="max-w-4xl mx-auto px-4 py-12">
+        <h1 class="text-4xl font-bold text-yellow-400 mb-8">Terms & Conditions</h1>
+        
+        <div class="bg-white/5 rounded-2xl p-8 space-y-6">
+            <section>
+                <h2 class="text-2xl font-semibold text-yellow-300 mb-4">1. Course Access</h2>
+                <p class="text-gray-300 leading-relaxed">
+                    All course purchases are for educational purposes. Access is granted after successful payment verification through our secure payment gateway.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="text-2xl font-semibold text-yellow-300 mb-4">2. Usage Rights</h2>
+                <p class="text-gray-300 leading-relaxed">
+                    Course materials are provided for personal use only. Unauthorized sharing, distribution, or resale of course content is strictly prohibited.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="text-2xl font-semibold text-yellow-300 mb-4">3. Account Responsibility</h2>
+                <p class="text-gray-300 leading-relaxed">
+                    You are responsible for maintaining the confidentiality of your account credentials. Any activity under your account is your responsibility.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="text-2xl font-semibold text-yellow-300 mb-4">4. Payment Terms</h2>
+                <p class="text-gray-300 leading-relaxed">
+                    All payments must be made through our secure payment gateway. Course access is granted only after payment verification is complete.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="text-2xl font-semibold text-yellow-300 mb-4">5. Contact</h2>
+                <p class="text-gray-300 leading-relaxed">
+                    For questions about these terms, contact us at:
+                </p>
+                <p class="text-yellow-400 mt-2">
+                    Email: <a href="mailto:stockboy.works@gmail.com" class="hover:underline">stockboy.works@gmail.com</a>
+                </p>
+            </section>
+
+            <section>
+                <p class="text-sm text-gray-400 mt-8">
+                    Last updated: {{ "2025-01-14" }}
+                </p>
+            </section>
+        </div>
+    </div>
+</body>
+</html>

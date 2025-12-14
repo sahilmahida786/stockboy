@@ -38,8 +38,8 @@ def require_login():
     if request.endpoint == "static":
         return None
     
-    # Pages that don't require login (public routes - only login/register and admin)
-    public_routes = ["home", "auth_page", "login", "login_user", "register", "register_user", "admin_login", "maintenance", "telegram_update"]
+    # Pages that don't require login (public routes - Razorpay compliance pages must be public)
+    public_routes = ["home", "auth_page", "login", "login_user", "register", "register_user", "admin_login", "maintenance", "telegram_update", "privacy_policy", "terms", "refund", "contact"]
     
     # Skip authentication check for public routes
     if request.endpoint in public_routes:
@@ -759,13 +759,9 @@ def save_data(data):
 
 @app.route("/")
 def home():
-    """Homepage - Show login/register page"""
-    # Only redirect if user is approved and logged in
-    if session.get("approved"):
-        return redirect(url_for("dashboard"))
-    # For logged-in users without approval, show products page or auth page
-    if session.get("logged_in") or session.get("user_id"):
-        return redirect(url_for("products_page"))
+    """Homepage - Public landing page (Razorpay requirement)"""
+    # Show public landing page with login/register options
+    # This must be public for Razorpay verification
     return render_template("auth.html")
 
 @app.route("/products")
@@ -973,34 +969,15 @@ def submit_payment():
             traceback.print_exc()
             return jsonify({"message": "❌ Error saving payment data. Please try again."}), 500
 
-        # Send Telegram notification with product info
-        print(f"📱 Attempting to send Telegram notification...")
-        print(f"   BOT_TOKEN: {'Set' if BOT_TOKEN else 'NOT SET'}")
-        print(f"   CHAT_ID: {'Set' if CHAT_ID else 'NOT SET'}")
-        print(f"   File path: {filepath}")
-        print(f"   File exists: {os.path.exists(filepath)}")
-        
-        try:
-            caption = (
-                f"📩 *New Payment Request*\n\n"
-                f"👤 *User:* {user_name}\n"
-                f"💳 *Txn ID:* `{txn_id}`\n"
-                f"📦 *Course:* {course_name}\n"
-                f"💰 *Amount:* {amount}\n"
-                f"⏳ *Status:* Pending Approval"
-            )
-            send_telegram_photo(filepath, caption, txn_id=txn_id)
-            print(f"✅ Telegram notification sent successfully")
-        except Exception as e:
-            print(f"❌ ERROR: Telegram notification failed: {e}")
-            import traceback
-            traceback.print_exc()
-            print(f"⚠️ Payment still saved - notification can be sent manually from admin panel")
+        # NOTE: Telegram payment approval system removed for Razorpay integration
+        # Payments are now automatically verified via Razorpay webhook
+        # No manual approval needed - access granted automatically on payment success
+        print(f"✅ Payment saved - will be processed via Razorpay")
 
         # Payment saved successfully
         print(f"✅ Payment submission completed for {user_name} with Txn ID: {txn_id}")
 
-        return jsonify({"message": "✅ Payment Submitted! Wait for approval."})
+        return jsonify({"message": "✅ Payment verified automatically. Access granted instantly."})
     except Exception as e:
         print(f"❌ Payment submission error: {e}")
         import traceback
@@ -1569,6 +1546,29 @@ def view_video(filename):
     return render_template("view_video.html", filename=filename)
 
 # -------------------------------------------------
+# RAZORPAY COMPLIANCE PAGES (Must be public)
+# -------------------------------------------------
+@app.route("/privacy-policy")
+def privacy_policy():
+    """Privacy Policy page - Required for Razorpay verification"""
+    return render_template("privacy_policy.html")
+
+@app.route("/terms")
+def terms():
+    """Terms & Conditions page - Required for Razorpay verification"""
+    return render_template("terms.html")
+
+@app.route("/refund")
+def refund():
+    """Refund Policy page - Required for Razorpay verification"""
+    return render_template("refund.html")
+
+@app.route("/contact")
+def contact():
+    """Contact page - Required for Razorpay verification"""
+    return render_template("contact.html")
+
+# -------------------------------------------------
 # SERVE PAYMENT SCREENSHOTS
 # -------------------------------------------------
 @app.route("/payment_ss/<filename>")
@@ -1653,8 +1653,10 @@ def start_telegram_polling():
 # RUN SERVER
 # -------------------------------------------------
 if __name__ == "__main__":
-    # Start Telegram polling if bot token is configured
-    start_telegram_polling()
+    # Telegram polling disabled for Razorpay integration
+    # Payments are now automated via Razorpay webhooks
+    # Uncomment below only if you need Telegram bot for other purposes (not payments)
+    # start_telegram_polling()
     
     # Get port from environment variable (Render requirement) or default to 5000
     port = int(os.getenv("PORT", 5000))

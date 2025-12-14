@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Contact Us - Stockboy Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .bg-grid {
+            background: radial-gradient(circle at top, rgba(217,165,32,0.15), transparent 40%),
+                        linear-gradient(160deg, #050f16, #081625, #0c2035);
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="bg-grid text-white">
+    <nav class="sticky top-0 z-50 bg-black/55 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-10 h-10 rounded-full">
+            <div>
+                <p class="font-semibold text-lg text-yellow-300">Stockboy Premium</p>
+                <p class="text-xs text-gray-300">Trading Education Portal</p>
+            </div>
+        </div>
+        <a href="/" class="text-yellow-400 hover:text-yellow-300">Home</a>
+    </nav>
+
+    <div class="max-w-4xl mx-auto px-4 py-12">
+        <h1 class="text-4xl font-bold text-yellow-400 mb-8">Contact Us</h1>
+        
+        <div class="bg-white/5 rounded-2xl p-8 space-y-6">
+            <section>
+                <h2 class="text-2xl font-semibold text-yellow-300 mb-4">Get in Touch</h2>
+                <p class="text-gray-300 leading-relaxed mb-6">
+                    We're here to help! If you have any questions, concerns, or need support, please reach out to us.
+                </p>
+            </section>
+
+            <section class="space-y-4">
+                <div class="bg-white/5 rounded-xl p-6">
+                    <h3 class="text-xl font-semibold text-yellow-300 mb-2">Email</h3>
+                    <p class="text-gray-300">
+                        <a href="mailto:stockboy.works@gmail.com" class="text-yellow-400 hover:text-yellow-300 hover:underline">
+                            stockboy.works@gmail.com
+                        </a>
+                    </p>
+                </div>
+
+                <div class="bg-white/5 rounded-xl p-6">
+                    <h3 class="text-xl font-semibold text-yellow-300 mb-2">Website</h3>
+                    <p class="text-gray-300">
+                        <a href="https://stockboy.works" class="text-yellow-400 hover:text-yellow-300 hover:underline">
+                            https://stockboy.works
+                        </a>
+                    </p>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="text-2xl font-semibold text-yellow-300 mb-4">Support Hours</h2>
+                <p class="text-gray-300 leading-relaxed">
+                    We aim to respond to all inquiries within 24-48 hours during business days.
+                </p>
+            </section>
+        </div>
+    </div>
+</body>
+</html>
