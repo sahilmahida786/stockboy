@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
-import requests, json, os, threading, time, re
+import requests, json, os, re
 import mysql.connector
 from datetime import timedelta, datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from functools import wraps
 
 app = Flask(__name__)
@@ -39,7 +40,7 @@ def require_login():
         return None
     
     # Pages that don't require login (public routes - Razorpay compliance pages must be public)
-    public_routes = ["home", "auth_page", "login", "login_user", "register", "register_user", "admin_login", "maintenance", "telegram_update", "privacy_policy", "terms", "refund", "contact", "create_payment_order", "verify_payment"]
+    public_routes = ["home", "auth_page", "login", "login_user", "register", "register_user", "admin_login", "maintenance", "privacy_policy", "terms", "refund", "contact", "create_payment_order", "verify_payment"]
     
     # Skip authentication check for public routes
     if request.endpoint in public_routes:
@@ -209,308 +210,9 @@ except Exception as e:
     print(f"⚠️ Razorpay initialization error: {e}")
     razorpay_client = None
 
-# Telegram Bot Configuration (Disabled for Razorpay)
-BOT_TOKEN = os.getenv("BOT_TOKEN", "")
-CHAT_ID = os.getenv("CHAT_ID", "")
-API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}" if BOT_TOKEN else None
-
-# Print bot status on startup
-if BOT_TOKEN:
-    print(f"✅ Telegram Bot Token configured (length: {len(BOT_TOKEN)})")
-    if CHAT_ID:
-        print(f"✅ Telegram Chat ID configured: {CHAT_ID}")
-    else:
-        print("⚠️ Telegram Chat ID not set - payment notifications will not be sent")
-        print("   Set CHAT_ID environment variable to receive notifications")
-else:
-    print("⚠️ Telegram Bot Token not set - payment notifications disabled")
-
-# Telegram Bot Functions
-def send_telegram_photo(photo_path, caption, txn_id=None):
-    """Send photo to Telegram with inline approve/reject buttons."""
-    if not BOT_TOKEN:
-        print("❌ BOT_TOKEN not set - cannot send notification")
-        return False
-    
-    if not CHAT_ID:
-        print("❌ CHAT_ID not set - cannot send notification")
-        print("   Please set CHAT_ID in start_server.bat or environment variable")
-        return False
-    
-    if not os.path.exists(photo_path):
-        print(f"❌ Screenshot file not found: {photo_path}")
-        return False
-    
-    url = f"{API_URL}/sendPhoto"
-    
-    try:
-        print(f"📤 Sending to Telegram...")
-        print(f"   URL: {url}")
-        print(f"   Chat ID: {CHAT_ID}")
-        print(f"   Photo: {photo_path}")
-        
-        with open(photo_path, "rb") as photo_file:
-            files = {"photo": photo_file}
-            data = {
-                "chat_id": CHAT_ID, 
-                "caption": caption,
-                "parse_mode": "Markdown"
-            }
-            
-            # Add inline keyboard buttons if txn_id is provided
-            if txn_id:
-                keyboard = {
-                    "inline_keyboard": [
-                        [
-                            {"text": "✅ Approve", "callback_data": f"approve_{txn_id}"},
-                            {"text": "❌ Reject", "callback_data": f"reject_{txn_id}"}
-                        ]
-                    ]
-                }
-                data["reply_markup"] = json.dumps(keyboard)
-            
-            response = requests.post(url, files=files, data=data, timeout=10)
-            response_data = response.json()
-            
-            if response.status_code == 200 and response_data.get("ok"):
-                print(f"✅ Telegram notification sent successfully for Txn ID: {txn_id}")
-                return True
-            else:
-                error_msg = response_data.get("description", response.text)
-                print(f"❌ Telegram API error: {error_msg}")
-                print(f"   Full response: {response_data}")
-                return False
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Network error sending Telegram notification: {e}")
-        return False
-    except Exception as e:
-        print(f"❌ Unexpected error sending Telegram notification: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
-
-def send_telegram_message(chat_id, text, parse_mode="Markdown"):
-    """Send a text message to Telegram."""
-    if not BOT_TOKEN:
-        print("❌ BOT_TOKEN not set - cannot send message")
-        return False
-    
-    url = f"{API_URL}/sendMessage"
-    try:
-        response = requests.post(url, json={
-            "chat_id": chat_id,
-            "text": text,
-            "parse_mode": parse_mode
-        }, timeout=10)
-        response_data = response.json()
-        
-        if response.status_code == 200 and response_data.get("ok"):
-            print(f"✅ Telegram message sent successfully to chat {chat_id}")
-            return True
-        else:
-            error_msg = response_data.get("description", response.text)
-            print(f"❌ Telegram API error: {error_msg}")
-            return False
-    except Exception as e:
-        print(f"❌ Error sending Telegram message: {e}")
-        return False
-
-def handle_telegram_message(payload):
-    """Handle incoming Telegram messages from users."""
-    if not payload or "message" not in payload:
-        return False
-    
-    try:
-        message = payload["message"]
-        chat_id = message["chat"]["id"]
-        user_id = message["from"]["id"]
-        username = message["from"].get("username", "Unknown")
-        first_name = message["from"].get("first_name", "User")
-        text = message.get("text", "").strip()
-        
-        print(f"📨 Received message from {first_name} (@{username}): {text}")
-        
-        # Handle /start command
-        if text == "/start" or text.lower().startswith("/start"):
-            welcome_message = (
-                f"👋 *Welcome to Stockboy Bot!*\n\n"
-                f"Hello {first_name}! 👋\n\n"
-                f"I'm here to help you with:\n"
-                f"• Payment notifications\n"
-                f"• Course access updates\n"
-                f"• Support inquiries\n\n"
-                f"Send /help to see available commands."
-            )
-            send_telegram_message(chat_id, welcome_message)
-            return True
-        
-        # Handle /help command
-        elif text == "/help" or text.lower().startswith("/help"):
-            help_message = (
-                f"📚 *Stockboy Bot Commands*\n\n"
-                f"/start - Start the bot\n"
-                f"/help - Show this help message\n"
-                f"/status - Check your payment status\n\n"
-                f"💡 *Need Support?*\n"
-                f"Visit our website or contact support for assistance."
-            )
-            send_telegram_message(chat_id, help_message)
-            return True
-        
-        # Handle /status command
-        elif text == "/status" or text.lower().startswith("/status"):
-            # Try to find user's payment status
-            payments = load_data()
-            user_payments = []
-            for entry in payments:
-                # Match by username or try to find by other identifiers
-                if entry.get("user") == first_name or entry.get("user") == username:
-                    user_payments.append(entry)
-            
-            if user_payments:
-                status_message = f"📊 *Your Payment Status*\n\n"
-                for payment in user_payments[-5:]:  # Show last 5 payments
-                    status_emoji = "✅" if payment["status"] == "approved" else "⏳" if payment["status"] == "pending" else "❌"
-                    status_message += (
-                        f"{status_emoji} *{payment.get('course_name', 'Course')}*\n"
-                        f"Txn ID: `{payment['txn_id']}`\n"
-                        f"Status: {payment['status'].title()}\n"
-                        f"Amount: {payment.get('amount', 'N/A')}\n\n"
-                    )
-                send_telegram_message(chat_id, status_message)
-            else:
-                send_telegram_message(chat_id, "📭 No payment records found. Submit a payment on our website to get started!")
-            return True
-        
-        # Handle general greetings
-        elif text.lower() in ["hello", "hi", "hey", "hey there"]:
-            greeting_message = (
-                f"Hello {first_name}! 👋\n\n"
-                f"How can I help you today? Send /help to see available commands."
-            )
-            send_telegram_message(chat_id, greeting_message)
-            return True
-        
-        # Handle unknown messages
-        else:
-            response_message = (
-                f"Hi {first_name}! 👋\n\n"
-                f"I received your message: \"{text}\"\n\n"
-                f"Send /help to see what I can do for you!"
-            )
-            send_telegram_message(chat_id, response_message)
-            return True
-            
-    except Exception as exc:
-        print(f"❌ Telegram message handling error: {exc}")
-        import traceback
-        traceback.print_exc()
-        return False
-
-def handle_telegram_callback(payload):
-    """Handle Telegram callback queries for approve/reject."""
-    if not payload or "callback_query" not in payload:
-        return False
-
-    try:
-        cb = payload["callback_query"]
-        action = cb["data"]
-        callback_id = cb["id"]
-        message_id = cb["message"]["message_id"]
-        chat_id = cb["message"]["chat"]["id"]
-
-        # Answer callback query
-        answer_url = f"{API_URL}/answerCallbackQuery"
-        requests.post(answer_url, json={"callback_query_id": callback_id})
-
-        payments = load_data()
-        processed = False
-
-        if action.startswith("approve_"):
-            txn_id = action.replace("approve_", "")
-            print(f"✅ Approval request for Txn ID: {txn_id}")
-            for i, entry in enumerate(payments):
-                if entry["txn_id"] == txn_id and entry["status"] == "pending":
-                    payments[i]["status"] = "approved"
-                    save_data(payments)
-                    print(f"✅ Payment approved: {txn_id} for user: {entry['user']}")
-
-                    # Update Telegram message
-                    edit_url = f"{API_URL}/editMessageCaption"
-                    new_caption = (
-                        f"✅ *Payment Approved*\n\n"
-                        f"👤 *User:* {entry['user']}\n"
-                        f"💳 *Txn ID:* `{txn_id}`\n"
-                        f"📦 *Course:* {entry.get('course_name', 'N/A')}\n"
-                        f"💰 *Amount:* {entry.get('amount', 'N/A')}\n"
-                        f"🔓 *Status:* Access Granted"
-                    )
-                    requests.post(edit_url, json={
-                        "chat_id": chat_id,
-                        "message_id": message_id,
-                        "caption": new_caption,
-                        "parse_mode": "Markdown"
-                    })
-                    processed = True
-                    break
-
-        elif action.startswith("reject_"):
-            txn_id = action.replace("reject_", "")
-            print(f"❌ Rejection request for Txn ID: {txn_id}")
-            for i, entry in enumerate(payments):
-                if entry["txn_id"] == txn_id and entry["status"] == "pending":
-                    payments[i]["status"] = "rejected"
-                    save_data(payments)
-                    print(f"❌ Payment rejected: {txn_id} for user: {entry['user']}")
-
-                    # Update Telegram message
-                    edit_url = f"{API_URL}/editMessageCaption"
-                    new_caption = (
-                        f"❌ *Payment Rejected*\n\n"
-                        f"👤 *User:* {entry['user']}\n"
-                        f"💳 *Txn ID:* `{txn_id}`\n"
-                        f"📦 *Course:* {entry.get('course_name', 'N/A')}\n"
-                        f"💰 *Amount:* {entry.get('amount', 'N/A')}\n"
-                        f"🚫 *Status:* Access Denied"
-                    )
-                    requests.post(edit_url, json={
-                        "chat_id": chat_id,
-                        "message_id": message_id,
-                        "caption": new_caption,
-                        "parse_mode": "Markdown"
-                    })
-                    processed = True
-                    break
-
-        if not processed:
-            requests.post(answer_url, json={
-                "callback_query_id": callback_id,
-                "text": "This payment has already been processed",
-                "show_alert": False
-            })
-
-        return True
-    except Exception as exc:
-        print(f"❌ Telegram callback error: {exc}")
-        return False
-
-@app.route("/telegram-update", methods=["POST"])
-def telegram_update():
-    """Handle Telegram webhook updates (both messages and callbacks)."""
-    data = request.get_json()
-    if not data:
-        return "OK", 200
-    
-    print(f"📥 Received Telegram update: {json.dumps(data, indent=2)}")
-    
-    # Handle callback queries (approve/reject buttons)
-    if "callback_query" in data:
-        handle_telegram_callback(data)
-    # Handle regular messages
-    elif "message" in data:
-        handle_telegram_message(data)
-    
-    return "OK", 200
+# Telegram Bot Configuration - REMOVED (Replaced by Razorpay)
+# All Telegram payment approval functionality has been removed
+# Payments are now handled automatically via Razorpay
 
 # Firebase token verification decorator
 def firebase_required(f):
@@ -896,9 +598,8 @@ def auth_page():
     
     return render_template("auth.html")
 
-from werkzeug.utils import secure_filename
-
-# Ensure payment screenshot folder exists
+# Payment screenshot folder - kept for legacy data access (if needed)
+# New payments use Razorpay, no screenshots needed
 if not os.path.exists(PAYMENT_SS_FOLDER):
     os.makedirs(PAYMENT_SS_FOLDER)
 
@@ -1029,174 +730,12 @@ def verify_payment():
 
 @app.route("/submit_payment", methods=["POST"])
 def submit_payment():
-    """Legacy route - Redirect to Razorpay payment"""
-    return jsonify({"error": "Please use Razorpay payment gateway"}), 400
-    try:
-        print(f"💳 Payment submission request received")
-        user_name = request.form.get("user_name")
-        txn_id = request.form.get("txn_id")
-        product_slug = request.form.get("product_slug", "product1")  # Default to product1
-        screenshot = request.files.get("screenshot")
-        
-        print(f"💳 Received - Name: {user_name}, Txn ID: {txn_id}, Product: {product_slug}, Screenshot: {screenshot.filename if screenshot else 'None'}")
-
-        if not user_name or not txn_id:
-            print(f"❌ Missing fields - Name: {bool(user_name)}, Txn ID: {bool(txn_id)}")
-            return jsonify({"message": "⚠️ Please enter name and transaction ID."}), 400
-
-        if not screenshot:
-            print(f"❌ No screenshot file uploaded")
-            return jsonify({"message": "⚠️ Please upload payment screenshot."}), 400
-
-        # Get product info
-        product_info = PRODUCT_DETAILS.get(product_slug, PRODUCT_DETAILS["product1"])
-        course_name = product_info.get("title", "Unknown Course")
-        amount = product_info.get("price", "₹0")
-
-        # Load old data
-        try:
-            data = load_data()
-            print(f"✅ Loaded {len(data)} existing payment entries")
-        except Exception as e:
-            print(f"❌ Error loading payment data: {e}")
-            import traceback
-            traceback.print_exc()
-            return jsonify({"message": "❌ Error loading payment data. Please try again."}), 500
-
-        # 🔥 STOP MULTIPLE SUBMISSIONS (IMPORTANT)
-        for entry in data:
-            if entry["txn_id"] == txn_id:
-                print(f"⚠️ Duplicate transaction ID: {txn_id}")
-                return jsonify({"message": "⚠️ This payment is already submitted!"})
-
-        # Ensure payment_ss folder exists
-        try:
-            if not os.path.exists(PAYMENT_SS_FOLDER):
-                os.makedirs(PAYMENT_SS_FOLDER)
-                print(f"✅ Created payment_ss folder: {PAYMENT_SS_FOLDER}")
-        except Exception as e:
-            print(f"❌ Error creating payment_ss folder: {e}")
-            import traceback
-            traceback.print_exc()
-
-        # Save screenshot to payment_ss folder (NOT in course uploads)
-        try:
-            filename = secure_filename(f"{txn_id}.png")
-            filepath = os.path.join(PAYMENT_SS_FOLDER, filename)
-            screenshot.save(filepath)
-            print(f"✅ Screenshot saved: {filepath}")
-        except Exception as e:
-            print(f"❌ Error saving screenshot: {e}")
-            import traceback
-            traceback.print_exc()
-            return jsonify({"message": "❌ Error saving screenshot. Please try again."}), 500
-
-        # Save new data with product info
-        try:
-            payment_entry = {
-                "user": user_name,
-                "txn_id": txn_id,
-                "status": "pending",
-                "ss_path": filepath,
-                "product_slug": product_slug,
-                "course_name": course_name,
-                "amount": amount,
-                "user_email": session.get("email", ""),
-                "submitted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
-            data.append(payment_entry)
-            save_data(data)
-            print(f"✅ Payment data saved - Total entries: {len(data)}")
-        except Exception as e:
-            print(f"❌ Error saving payment data: {e}")
-            import traceback
-            traceback.print_exc()
-            return jsonify({"message": "❌ Error saving payment data. Please try again."}), 500
-
-        # NOTE: Telegram payment approval system removed for Razorpay integration
-        # Payments are now automatically verified via Razorpay webhook
-        # No manual approval needed - access granted automatically on payment success
-        print(f"✅ Payment saved - will be processed via Razorpay")
-
-        # Payment saved successfully
-        print(f"✅ Payment submission completed for {user_name} with Txn ID: {txn_id}")
-
-        return jsonify({"message": "✅ Payment verified automatically. Access granted instantly."})
-    except Exception as e:
-        print(f"❌ Payment submission error: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({"message": "❌ Error submitting payment. Please try again."}), 500
+    """Legacy route - Redirected to Razorpay payment"""
+    return jsonify({"error": "Please use Razorpay payment gateway. Visit product page and click 'Pay' button."}), 400
 
 
-@app.route("/check_approval", methods=["POST"])
-def check_approval():
-    txn_id = request.form.get("txn_id")
-    product_slug = request.form.get("product_slug", "")
-    print(f"🔍 Checking approval status for Txn ID: {txn_id}, Product: {product_slug}")
-
-    data = load_data()
-    for x in data:
-        if x["txn_id"] == txn_id:
-            status = x["status"]
-            product = x.get("product_slug", "")
-            print(f"📋 Found payment - Txn ID: {txn_id}, Status: {status}, Product: {product}")
-            
-            # If approved, add to session
-            if status == "approved" and product:
-                if "approved_products" not in session:
-                    session["approved_products"] = []
-                if product not in session["approved_products"]:
-                    session["approved_products"].append(product)
-            
-            return jsonify({
-                "status": status,
-                "product_slug": product
-            })
-
-    print(f"⚠️ Payment not found for Txn ID: {txn_id}")
-    return jsonify({"status": "not_found"})
-
-
-@app.route("/start_session", methods=["POST"])
-def start_session():
-    txn_id = request.form.get("txn_id")
-    user_name = request.form.get("user_name", "User")
-    product_slug = request.form.get("product_slug", "")
-    print(f"🚀 Starting session for Txn ID: {txn_id}, User: {user_name}, Product: {product_slug}")
-
-    data = load_data()
-    payment_entry = None
-    for x in data:
-        if x["txn_id"] == txn_id:
-            payment_entry = x
-            break
-    
-    if not payment_entry:
-        print(f"❌ Payment not found for Txn ID: {txn_id}")
-        return jsonify({"ok": False, "error": "Payment not found"})
-    
-    if payment_entry["status"] != "approved":
-        print(f"❌ Payment not approved yet for Txn ID: {txn_id}, Status: {payment_entry['status']}")
-        return jsonify({"ok": False, "error": f"Payment {payment_entry['status']}"})
-
-    # Store approved products in session
-    if "approved_products" not in session:
-        session["approved_products"] = []
-    
-    product_slug = payment_entry.get("product_slug", product_slug)
-    if product_slug and product_slug not in session["approved_products"]:
-        session["approved_products"].append(product_slug)
-    
-    session["approved"] = True
-    session["user_name"] = user_name
-    print(f"✅ Session started - User: {user_name}, Approved: True, Product: {product_slug}")
-    
-    # Redirect to product page if product specified, otherwise dashboard
-    if product_slug:
-        return jsonify({"ok": True, "redirect": url_for("product_detail", product_slug=product_slug)})
-    else:
-        return jsonify({"ok": True, "redirect": url_for("dashboard")})
+# Legacy routes removed - payments now handled automatically via Razorpay
+# check_approval and start_session routes are no longer needed
 
 
 # -------------------------------------------------
@@ -1721,87 +1260,12 @@ def serve_payment_ss(filename):
     return send_from_directory(PAYMENT_SS_FOLDER, filename)
 
 
-# -------------------------------------------------
-# TELEGRAM POLLING (Alternative to Webhook)
-# -------------------------------------------------
-_last_update_id = 0
-
-def poll_telegram_updates():
-    """Poll Telegram API for updates (runs in background thread)."""
-    global _last_update_id
-    
-    if not BOT_TOKEN:
-        print("⚠️ BOT_TOKEN not set - skipping Telegram polling")
-        return
-    
-    print("🔄 Starting Telegram polling...")
-    
-    while True:
-        try:
-            url = f"{API_URL}/getUpdates"
-            params = {
-                "offset": _last_update_id + 1,
-                "timeout": 10,
-                "allowed_updates": ["message", "callback_query"]
-            }
-            
-            response = requests.get(url, params=params, timeout=15)
-            data = response.json()
-            
-            if data.get("ok") and data.get("result"):
-                updates = data["result"]
-                for update in updates:
-                    update_id = update.get("update_id", 0)
-                    _last_update_id = max(_last_update_id, update_id)
-                    
-                    # Process the update
-                    if "callback_query" in update:
-                        handle_telegram_callback(update)
-                    elif "message" in update:
-                        handle_telegram_message(update)
-            
-            time.sleep(1)  # Small delay between polls
-            
-        except requests.exceptions.Timeout:
-            # Timeout is normal, continue polling
-            continue
-        except Exception as e:
-            print(f"❌ Error in Telegram polling: {e}")
-            time.sleep(5)  # Wait longer on error
-
-def start_telegram_polling():
-    """Start Telegram polling in a background thread."""
-    if not BOT_TOKEN:
-        return
-    
-    # Check if webhook is set (if webhook is set, don't poll)
-    try:
-        webhook_url = f"{API_URL}/getWebhookInfo"
-        response = requests.get(webhook_url, timeout=5)
-        webhook_info = response.json()
-        
-        if webhook_info.get("ok") and webhook_info.get("result", {}).get("url"):
-            webhook_url_set = webhook_info["result"]["url"]
-            print(f"✅ Webhook is set: {webhook_url_set}")
-            print("   Using webhook mode - polling disabled")
-            return
-    except:
-        pass
-    
-    # Start polling in background thread
-    polling_thread = threading.Thread(target=poll_telegram_updates, daemon=True)
-    polling_thread.start()
-    print("✅ Telegram polling started in background thread")
+# Telegram polling code removed - payments now handled via Razorpay
 
 # -------------------------------------------------
 # RUN SERVER
 # -------------------------------------------------
 if __name__ == "__main__":
-    # Telegram polling disabled for Razorpay integration
-    # Payments are now automated via Razorpay webhooks
-    # Uncomment below only if you need Telegram bot for other purposes (not payments)
-    # start_telegram_polling()
-    
     # Get port from environment variable (Render requirement) or default to 5000
     port = int(os.getenv("PORT", 5000))
     # Disable debug mode in production (Render sets FLASK_ENV or similar)
