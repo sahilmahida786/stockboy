@@ -3,97 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login | Stockboy Stock Market Learning Portal</title>
-    <meta name="description" content="Login or register on Stockboy to access stock market courses, trading strategies, and premium learning content. Learn stock market step by step with expert mentorship." />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>Login | Stockboy – Premium Stock Signals Platform</title>
+    <meta name="description" content="Login or register on Stockboy to access premium stock signals, entry alerts, target updates, and stop-loss levels. India's trusted stock signal platform." />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; }
-        .bg-grid {
-            background: radial-gradient(circle at top, rgba(217,165,32,0.15), transparent 40%),
-                        linear-gradient(160deg, #050f16, #081625, #0c2035);
+        :root {
+            --bg: #081821; --card: #102530; --gold: #FFD54A; --gold-dim: rgba(255,213,74,0.15);
+            --text: #fff; --muted: #8a9bb0; --success: #00C853; --danger: #FF5252;
+            --border: rgba(255,255,255,0.08);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at top, var(--gold-dim), transparent 40%), 
+                        linear-gradient(160deg, #081821, #0d2a38, #102530);
             min-height: 100vh;
+            color: var(--text);
         }
         .glass {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(16,37,48,0.6);
+            border: 1px solid var(--border);
             backdrop-filter: blur(16px);
         }
+
+        /* Nav */
+        .nav { position:sticky; top:0; z-index:50; padding:0.75rem 1.5rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); }
+        .nav-left { display:flex; align-items:center; gap:0.75rem; }
+        .nav-left img { width:40px; height:40px; border-radius:50%; border:2px solid rgba(255,213,74,0.4); }
+        .nav-left div p:first-child { font-size:1rem; font-weight:600; color:var(--gold); }
+        .nav-left div p:last-child { font-size:0.7rem; color:var(--muted); }
+        .nav span { font-size:0.8rem; color:var(--muted); padding:0.4rem 1rem; border:1px solid var(--border); border-radius:2rem; }
+
+        .container { display:flex; align-items:center; justify-content:center; padding:2.5rem 1rem; min-height:calc(100vh - 60px); }
+        .auth-card { max-width:480px; width:100%; border-radius:1.5rem; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.3); }
+        h1.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+        /* Tabs */
+        .auth-tabs { display:flex; border-bottom:1px solid var(--border); }
+        .auth-tab { flex:1; padding:1rem; text-align:center; font-size:0.9rem; font-weight:500; cursor:pointer; color:var(--muted); border-bottom:2px solid transparent; transition:all 0.3s; }
+        .auth-tab:hover { color:var(--text); }
+        .auth-tab.active-login { color:var(--success); border-color:var(--success); background:rgba(0,200,83,0.05); }
+        .auth-tab.active-register { color:var(--gold); border-color:var(--gold); background:var(--gold-dim); }
+
+        /* Sections */
+        .auth-section { padding:2rem; }
+        .auth-section.hidden { display:none; }
+        .auth-section .header { text-align:center; margin-bottom:1.5rem; }
+        .auth-section .header .tag { font-size:0.65rem; text-transform:uppercase; letter-spacing:0.2em; margin-bottom:0.5rem; }
+        .auth-section .header h2 { font-size:1.5rem; font-weight:700; margin-bottom:0.25rem; }
+        .auth-section .header p { font-size:0.8rem; color:var(--muted); }
+
+        form { display:flex; flex-direction:column; gap:0.75rem; }
+        form input {
+            width:100%; padding:0.8rem 1rem;
+            background:rgba(255,255,255,0.06);
+            border:1px solid var(--border);
+            border-radius:0.75rem;
+            color:var(--text);
+            font-size:0.9rem;
+            outline:none;
+            transition:border-color 0.3s;
+        }
+        form input:focus { border-color:var(--gold); }
+        form input::placeholder { color:rgba(138,155,176,0.6); }
+
+        .btn-login {
+            width:100%; padding:0.85rem;
+            background:rgba(0,200,83,0.9);
+            color:var(--bg); font-weight:600; font-size:0.95rem;
+            border:none; border-radius:0.75rem; cursor:pointer;
+            transition:all 0.3s;
+        }
+        .btn-login:hover { background:var(--success); box-shadow:0 4px 20px rgba(0,200,83,0.3); }
+
+        .btn-register {
+            width:100%; padding:0.85rem;
+            background:linear-gradient(135deg,#FFD54A,#FFC107);
+            color:var(--bg); font-weight:600; font-size:0.95rem;
+            border:none; border-radius:0.75rem; cursor:pointer;
+            transition:all 0.3s;
+        }
+        .btn-register:hover { box-shadow:0 4px 20px var(--gold-dim); }
+
+        .msg { font-size:0.8rem; min-height:22px; text-align:center; margin-top:0.5rem; }
+        .switch-text { font-size:0.75rem; color:var(--muted); text-align:center; margin-top:0.5rem; }
+        .switch-text span { color:var(--gold); cursor:pointer; font-weight:500; }
+        .switch-text span:hover { text-decoration:underline; }
+
+        /* Footer */
+        .footer { background:rgba(0,0,0,0.3); border-top:1px solid var(--border); margin-top:3rem; padding:1.5rem; text-align:center; }
+        .footer-links { display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; margin-bottom:0.5rem; }
+        .footer-links a { font-size:0.75rem; color:var(--muted); text-decoration:none; transition:color 0.3s; }
+        .footer-links a:hover { color:var(--gold); }
+        .footer .copy { font-size:0.65rem; color:rgba(138,155,176,0.4); }
     </style>
 </head>
-<body class="bg-grid text-white">
-    <!-- Navigation Bar -->
-    <nav class="sticky top-0 z-50 glass border-b border-white/10 px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-10 h-10 rounded-full border border-yellow-400/40">
+<body>
+    <nav class="nav glass">
+        <div class="nav-left">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
             <div>
-                <p class="font-semibold leading-none text-lg text-yellow-300">Stockboy Premium</p>
-                <p class="text-xs text-gray-300">Trading Education Portal</p>
+                <p>Stockboy Premium</p>
+                <p>Stock Signals Platform</p>
             </div>
         </div>
-        <div class="flex gap-2 text-sm">
-            <span class="px-4 py-2 rounded-full text-gray-400">Login Required</span>
-        </div>
+        <span>Login Required</span>
     </nav>
     
-    <div class="flex items-center justify-center py-10 px-4 min-h-[calc(100vh-80px)]">
-    <div class="glass max-w-2xl w-full rounded-3xl overflow-hidden shadow-2xl border border-white/10">
-        <!-- SEO H1 Heading -->
-        <h1 class="sr-only">Stock Market Courses & Trading Education by Stockboy</h1>
+    <div class="container">
+    <div class="auth-card glass">
+        <h1 class="sr-only">Stockboy – Premium Stock Signals & Membership Platform</h1>
         
-        <!-- Tabs for Login/Register -->
-        <div class="flex border-b border-white/10">
-            <button id="loginTab" class="flex-1 py-4 px-6 text-center font-semibold bg-green-400/20 text-green-300 border-b-2 border-green-400 transition">
-                Login
-            </button>
-            <button id="registerTab" class="flex-1 py-4 px-6 text-center font-semibold text-gray-400 hover:text-white transition">
-                Register
-            </button>
+        <!-- Tabs -->
+        <div class="auth-tabs">
+            <div id="loginTab" class="auth-tab active-login">Login</div>
+            <div id="registerTab" class="auth-tab">Register</div>
         </div>
         
-        <!-- Login Section (Default) -->
-        <div id="loginSection" class="p-8 space-y-6">
-            <div class="text-center">
-                <p class="text-green-300 uppercase text-xs tracking-[0.3em] mb-2">Members</p>
-                <h2 class="text-3xl font-bold mb-2">Login to Your Account</h2>
-                <p class="text-gray-300 text-sm">Access your stock market courses and trading education content</p>
+        <!-- Login -->
+        <div id="loginSection" class="auth-section">
+            <div class="header">
+                <p class="tag" style="color:var(--success)">Members</p>
+                <h2>Login to Your Account</h2>
+                <p>Access your premium stock signals dashboard</p>
             </div>
-            <form id="loginForm" class="space-y-4">
-                <input name="email" type="email" placeholder="Email Address" class="w-full px-4 py-3 bg-white/10 rounded-2xl border border-white/10 focus:outline-none focus:border-green-300 text-white placeholder-gray-400" required>
-                <input name="password" type="password" placeholder="Password" class="w-full px-4 py-3 bg-white/10 rounded-2xl border border-white/10 focus:outline-none focus:border-green-300 text-white placeholder-gray-400" required>
-                <button type="submit" class="w-full bg-green-400/90 hover:bg-green-400 text-gray-900 font-semibold py-3 rounded-2xl transition">Sign in</button>
+            <form id="loginForm">
+                <input name="email" type="email" placeholder="Email Address" required>
+                <input name="password" type="password" placeholder="Password" required>
+                <button type="submit" class="btn-login">Sign In</button>
             </form>
-            <p id="loginMsg" class="text-sm text-gray-300 min-h-[24px] text-center"></p>
-            <div class="text-xs text-gray-400 text-center">
-                <p>Don't have an account? Click <span class="text-yellow-300 cursor-pointer hover:underline" onclick="showRegister()">Register</span> above.</p>
+            <p id="loginMsg" class="msg"></p>
+            <div class="switch-text">
+                Don't have an account? <span onclick="showRegister()">Register</span>
             </div>
         </div>
         
-        <!-- Register Section (Hidden by default) -->
-        <div id="registerSection" class="p-8 space-y-6 hidden">
-            <div class="text-center">
-                <p class="text-yellow-300 uppercase text-xs tracking-[0.3em] mb-2">Create access</p>
-                <h2 class="text-3xl font-bold mb-2">Register for Stock Market Learning</h2>
-                <p class="text-gray-300 text-sm">Create your account to start learning stock trading step by step</p>
+        <!-- Register -->
+        <div id="registerSection" class="auth-section hidden">
+            <div class="header">
+                <p class="tag" style="color:var(--gold)">Create Account</p>
+                <h2>Register for Premium Signals</h2>
+                <p>Create your account to access stock signals</p>
             </div>
-            <form id="registerForm" class="space-y-4">
-                <input name="email" type="email" placeholder="Email Address" class="w-full px-4 py-3 bg-white/10 rounded-2xl border border-white/10 focus:outline-none focus:border-yellow-300 text-white placeholder-gray-400" required>
-                <input name="password" type="password" placeholder="Password (min 6 characters)" class="w-full px-4 py-3 bg-white/10 rounded-2xl border border-white/10 focus:outline-none focus:border-yellow-300 text-white placeholder-gray-400" required>
-                <button type="submit" class="w-full bg-yellow-400/90 hover:bg-yellow-400 text-gray-900 font-semibold py-3 rounded-2xl transition">Create account</button>
+            <form id="registerForm">
+                <input name="email" type="email" placeholder="Email Address" required>
+                <input name="password" type="password" placeholder="Password (min 6 characters)" required>
+                <button type="submit" class="btn-register">Create Account</button>
             </form>
-            <p id="registerMsg" class="text-sm text-gray-300 min-h-[24px] text-center"></p>
-            <div class="text-xs text-gray-400 text-center">
-                <p>Already have an account? Click <span class="text-green-300 cursor-pointer hover:underline" onclick="showLogin()">Login</span> above.</p>
+            <p id="registerMsg" class="msg"></p>
+            <div class="switch-text">
+                Already have an account? <span onclick="showLogin()">Login</span>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDK v9+ -->
+    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
-        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCmQasrk5CzreINdVcAhrGSsHmcjX1l7d0",
             authDomain: "stockboy-5e03a.firebaseapp.com",
@@ -103,11 +171,8 @@
             appId: "1:443136134626:web:9f42e51c1ae658bbe77dbb"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-
-        // Make available globally
         window.firebaseAuth = auth;
         window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
         window.signInWithEmailAndPassword = signInWithEmailAndPassword;
@@ -115,172 +180,104 @@
 
     <script>
         async function handleForm(form, url, msgEl, isLogin = false) {
-            if (!form || !msgEl) {
-                console.error("Form or message element not found");
-                return;
-            }
+            if (!form || !msgEl) return;
             msgEl.innerText = "Processing...";
-            msgEl.className = "text-sm text-yellow-300";
+            msgEl.style.color = "var(--gold)";
             try {
-                // Wait for Firebase to be initialized
                 let retries = 0;
                 while ((!window.firebaseAuth || !window.createUserWithEmailAndPassword || !window.signInWithEmailAndPassword) && retries < 10) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
+                    await new Promise(r => setTimeout(r, 100));
                     retries++;
                 }
-                
-                if (!window.firebaseAuth || !window.createUserWithEmailAndPassword || !window.signInWithEmailAndPassword) {
-                    msgEl.innerText = "Firebase not initialized. Please refresh the page.";
-                    msgEl.className = "text-sm text-red-400";
-                    console.error("Firebase not available:", {
-                        auth: !!window.firebaseAuth,
-                        createUser: !!window.createUserWithEmailAndPassword,
-                        signIn: !!window.signInWithEmailAndPassword
-                    });
+                if (!window.firebaseAuth) {
+                    msgEl.innerText = "Firebase not ready. Refresh the page.";
+                    msgEl.style.color = "var(--danger)";
                     return;
                 }
 
                 const email = form.querySelector('input[name="email"]').value;
                 const password = form.querySelector('input[name="password"]').value;
-
                 if (!email || !password) {
                     msgEl.innerText = "Please fill in all fields";
-                    msgEl.className = "text-sm text-red-400";
+                    msgEl.style.color = "var(--danger)";
                     return;
                 }
 
                 let userCredential;
                 if (isLogin) {
-                    // Login
                     userCredential = await window.signInWithEmailAndPassword(window.firebaseAuth, email, password);
                 } else {
-                    // Register
                     userCredential = await window.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
                 }
 
-                // Get ID token
                 const idToken = await userCredential.user.getIdToken();
-                console.log("✅ Firebase token obtained:", idToken.substring(0, 20) + "...");
-
-                // Send token to backend via Authorization header (best practice)
                 const resp = await fetch(url, {
                     method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${idToken}`,
-                        "Content-Type": "application/json",
-                        "Accept": "application/json"
-                    }
+                    headers: { "Authorization": `Bearer ${idToken}`, "Content-Type": "application/json", "Accept": "application/json" }
                 });
-                console.log("📤 Request sent to:", url, "Status:", resp.status);
-                
-                // Try to parse as JSON, even if status is not OK
+
                 let data;
-                try {
-                    const text = await resp.text();
-                    data = JSON.parse(text);
-                } catch (parseErr) {
-                    console.error("Failed to parse JSON response:", parseErr);
-                    console.error("Response status:", resp.status);
-                    msgEl.innerText = "Server error. Please try again.";
-                    msgEl.className = "text-sm text-red-400";
-                    return;
-                }
-                
+                try { data = JSON.parse(await resp.text()); }
+                catch { msgEl.innerText = "Server error. Try again."; msgEl.style.color = "var(--danger)"; return; }
+
                 if (resp.ok) {
                     msgEl.innerText = data.message || "Success";
-                    msgEl.className = "text-sm text-green-400";
-                    // Redirect on successful login or registration
-                    if (data.redirect || url === "/login" || url === "/register") {
-                        setTimeout(() => {
-                            window.location.href = data.redirect || "/products";
-                        }, 1500);
-                    }
+                    msgEl.style.color = "var(--success)";
+                    if (data.redirect) setTimeout(() => { window.location.href = data.redirect; }, 1000);
                 } else {
                     msgEl.innerText = data.error || "Something went wrong";
-                    msgEl.className = "text-sm text-red-400";
+                    msgEl.style.color = "var(--danger)";
                 }
             } catch (err) {
-                console.error("Request error:", err);
-                let errorMsg = "Network error. Please check your connection and try again.";
-                if (err.code) {
-                    // Firebase error codes
-                    if (err.code === 'auth/email-already-in-use') {
-                        errorMsg = "Email already registered. Please login instead.";
-                    } else if (err.code === 'auth/invalid-email') {
-                        errorMsg = "Invalid email address.";
-                    } else if (err.code === 'auth/weak-password') {
-                        errorMsg = "Password should be at least 6 characters.";
-                    } else if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-                        errorMsg = "Invalid email or password.";
-                    } else {
-                        errorMsg = err.message || "Authentication error. Please try again.";
-                    }
-                }
+                let errorMsg = "Network error. Try again.";
+                if (err.code === 'auth/email-already-in-use') errorMsg = "Email already registered. Login instead.";
+                else if (err.code === 'auth/invalid-email') errorMsg = "Invalid email address.";
+                else if (err.code === 'auth/weak-password') errorMsg = "Password must be at least 6 characters.";
+                else if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') errorMsg = "Invalid email or password.";
+                else if (err.code === 'auth/invalid-credential') errorMsg = "Invalid email or password.";
+                else if (err.message) errorMsg = err.message;
                 msgEl.innerText = errorMsg;
-                msgEl.className = "text-sm text-red-400";
+                msgEl.style.color = "var(--danger)";
             }
         }
 
-        // Tab switching functions
         function showLogin() {
             document.getElementById("loginSection").classList.remove("hidden");
             document.getElementById("registerSection").classList.add("hidden");
-            document.getElementById("loginTab").classList.add("bg-green-400/20", "text-green-300", "border-b-2", "border-green-400");
-            document.getElementById("loginTab").classList.remove("text-gray-400");
-            document.getElementById("registerTab").classList.remove("bg-yellow-400/20", "text-yellow-300", "border-b-2", "border-yellow-400");
-            document.getElementById("registerTab").classList.add("text-gray-400");
+            document.getElementById("loginTab").className = "auth-tab active-login";
+            document.getElementById("registerTab").className = "auth-tab";
         }
-        
         function showRegister() {
             document.getElementById("registerSection").classList.remove("hidden");
             document.getElementById("loginSection").classList.add("hidden");
-            document.getElementById("registerTab").classList.add("bg-yellow-400/20", "text-yellow-300", "border-b-2", "border-yellow-400");
-            document.getElementById("registerTab").classList.remove("text-gray-400");
-            document.getElementById("loginTab").classList.remove("bg-green-400/20", "text-green-300", "border-b-2", "border-green-400");
-            document.getElementById("loginTab").classList.add("text-gray-400");
+            document.getElementById("registerTab").className = "auth-tab active-register";
+            document.getElementById("loginTab").className = "auth-tab";
         }
 
-        // Wait for DOM to be ready
         document.addEventListener("DOMContentLoaded", function() {
-            const registerForm = document.getElementById("registerForm");
-            const loginForm = document.getElementById("loginForm");
-            
-            // Tab button handlers
             document.getElementById("loginTab").addEventListener("click", showLogin);
             document.getElementById("registerTab").addEventListener("click", showRegister);
-            
-            if (registerForm) {
-                registerForm.addEventListener("submit", function(e){
-                    e.preventDefault();
-                    handleForm(this, "/register", document.getElementById("registerMsg"), false);
-                });
-            }
-            
-            if (loginForm) {
-                loginForm.addEventListener("submit", function(e){
-                    e.preventDefault();
-                    handleForm(this, "/login", document.getElementById("loginMsg"), true);
-                });
-            }
+
+            document.getElementById("registerForm")?.addEventListener("submit", function(e) {
+                e.preventDefault();
+                handleForm(this, "/register", document.getElementById("registerMsg"), false);
+            });
+            document.getElementById("loginForm")?.addEventListener("submit", function(e) {
+                e.preventDefault();
+                handleForm(this, "/login", document.getElementById("loginMsg"), true);
+            });
         });
     </script>
     </div>
     
-    <!-- Footer with Compliance Links (Razorpay Requirement) -->
-    <footer class="bg-black/40 border-t border-white/10 mt-12 py-6 px-4">
-        <div class="max-w-6xl mx-auto">
-            <div class="flex flex-wrap justify-center gap-6 text-sm">
-                <a href="/privacy-policy" class="text-gray-400 hover:text-yellow-400 transition">Privacy Policy</a>
-                <span class="text-gray-600">|</span>
-                <a href="/terms" class="text-gray-400 hover:text-yellow-400 transition">Terms & Conditions</a>
-                <span class="text-gray-600">|</span>
-                <a href="/refund" class="text-gray-400 hover:text-yellow-400 transition">Refund Policy</a>
-                <span class="text-gray-600">|</span>
-                <a href="/contact" class="text-gray-400 hover:text-yellow-400 transition">Contact</a>
-            </div>
-            <p class="text-center text-xs text-gray-500 mt-4">© 2025 Stockboy Premium. All rights reserved.</p>
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="/privacy-policy">Privacy Policy</a>
+            <a href="/terms">Terms & Conditions</a>
+            <a href="/refund">Refund Policy</a>
+            <a href="/contact">Contact</a>
         </div>
+        <p class="copy">© 2025 Stockboy Premium. All rights reserved.</p>
     </footer>
 </body>
 </html>
-

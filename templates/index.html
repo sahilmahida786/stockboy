@@ -3,345 +3,646 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Stockboy – Stock Market Courses, Trading Education & Mentorship</title>
-<meta name="description" content="Learn stock market trading from basics to advanced. Stockboy offers premium trading courses, mentorship, and lifetime access. Best stock market course for beginners in India." />
-<script src="https://cdn.tailwindcss.com"></script>
+<title>Stockboy – Premium Stock Signals & Membership Platform</title>
+<meta name="description" content="Get premium stock signals, entry price alerts, target updates, and stop loss levels. Subscribe to Stockboy for expert-curated market opportunities. Best stock signal platform in India." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          gold: {
-            light: '#f6d67c',
-            DEFAULT: '#d9a520',
-            dark: '#c4941a'
-          },
-          dark: {
-            bg1: '#0f2027',
-            bg2: '#203a43',
-            bg3: '#2c5364'
-          }
-        },
-        fontFamily: {
-          sans: ['Poppins', 'sans-serif']
-        }
-      }
-    }
-  }
-</script>
 <style>
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  :root {
+    --bg-primary: #081821;
+    --bg-card: #102530;
+    --bg-card-hover: #153040;
+    --gold: #FFD54A;
+    --gold-dim: rgba(255,213,74,0.15);
+    --gold-glow: rgba(255,213,74,0.35);
+    --text: #FFFFFF;
+    --text-muted: #8a9bb0;
+    --success: #00C853;
+    --warning: #FFC107;
+    --danger: #FF5252;
+    --border: rgba(255,255,255,0.08);
   }
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg-primary);
+    color: var(--text);
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
   }
-  @keyframes scalePop {
-    0% { transform: scale(0.9); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+  /* Animations */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+  .fade-up { animation: fadeUp 0.7s ease forwards; opacity: 0; }
+  .fade-up-1 { animation-delay: 0.1s; }
+  .fade-up-2 { animation-delay: 0.2s; }
+  .fade-up-3 { animation-delay: 0.3s; }
+  .fade-up-4 { animation-delay: 0.4s; }
+  .fade-up-5 { animation-delay: 0.5s; }
+
+  /* Navbar */
+  .navbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(8,24,33,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between;
   }
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+  .nav-brand { display: flex; align-items: center; gap: 0.75rem; }
+  .nav-brand img { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--gold); box-shadow: 0 0 15px var(--gold-glow); }
+  .nav-brand h1 { font-size: 1.25rem; font-weight: 700; background: linear-gradient(135deg, #FFD54A, #FFC107); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .nav-links { display: flex; align-items: center; gap: 0.75rem; }
+  .nav-links a { font-size: 0.85rem; padding: 0.5rem 1.25rem; border-radius: 2rem; text-decoration: none; color: var(--text-muted); border: 1px solid var(--border); transition: all 0.3s; }
+  .nav-links a:hover { border-color: var(--gold); color: var(--gold); }
+  .nav-links .btn-gold { background: linear-gradient(135deg, #FFD54A, #FFC107); color: var(--bg-primary); font-weight: 600; border: none; }
+  .nav-links .btn-gold:hover { box-shadow: 0 4px 20px var(--gold-glow); transform: translateY(-1px); }
+  .user-info { text-align: right; }
+  .user-info .name { font-size: 0.85rem; color: var(--text-muted); }
+  .user-info .name span { color: var(--gold); font-weight: 600; }
+  .user-info .logout { font-size: 0.75rem; color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
+  .user-info .logout:hover { color: var(--danger); }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    padding: 5rem 1.5rem 4rem;
+    text-align: center;
+    overflow: hidden;
   }
-  .animate-fade-in {
-    animation: fadeIn 0.9s ease forwards;
+  .hero::before {
+    content: '';
+    position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(circle at 50% 0%, var(--gold-dim), transparent 50%);
+    pointer-events: none;
   }
-  .animate-slide-up {
-    animation: slideUp 0.6s ease forwards;
+  .hero-badge {
+    display: inline-block;
+    padding: 0.4rem 1.25rem;
+    background: var(--gold-dim);
+    border: 1px solid rgba(255,213,74,0.25);
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 1.5rem;
   }
-  .animate-pop {
-    animation: scalePop 0.5s ease forwards;
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #FFD54A 0%, #FFC107 50%, #FFD54A 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: shimmer 4s linear infinite;
   }
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
   }
-  .bg-gradient-dark {
-    background: linear-gradient(160deg, #0f2027, #203a43, #2c5364);
+  .hero-stats {
+    display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;
+    margin-top: 2rem;
   }
-  .bg-premium {
-    background-image: url("{{ url_for('static', filename='bg_trading.webp.webp') }}");
-    background-size: cover;
-    background-position: center top;
-    background-repeat: no-repeat;
+  .hero-stat {
+    text-align: center;
+    padding: 1rem 1.5rem;
+    background: rgba(16,37,48,0.6);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    min-width: 120px;
   }
-  .text-gradient-gold {
-    background: linear-gradient(90deg, #f6d67c, #d9a520);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .hero-stat .num { font-size: 1.75rem; font-weight: 800; color: var(--gold); }
+  .hero-stat .label { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+  /* Plans */
+  .plans-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
   }
-  .reveal {
-    opacity: 0;
-    transform: translateY(18px);
-    transition: opacity 0.55s ease, transform 0.55s ease;
+  .section-title {
+    text-align: center;
+    margin-bottom: 3rem;
   }
-  .reveal.show {
-    opacity: 1;
-    transform: translateY(0);
+  .section-title h2 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .section-title p {
+    color: var(--text-muted);
+    font-size: 1rem;
+  }
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+  .plan-card {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 1.5rem;
+    padding: 2rem 1.5rem;
+    display: flex; flex-direction: column;
+    transition: all 0.4s ease;
+    overflow: hidden;
+  }
+  .plan-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(255,213,74,0.3);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 40px var(--gold-dim);
+  }
+  .plan-card.popular {
+    border-color: var(--gold);
+    box-shadow: 0 0 30px var(--gold-dim);
+  }
+  .plan-card.popular::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #FFD54A, #FFC107, #FFD54A);
+  }
+  .plan-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: var(--gold-dim);
+    border-radius: 1rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    width: fit-content;
+  }
+  .plan-card.popular .plan-badge {
+    background: var(--gold);
+    color: var(--bg-primary);
+  }
+  .plan-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .plan-price {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--gold);
+    margin-bottom: 0.25rem;
+    line-height: 1;
+  }
+  .plan-period {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+  .plan-features {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2rem;
+    flex-grow: 1;
+  }
+  .plan-features li {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.4rem 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .plan-features li .check {
+    width: 18px; height: 18px;
+    background: rgba(0,200,83,0.15);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem;
+    color: var(--success);
+    flex-shrink: 0;
+  }
+  .btn-plan {
+    display: block;
+    width: 100%;
+    padding: 0.9rem;
+    text-align: center;
+    background: linear-gradient(135deg, #FFD54A, #FFC107);
+    color: var(--bg-primary);
+    font-weight: 700;
+    font-size: 0.95rem;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+  .btn-plan:hover {
+    box-shadow: 0 8px 30px var(--gold-glow);
+    transform: translateY(-2px);
+  }
+
+  /* Features */
+  .features-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+  .feature-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: all 0.3s;
+  }
+  .feature-card:hover {
+    border-color: rgba(255,213,74,0.2);
+    transform: translateY(-3px);
+  }
+  .feature-icon {
+    width: 48px; height: 48px;
+    background: var(--gold-dim);
+    border-radius: 0.75rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+  .feature-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .feature-card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* How it works */
+  .steps-section {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+  .steps-list { display: flex; flex-direction: column; gap: 1.5rem; }
+  .step {
+    display: flex; gap: 1.25rem; align-items: flex-start;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: all 0.3s;
+  }
+  .step:hover { border-color: rgba(255,213,74,0.2); }
+  .step-num {
+    width: 44px; height: 44px;
+    background: var(--gold-dim);
+    border-radius: 0.75rem;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    color: var(--gold);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .step h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .step p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* Trust */
+  .trust-bar {
+    display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;
+    padding: 2rem 1.5rem;
+  }
+  .trust-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    background: rgba(16,37,48,0.5);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* Disclaimer */
+  .disclaimer {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+  .disclaimer p {
+    font-size: 0.7rem;
+    color: rgba(138,155,176,0.6);
+    line-height: 1.6;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 2rem 1.5rem 3rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+  .footer-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .footer-links a { font-size: 0.8rem; color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
+  .footer-links a:hover { color: var(--gold); }
+  .footer .copy { font-size: 0.75rem; color: rgba(138,155,176,0.5); }
+
+  /* Floating buttons */
+  .float-btn {
+    position: fixed;
+    right: 1rem;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    z-index: 50;
+    transition: transform 0.3s;
+    text-decoration: none;
+  }
+  .float-btn:hover { transform: scale(1.1); }
+  .float-wa { bottom: 1rem; background: #25D366; }
+  .float-tg { bottom: 5rem; background: #0088cc; }
+  .float-btn img { width: 26px; height: 26px; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero { padding: 3rem 1rem 2.5rem; }
+    .hero-stats { gap: 0.75rem; }
+    .hero-stat { min-width: 100px; padding: 0.75rem 1rem; }
+    .hero-stat .num { font-size: 1.25rem; }
+    .plans-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+    .features-grid { grid-template-columns: 1fr; }
+    .navbar { padding: 0.5rem 1rem; }
+    .nav-brand h1 { font-size: 1rem; }
   }
 </style>
 </head>
-<body class="bg-gradient-dark text-white font-sans min-h-screen animate-fade-in">
+<body>
 
-<!-- Top Navigation Bar -->
-<nav class="sticky top-0 z-50 bg-black/55 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center justify-between gap-3">
-  <div class="flex items-center gap-3">
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="logo" class="w-10 h-10 rounded-full shadow-lg shadow-yellow-500/45">
-    <h1 class="text-gradient-gold text-xl font-bold">Stockboy Officiel</h1>
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Stockboy Logo">
+    <h1>Stockboy</h1>
   </div>
-  <div class="flex items-center gap-3">
-    {% if logged_in and username %}
-    <div class="text-right">
-      <div class="text-sm text-gray-300">
-        Welcome, <span class="text-gold-DEFAULT font-semibold">{{ username }}</span>
-      </div>
-      {% if mobile %}
-      <div class="text-xs text-gray-400">{{ mobile }}</div>
-      {% endif %}
-      <a href="/logout" class="text-xs text-gray-400 hover:text-red-400 transition-colors flex items-center justify-end gap-1 mt-1">
-        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-        </svg>
-        Logout
-      </a>
-    </div>
-    {% else %}
-    <div class="flex gap-2 text-sm">
-      <a href="/products" class="px-4 py-2 rounded-full border border-white/20 hover:border-yellow-400 transition">Products</a>
-      <a href="/auth" class="px-4 py-2 rounded-full bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 font-semibold">Login / Register</a>
-    </div>
+  {% if logged_in and username %}
+  <div class="user-info">
+    <div class="name">Welcome, <span>{{ username }}</span></div>
+    {% if has_subscription %}
+    <a href="/dashboard" class="logout" style="color:var(--success); margin-right:0.75rem;">Dashboard →</a>
     {% endif %}
+    <a href="/logout" class="logout">Logout</a>
   </div>
+  {% else %}
+  <div class="nav-links">
+    <a href="/about">About</a>
+    <a href="/auth" class="btn-gold">Login / Register</a>
+  </div>
+  {% endif %}
 </nav>
 
-<!-- How It Works Section -->
-<section class="relative min-h-[650px] bg-premium rounded-3xl mx-4 my-6 overflow-hidden reveal">
-  <div class="absolute inset-0 bg-black/45 backdrop-blur-sm"></div>
-  <div class="relative z-10 px-5 py-10">
-    <div class="max-w-4xl mx-auto">
-      <h1 class="text-gradient-gold text-3xl md:text-4xl font-bold mb-4 text-center">Stock Market Courses & Trading Education by Stockboy</h1>
-      <h2 class="text-2xl md:text-3xl font-semibold mb-4 text-center text-white">Beginner to Advanced Stock Market Learning</h2>
-      <p class="text-gray-300 text-center mb-12 text-lg">Get started with our online stock market learning platform in 4 simple steps</p>
-      
-      <div class="grid md:grid-cols-2 gap-6">
-        <!-- Step 1 -->
-        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-12 h-12 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold text-xl">
-              1
-            </div>
-            <div>
-              <h3 class="text-xl font-semibold text-white mb-2">Browse Stock Market Courses</h3>
-              <p class="text-gray-300">Choose the best stock market course for beginners or advanced traders—from stock market basics to advanced trading strategies.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 2 -->
-        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-12 h-12 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold text-xl">
-              2
-            </div>
-            <div>
-              <h3 class="text-xl font-semibold text-white mb-2">Register & Pay</h3>
-              <p class="text-gray-300">Create your account and complete payment securely via Razorpay. Access is granted automatically upon successful payment.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 3 -->
-        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-12 h-12 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold text-xl">
-              3
-            </div>
-            <div>
-              <h3 class="text-xl font-semibold text-white mb-2">Get Instant Access</h3>
-              <p class="text-gray-300">Payment is verified automatically via Razorpay. You'll get instant access to your course dashboard.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 4 -->
-        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-12 h-12 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold text-xl">
-              4
-            </div>
-            <div>
-              <h3 class="text-xl font-semibold text-white mb-2">Access Dashboard</h3>
-              <p class="text-gray-300">Log in to your dashboard and start learning from our comprehensive course materials, PDFs, and videos.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CTA Button -->
-      <div class="text-center mt-10">
-        <a href="/products" class="inline-block bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 font-bold py-4 px-8 rounded-xl shadow-lg shadow-yellow-500/50 hover:shadow-yellow-500/70 transition-all duration-300">
-          Browse Courses & Get Started
-        </a>
-      </div>
-
-      <!-- Trust Indicators -->
-      <div class="flex flex-wrap justify-center gap-4 mt-8">
-        <div class="flex items-center gap-2 text-sm text-gray-300 bg-white/5 px-4 py-2 rounded-lg">
-          <span>🔒</span>
-          <span>SSL Secure</span>
-        </div>
-        <div class="flex items-center gap-2 text-sm text-gray-300 bg-white/5 px-4 py-2 rounded-lg">
-          <span>✓</span>
-          <span>Verified</span>
-        </div>
-        <div class="flex items-center gap-2 text-sm text-gray-300 bg-white/5 px-4 py-2 rounded-lg">
-          <span>⚡</span>
-          <span>Instant Access</span>
-        </div>
-        <div class="flex items-center gap-2 text-sm text-gray-300 bg-white/5 px-4 py-2 rounded-lg">
-          <span>💬</span>
-          <span>24/7 Support</span>
-        </div>
-      </div>
+<!-- Hero -->
+<section class="hero">
+  <div class="fade-up fade-up-1">
+    <span class="hero-badge">🏆 India's Premium Signal Platform</span>
+  </div>
+  <h1 class="fade-up fade-up-2">Premium Stock Signals<br>& Market Opportunities</h1>
+  <p class="fade-up fade-up-3">
+    Get expert-curated stock signals with precise entry prices, multiple targets, and stop-loss levels.
+    Join thousands of traders making smarter market decisions every day.
+  </p>
+  <div class="hero-stats fade-up fade-up-4">
+    <div class="hero-stat">
+      <div class="num">500+</div>
+      <div class="label">Active Members</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">85%</div>
+      <div class="label">Accuracy Rate</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">24/7</div>
+      <div class="label">Market Coverage</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">3+</div>
+      <div class="label">Signals / Day</div>
     </div>
   </div>
 </section>
 
-<!-- Like Section -->
-<section class="reveal max-w-4xl mx-auto px-4 py-10">
-  <div class="bg-gradient-to-br from-dark-bg1 via-dark-bg2 to-dark-bg3 rounded-3xl p-8 shadow-2xl border border-white/10">
-    <div class="text-center">
-      <button onclick="likeSite()" 
-              class="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 px-6 py-3 rounded-xl font-semibold transition-all duration-300 active:scale-95">
-        👍 Like <span id="likeCount" class="font-bold text-lg ml-2">0</span>
-      </button>
-      <p id="likeMsg" class="text-yellow-400 mt-3 text-sm"></p>
-    </div>
+<!-- Membership Plans -->
+<section class="plans-section" id="plans">
+  <div class="section-title fade-up">
+    <h2>Choose Your Membership</h2>
+    <p>Unlock premium stock signals and market opportunities</p>
   </div>
-</section>
-
-<!-- Support Buttons -->
-<a href="https://wa.me/918381930145?text=Hello%20I%20need%20premium%20Coure%20from%20Stockboy" 
-   target="_blank" 
-   class="fixed right-4 bottom-4 w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform z-50">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" class="w-7 h-7">
-</a>
-
-<a href="https://t.me/pennystocksboy" 
-   target="_blank" 
-   class="fixed right-4 bottom-24 w-14 h-14 bg-[#0088cc] rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform z-50">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" class="w-7 h-7">
-</a>
-
-<!-- About Button -->
-<a href="#about" class="fixed right-4 bottom-40 bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 px-5 py-3 rounded-full font-semibold text-sm shadow-lg shadow-yellow-500/50 hover:shadow-yellow-500/70 transition-all z-50 opacity-0 animate-fade-in" style="animation-delay: 1.4s; animation-fill-mode: forwards;">
-  About Us
-</a>
-
-<!-- About Section -->
-<section id="about" class="bg-[#0B0F14] py-16 px-4">
-  <div class="max-w-4xl mx-auto text-center">
-    <h2 class="text-4xl font-bold text-yellow-400 mb-4">Why Learn Trading with Stockboy?</h2>
-    <p class="text-gray-300 leading-relaxed text-lg mb-8">
-      Stockboy Premium helps traders build real <strong>price-action mastery</strong>, discipline, &
-      consistency through structured stock market education—not gambling or tips. Learn stock market step by step with our comprehensive trading mentorship program.
-    </p>
-    <div class="text-left mt-8">
-      <h3 class="text-2xl font-semibold text-green-400 mb-4">Premium Courses & Mentorship</h3>
-      <ul class="space-y-3 text-gray-300 text-lg">
-        <li class="flex items-start">
-          <span class="text-gold-DEFAULT mr-2">•</span>
-          <span>Premium Price Action Training</span>
-        </li>
-        <li class="flex items-start">
-          <span class="text-gold-DEFAULT mr-2">•</span>
-          <span>Real Chart-Based Strategies</span>
-        </li>
-        <li class="flex items-start">
-          <span class="text-gold-DEFAULT mr-2">•</span>
-          <span>Entry, Exit & Market Timing Guidance</span>
-        </li>
-        <li class="flex items-start">
-          <span class="text-gold-DEFAULT mr-2">•</span>
-          <span>Risk & Money Management Coaching</span>
-        </li>
-        <li class="flex items-start">
-          <span class="text-gold-DEFAULT mr-2">•</span>
-          <span>Exclusive Member Resources</span>
-        </li>
+  <div class="plans-grid">
+    {% for slug, plan in plans.items() %}
+    <div class="plan-card fade-up {% if plan.popular %}popular{% endif %}" style="animation-delay: {{ loop.index * 0.1 }}s;">
+      <span class="plan-badge">{{ plan.badge }}</span>
+      <div class="plan-name">{{ plan.name }}</div>
+      <div class="plan-price">{{ plan.price_display }}</div>
+      <div class="plan-period">
+        {% if plan.duration_days %}
+        {{ plan.duration_days }} days access
+        {% else %}
+        Lifetime access — Never expires
+        {% endif %}
+      </div>
+      <ul class="plan-features">
+        {% for benefit in benefits %}
+        <li><span class="check">✓</span> {{ benefit }}</li>
+        {% endfor %}
       </ul>
+      {% if logged_in %}
+      <button class="btn-plan" onclick="initiatePlanPayment('{{ slug }}')">
+        Buy Now — {{ plan.price_display }}
+      </button>
+      {% else %}
+      <a href="/auth" class="btn-plan">Login to Subscribe</a>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Features -->
+<section class="features-section">
+  <div class="section-title fade-up">
+    <h2>What You Get</h2>
+    <p>Everything you need for smarter trading decisions</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card fade-up">
+      <div class="feature-icon">📈</div>
+      <h3>Premium Stock Signals</h3>
+      <p>Expert-analyzed buy/sell signals with precise entry, target, and stop-loss levels for NSE & BSE stocks.</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon">🎯</div>
+      <h3>Multi-Target Strategy</h3>
+      <p>Each signal comes with 3 targets and a defined stop loss for optimal risk-reward management.</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon">⚡</div>
+      <h3>Real-Time Updates</h3>
+      <p>Live status updates when targets are hit or stop-loss is triggered. Stay informed at every step.</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon">🛡️</div>
+      <h3>Risk Management</h3>
+      <p>Every signal includes a calculated risk-reward ratio to help you manage your capital wisely.</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon">📊</div>
+      <h3>Premium Dashboard</h3>
+      <p>Beautiful, real-time dashboard showing all active signals, historical performance, and your portfolio.</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon">💬</div>
+      <h3>Priority Support</h3>
+      <p>Get dedicated support via WhatsApp and Telegram. Average response time under 5 minutes.</p>
     </div>
   </div>
 </section>
+
+<!-- How it works -->
+<section class="steps-section">
+  <div class="section-title fade-up">
+    <h2>How It Works</h2>
+    <p>Start receiving premium signals in 4 simple steps</p>
+  </div>
+  <div class="steps-list">
+    <div class="step fade-up">
+      <div class="step-num">1</div>
+      <div>
+        <h3>Choose a Membership Plan</h3>
+        <p>Select from monthly, quarterly, yearly, or lifetime plans based on your trading needs.</p>
+      </div>
+    </div>
+    <div class="step fade-up">
+      <div class="step-num">2</div>
+      <div>
+        <h3>Register & Pay Securely</h3>
+        <p>Create your account and complete payment via Razorpay. Fully secure and encrypted.</p>
+      </div>
+    </div>
+    <div class="step fade-up">
+      <div class="step-num">3</div>
+      <div>
+        <h3>Get Instant Access</h3>
+        <p>Your subscription is activated instantly after payment. No waiting, no manual approval.</p>
+      </div>
+    </div>
+    <div class="step fade-up">
+      <div class="step-num">4</div>
+      <div>
+        <h3>View Premium Signals</h3>
+        <p>Access your dashboard with real-time stock signals, targets, stop-loss levels, and status updates.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trust Bar -->
+<div class="trust-bar fade-up">
+  <div class="trust-item">🔒 SSL Encrypted</div>
+  <div class="trust-item">✓ Razorpay Verified</div>
+  <div class="trust-item">⚡ Instant Access</div>
+  <div class="trust-item">💬 24/7 Support</div>
+  <div class="trust-item">🛡️ Secure Payments</div>
+</div>
+
+<!-- Disclaimer -->
+<div class="disclaimer fade-up">
+  <p><strong>Disclaimer:</strong> Stock market investments are subject to market risks. Past performance is not indicative of future results. The signals provided are for educational and informational purposes only and should not be considered as financial advice. Please consult your financial advisor before making any investment decisions. Stockboy is not a SEBI-registered investment advisor.</p>
+</div>
 
 <!-- Footer -->
-<section class="text-center py-8 text-gray-400 text-sm reveal">
-  © 2025 Stockboy Officiel • All Rights Reserved
-</section>
+<footer class="footer">
+  <div class="footer-links">
+    <a href="/privacy-policy">Privacy Policy</a>
+    <a href="/terms">Terms & Conditions</a>
+    <a href="/refund">Refund Policy</a>
+    <a href="/contact">Contact</a>
+    <a href="/about">About</a>
+  </div>
+  <p class="copy">© 2025 Stockboy Premium • All Rights Reserved</p>
+</footer>
 
+<!-- Floating Buttons -->
+<a href="https://wa.me/918381930145?text=Hello%20I%20need%20premium%20stock%20signals" target="_blank" class="float-btn float-wa">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+</a>
+<a href="https://t.me/pennystocksboy" target="_blank" class="float-btn float-tg">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
+</a>
+
+<!-- Razorpay -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-const funText = document.getElementById('funText');
-const likeCount = document.getElementById('likeCount');
-const likeMsg = document.getElementById('likeMsg');
-
 /* Scroll reveal */
 const obs = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add("show");
-    }
-  });
+  entries.forEach(e => { if (e.isIntersecting) e.target.style.animationPlayState = 'running'; });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => {
+  el.style.animationPlayState = 'paused';
+  obs.observe(el);
 });
-document.querySelectorAll(".reveal").forEach(el => obs.observe(el));
 
-// Payment form removed - now using Razorpay checkout on product pages
-
-/* Like system */
-function likeSite(){
-  fetch("/like", {method: "POST"})
-    .then(r => r.json())
-    .then(d => {
-      likeCount.innerText = d.likes;
-      likeCount.classList.add("scale-125", "text-gold-DEFAULT");
-      likeMsg.innerText = "Thanks for supporting!";
-      setTimeout(() => {
-        likeCount.classList.remove("scale-125", "text-gold-DEFAULT");
-      }, 300);
+/* Payment */
+async function initiatePlanPayment(planSlug) {
+  try {
+    const res = await fetch('/create-payment-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan: planSlug })
     });
+    const data = await res.json();
+    if (!res.ok) { alert(data.error || 'Payment error'); return; }
+
+    const options = {
+      key: data.key_id,
+      amount: data.amount,
+      currency: data.currency,
+      name: "Stockboy Premium",
+      description: data.plan_name,
+      order_id: data.order_id,
+      handler: async function(response) {
+        const verify = await fetch('/verify-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature
+          })
+        });
+        const result = await verify.json();
+        if (result.success) {
+          window.location.href = result.redirect || '/dashboard';
+        } else {
+          alert('Payment verification failed. Contact support.');
+        }
+      },
+      prefill: {
+        name: "{{ username or '' }}",
+        email: "{{ session.get('email', '') if session else '' }}"
+      },
+      theme: { color: "#FFD54A" }
+    };
+    new Razorpay(options).open();
+  } catch (err) {
+    console.error('Payment error:', err);
+    alert('Payment failed. Please try again.');
+  }
 }
-
-/* Load likes on page load */
-fetch("/get_likes")
-  .then(r => r.json())
-  .then(d => {
-    likeCount.innerText = d.likes;
-  });
-
-/* Beautiful motivational quotes */
-const funTextsArr = [
-  "Great traders don't predict. They prepare.",
-  "Patience turns average traders into profitable ones.",
-  "Risk management is your true strategy.",
-  "Your emotions are your only enemy in trading.",
-  "Learn the chart — it speaks every day.",
-  "Protect capital first, profit later.",
-  "Small consistent wins beat big risky trades.",
-  "A disciplined trader is an undefeated trader.",
-  "The market rewards those who wait.",
-  "Process > Emotions. Always."
-];
-
-function rotateFun(){
-  funText.innerText = funTextsArr[Math.floor(Math.random() * funTextsArr.length)];
-}
-rotateFun();
-setInterval(rotateFun, 3000);
 </script>
 
 </body>

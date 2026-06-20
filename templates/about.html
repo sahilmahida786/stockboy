@@ -3,190 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>About Stockboy – Stock Market Education & Trading Mentorship Platform</title>
-    <meta name="description" content="Learn about Stockboy's stock market education platform. We provide premium trading courses, mentorship, and step-by-step stock market learning for beginners to advanced traders in India." />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>About Stockboy – Premium Stock Signals & Market Intelligence Platform</title>
+    <meta name="description" content="Learn about Stockboy's premium stock signals platform. We provide expert-curated buy/sell signals with precise entry, targets, and stop-loss levels for Indian stock markets." />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; }
-        .bg-dark {
-            background: radial-gradient(circle at top, rgba(217,165,32,0.18), transparent 40%),
-                        linear-gradient(160deg, #05121a, #071d29, #0a1f31);
-            min-height: 100vh;
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(14px);
-        }
+        :root { --bg:#081821; --card:#102530; --gold:#FFD54A; --gold-dim:rgba(255,213,74,0.15); --text:#fff; --muted:#8a9bb0; --success:#00C853; --border:rgba(255,255,255,0.08); }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Poppins',sans-serif;background:radial-gradient(circle at top,var(--gold-dim),transparent 40%),linear-gradient(160deg,#081821,#0d2a38,#102530);min-height:100vh;color:var(--text)}
+        .glass{background:rgba(16,37,48,0.6);border:1px solid var(--border);backdrop-filter:blur(14px)}
+        .nav{position:sticky;top:0;z-index:40;padding:0.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+        .nav-left{display:flex;align-items:center;gap:0.75rem}
+        .nav-left img{width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,213,74,0.4)}
+        .nav-left div p:first-child{font-size:1rem;font-weight:600;color:var(--gold)}
+        .nav-left div p:last-child{font-size:0.7rem;color:var(--muted)}
+        .nav-right{display:flex;gap:0.5rem}
+        .nav-right a{font-size:0.8rem;padding:0.45rem 1rem;border-radius:2rem;text-decoration:none;color:var(--muted);border:1px solid var(--border);transition:all 0.3s}
+        .nav-right a:hover{border-color:var(--gold);color:var(--gold)}
+        .nav-right .active{background:linear-gradient(135deg,#FFD54A,#FFC107);color:var(--bg);font-weight:600;border:none}
+        .hero{max-width:800px;margin:0 auto;text-align:center;padding:4rem 1.5rem 2rem}
+        .hero h1{font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,#FFD54A,#FFC107);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.5rem}
+        .hero h2{font-size:1.25rem;font-weight:600;color:var(--gold);margin-bottom:1rem}
+        .hero p{color:var(--muted);font-size:1rem;line-height:1.7}
+        main{max-width:800px;margin:0 auto;padding:0 1.5rem 4rem;display:flex;flex-direction:column;gap:2rem}
+        section.glass{border-radius:1.25rem;padding:2rem}
+        section h2{font-size:1.5rem;font-weight:600;color:var(--gold);margin-bottom:1.25rem}
+        .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.25rem}
+        .item{display:flex;align-items:flex-start;gap:0.75rem}
+        .item .icon{color:var(--gold);font-size:1.25rem;flex-shrink:0;margin-top:0.1rem}
+        .item h3{font-size:0.95rem;font-weight:600;margin-bottom:0.25rem}
+        .item p{font-size:0.85rem;color:var(--muted);line-height:1.6}
+        .philosophy p{color:var(--muted);font-size:0.95rem;line-height:1.8;margin-bottom:0.75rem}
+        .philosophy .quote{color:var(--gold);font-size:1.1rem;font-weight:600;margin-top:1rem}
+        .steps{display:flex;flex-direction:column;gap:1rem}
+        .step{display:flex;gap:1rem;align-items:flex-start}
+        .step-num{width:36px;height:36px;background:var(--gold-dim);border-radius:0.5rem;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--gold);flex-shrink:0}
+        .step h3{font-size:0.9rem;font-weight:600;margin-bottom:0.15rem}
+        .step p{font-size:0.8rem;color:var(--muted);line-height:1.6}
+        .cta{text-align:center}
+        .cta a{display:inline-block;padding:0.75rem 2rem;border-radius:2rem;font-weight:600;text-decoration:none;transition:all 0.3s;margin:0.25rem}
+        .cta .wa{background:#25D366;color:var(--text)}
+        .cta .tg{background:#0088cc;color:var(--text)}
+        .cta a:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(0,0,0,0.3)}
+        footer{text-align:center;padding:2rem;font-size:0.75rem;color:rgba(138,155,176,0.4);border-top:1px solid var(--border);margin-top:1rem}
+        footer a{color:var(--muted);text-decoration:none;margin:0 0.5rem}
+        footer a:hover{color:var(--gold)}
+        @media(max-width:768px){.hero h1{font-size:1.75rem}.grid-2{grid-template-columns:1fr}}
     </style>
 </head>
-<body class="bg-dark text-white">
-    <!-- Navigation Bar -->
-    <nav class="sticky top-0 z-40 glass px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-10 h-10 rounded-full border border-yellow-400/40">
-            <div>
-                <p class="font-semibold leading-none text-lg text-yellow-300">Stockboy Premium</p>
-                <p class="text-xs text-gray-300">Trading Education Portal</p>
-            </div>
+<body>
+    <nav class="nav glass">
+        <div class="nav-left">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+            <div><p>Stockboy Premium</p><p>Stock Signals Platform</p></div>
         </div>
-        <div class="flex gap-2 text-sm">
-            <a href="/" class="px-4 py-2 rounded-full border border-white/20 hover:border-yellow-400/60 transition">Login</a>
-            <a href="/products" class="px-4 py-2 rounded-full border border-white/20 hover:border-yellow-400/60 transition">Products</a>
-            <a href="/about" class="px-4 py-2 rounded-full bg-yellow-400/90 text-gray-900 font-semibold">About</a>
+        <div class="nav-right">
+            <a href="/">Home</a>
+            <a href="/plans">Plans</a>
+            <a href="/about" class="active">About</a>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <header class="max-w-5xl mx-auto text-center py-16 px-4">
-        <h1 class="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent">
-            Stock Market Education & Trading Mentorship Platform
-        </h1>
-        <h2 class="text-2xl md:text-3xl font-semibold mb-4 text-yellow-300">About Stockboy Premium</h2>
-        <p class="text-gray-300 text-xl max-w-2xl mx-auto leading-relaxed">
-            Building real <strong class="text-yellow-400">price-action mastery</strong>, discipline, and consistency through structured stock market learning—not gambling or tips. Learn stock market step by step with our comprehensive trading education programs.
-        </p>
+    <header class="hero">
+        <h1>Premium Stock Signals & Market Intelligence</h1>
+        <h2>About Stockboy</h2>
+        <p>We deliver expert-curated stock signals with precise entry prices, multi-target strategies, and risk management — empowering traders to make smarter market decisions.</p>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-5xl mx-auto px-4 pb-16 space-y-12">
-        <!-- What We Provide -->
-        <section class="glass rounded-3xl p-8 md:p-12">
-            <h2 class="text-3xl font-semibold text-yellow-400 mb-6">What We Provide</h2>
-            <div class="grid md:grid-cols-2 gap-6">
-                <div class="flex items-start gap-4">
-                    <div class="text-yellow-400 text-2xl">✓</div>
-                    <div>
-                        <h3 class="text-xl font-semibold mb-2">Premium Price Action Training</h3>
-                        <p class="text-gray-300">Master the art of reading price movements and understanding market dynamics from real chart patterns.</p>
-                    </div>
-                </div>
-                <div class="flex items-start gap-4">
-                    <div class="text-yellow-400 text-2xl">✓</div>
-                    <div>
-                        <h3 class="text-xl font-semibold mb-2">Real Chart-Based Strategies</h3>
-                        <p class="text-gray-300">Learn proven strategies based on actual market charts, not theoretical concepts.</p>
-                    </div>
-                </div>
-                <div class="flex items-start gap-4">
-                    <div class="text-yellow-400 text-2xl">✓</div>
-                    <div>
-                        <h3 class="text-xl font-semibold mb-2">Entry, Exit & Market Timing</h3>
-                        <p class="text-gray-300">Perfect your timing for market entries and exits with professional guidance.</p>
-                    </div>
-                </div>
-                <div class="flex items-start gap-4">
-                    <div class="text-yellow-400 text-2xl">✓</div>
-                    <div>
-                        <h3 class="text-xl font-semibold mb-2">Risk & Money Management</h3>
-                        <p class="text-gray-300">Protect your capital first. Learn proper risk management and position sizing.</p>
-                    </div>
-                </div>
-                <div class="flex items-start gap-4">
-                    <div class="text-yellow-400 text-2xl">✓</div>
-                    <div>
-                        <h3 class="text-xl font-semibold mb-2">Exclusive Member Resources</h3>
-                        <p class="text-gray-300">Access premium content, updates, and community support as a member.</p>
-                    </div>
-                </div>
-                <div class="flex items-start gap-4">
-                    <div class="text-yellow-400 text-2xl">✓</div>
-                    <div>
-                        <h3 class="text-xl font-semibold mb-2">Lifetime Access</h3>
-                        <p class="text-gray-300">One-time payment gives you lifetime access to all course materials and updates.</p>
-                    </div>
-                </div>
+    <main>
+        <section class="glass">
+            <h2>What We Provide</h2>
+            <div class="grid-2">
+                <div class="item"><span class="icon">✓</span><div><h3>Premium Stock Signals</h3><p>Expert-analyzed buy/sell signals for NSE & BSE stocks with precise entry, target, and stop-loss levels.</p></div></div>
+                <div class="item"><span class="icon">✓</span><div><h3>Multi-Target Strategy</h3><p>Each signal includes 3 profit targets and a defined stop loss for optimal risk-reward management.</p></div></div>
+                <div class="item"><span class="icon">✓</span><div><h3>Real-Time Status Updates</h3><p>Live updates when targets are hit or stop-loss is triggered. Stay informed at every step of the trade.</p></div></div>
+                <div class="item"><span class="icon">✓</span><div><h3>Risk Management</h3><p>Every signal comes with a calculated risk-reward ratio to protect your capital and maximize returns.</p></div></div>
+                <div class="item"><span class="icon">✓</span><div><h3>Premium Dashboard</h3><p>Clean, intuitive dashboard showing all signals, status, targets hit, and your subscription details.</p></div></div>
+                <div class="item"><span class="icon">✓</span><div><h3>24/7 Support</h3><p>Priority support via WhatsApp and Telegram. Average response time under 5 minutes.</p></div></div>
             </div>
         </section>
 
-        <!-- Our Philosophy -->
-        <section class="glass rounded-3xl p-8 md:p-12">
-            <h2 class="text-3xl font-semibold text-yellow-400 mb-6">Our Philosophy</h2>
-            <div class="space-y-4 text-gray-300 text-lg leading-relaxed">
-                <p>
-                    At <strong class="text-yellow-400">Stockboy Premium</strong>, we believe that successful trading comes from understanding price action, managing risk, and maintaining discipline—not from following tips or predictions.
-                </p>
-                <p>
-                    We focus on teaching you how to read the market yourself, make informed decisions, and build consistency over time. Our approach is based on real-world experience and proven strategies.
-                </p>
-                <p class="text-yellow-300 font-semibold text-xl mt-6">
-                    "Protect capital first, profit later."
-                </p>
+        <section class="glass philosophy">
+            <h2>Our Philosophy</h2>
+            <p>At <strong style="color:var(--gold)">Stockboy Premium</strong>, we believe that successful trading comes from disciplined execution, proper risk management, and informed decision-making — not from tips or predictions.</p>
+            <p>Our team of experienced market analysts curates every signal with rigorous technical analysis, ensuring each recommendation comes with clear entry, exit, and stop-loss levels.</p>
+            <p class="quote">"Protect capital first, profit later."</p>
+        </section>
+
+        <section class="glass">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step"><span class="step-num">1</span><div><h3>Choose Your Plan</h3><p>Select from monthly, quarterly, yearly, or lifetime membership plans.</p></div></div>
+                <div class="step"><span class="step-num">2</span><div><h3>Register & Pay</h3><p>Create your account and pay securely via Razorpay. Instant access granted.</p></div></div>
+                <div class="step"><span class="step-num">3</span><div><h3>Access Dashboard</h3><p>Login to your premium dashboard with real-time stock signals and updates.</p></div></div>
+                <div class="step"><span class="step-num">4</span><div><h3>Trade Smarter</h3><p>Follow our signals with precise entry, targets, and stop-loss for every trade.</p></div></div>
             </div>
         </section>
 
-        <!-- How It Works -->
-        <section class="glass rounded-3xl p-8 md:p-12">
-            <h2 class="text-3xl font-semibold text-yellow-400 mb-6">How It Works</h2>
-            <ol class="space-y-6 text-gray-300">
-                <li class="flex gap-4">
-                    <span class="flex-shrink-0 w-8 h-8 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold">1</span>
-                    <div>
-                        <h3 class="font-semibold text-white mb-1">Browse Our Products</h3>
-                        <p>Choose the course that matches your skill level—from beginner basics to advanced options trading.</p>
-                    </div>
-                </li>
-                <li class="flex gap-4">
-                    <span class="flex-shrink-0 w-8 h-8 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold">2</span>
-                    <div>
-                        <h3 class="font-semibold text-white mb-1">Register & Pay</h3>
-                        <p>Create your account and complete payment securely via Razorpay. Access is granted automatically upon successful payment.</p>
-                    </div>
-                </li>
-                <li class="flex gap-4">
-                    <span class="flex-shrink-0 w-8 h-8 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold">3</span>
-                    <div>
-                        <h3 class="font-semibold text-white mb-1">Get Approved</h3>
-                        <p>Our team reviews and approves your payment. You'll be notified via Telegram and email.</p>
-                    </div>
-                </li>
-                <li class="flex gap-4">
-                    <span class="flex-shrink-0 w-8 h-8 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center font-bold">4</span>
-                    <div>
-                        <h3 class="font-semibold text-white mb-1">Access Dashboard</h3>
-                        <p>Log in to your dashboard and start learning from our comprehensive course materials.</p>
-                    </div>
-                </li>
-            </ol>
-        </section>
-
-        <!-- Contact & Support -->
-        <section class="glass rounded-3xl p-8 md:p-12 text-center">
-            <h2 class="text-3xl font-semibold text-yellow-400 mb-6">Need Help?</h2>
-            <p class="text-gray-300 mb-6">We're here to support your trading journey. Reach out anytime!</p>
-            <div class="flex flex-wrap justify-center gap-4">
-                <a href="https://wa.me/918381930145?text=Hello%20I%20need%20help%20with%20Stockboy%20Premium" 
-                   target="_blank"
-                   class="px-6 py-3 bg-[#25D366] rounded-full font-semibold hover:bg-[#20BA5A] transition flex items-center gap-2">
-                    <span>💬</span> WhatsApp
-                </a>
-                <a href="https://t.me/pennystocksboy" 
-                   target="_blank"
-                   class="px-6 py-3 bg-[#0088cc] rounded-full font-semibold hover:bg-[#0077B5] transition flex items-center gap-2">
-                    <span>✈️</span> Telegram
-                </a>
-            </div>
+        <section class="glass cta">
+            <h2>Need Help?</h2>
+            <p style="color:var(--muted);margin-bottom:1rem">Reach out anytime — we're here to support your trading journey.</p>
+            <a href="https://wa.me/918381930145?text=Hello%20I%20need%20help%20with%20Stockboy%20Premium" target="_blank" class="wa">💬 WhatsApp</a>
+            <a href="https://t.me/pennystocksboy" target="_blank" class="tg">✈️ Telegram</a>
         </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="text-center text-gray-400 text-sm pb-10 pt-8">
+    <footer>
         <p>© 2025 Stockboy Premium • All Rights Reserved</p>
-        <div class="flex justify-center gap-4 mt-4">
-            <a href="/" class="hover:text-yellow-400 transition">Home</a>
-            <span>•</span>
-            <a href="/products" class="hover:text-yellow-400 transition">Products</a>
-            <span>•</span>
-            <a href="/about" class="hover:text-yellow-400 transition">About</a>
-        </div>
+        <div style="margin-top:0.5rem"><a href="/">Home</a> • <a href="/plans">Plans</a> • <a href="/about">About</a></div>
     </footer>
 </body>
 </html>
-
-
-
-
-
-
-

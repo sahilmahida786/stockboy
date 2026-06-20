@@ -101,3 +101,5 @@ Your Firebase authentication is now properly configured:
 - ✅ Token verification decorator available for protected routes
 
 
+
+

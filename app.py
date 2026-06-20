@@ -1,28 +1,30 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
+import sys, io
+# Fix Windows console encoding for emoji/unicode in print statements
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import requests, json, os, re
-import mysql.connector
 from datetime import timedelta, datetime
-from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
 from functools import wraps
 
+
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
-# Read secret key from environment variable, fallback to default for local dev
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
 app.secret_key = os.getenv("SECRET_KEY", "change_this_secret_key")
 app.permanent_session_lifetime = timedelta(days=7)
 
 # -------------------------------------------------
-# MAINTENANCE MODE SWITCH
+# MAINTENANCE MODE
 # -------------------------------------------------
 MAINTENANCE_MODE = os.getenv("MAINTENANCE_MODE", "false").lower() == "true"
 
 @app.before_request
 def maintenance_blocker():
-    allowed_routes = ["maintenance", "admin_login"]  # admin allowed
-
+    allowed_routes = ["maintenance", "admin_login", "static"]
     if MAINTENANCE_MODE:
-        # allow access ONLY to /maintenance and /admin-login
         if request.endpoint not in allowed_routes:
             return redirect("/maintenance")
 
@@ -34,35 +36,39 @@ def allow_register_api():
 
 @app.before_request
 def require_login():
-    """Require login for all pages except login, register, static files, and admin"""
-    # Skip for static files
+    """Require login for all pages except public routes"""
     if request.endpoint == "static":
         return None
-    
-    # Pages that don't require login (public routes - Razorpay compliance pages must be public)
-    public_routes = ["home", "auth_page", "login", "login_user", "register", "register_user", "admin_login", "maintenance", "privacy_policy", "terms", "refund", "contact", "create_payment_order", "verify_payment"]
-    
-    # Skip authentication check for public routes
+
+    public_routes = [
+        "home", "auth_page", "login", "login_user", "register", "register_user",
+        "admin_login", "maintenance", "privacy_policy", "terms", "refund", "contact",
+        "create_payment_order", "verify_payment", "plans_page", "razorpay_webhook",
+        "about_page", "products_page", "payment_page"
+    ]
+
+    # Admin routes — bypass user login check if admin session exists
+    admin_routes = [
+        "admin_panel", "admin_create_signal", "admin_edit_signal",
+        "admin_delete_signal", "admin_update_signal_status",
+        "admin_extend_subscription", "admin_revoke_subscription"
+    ]
+
     if request.endpoint in public_routes:
         return None
-    
-    # Check if user is logged in for all other pages
-    if not (session.get("logged_in") or session.get("user_id")):
+
+    if request.endpoint in admin_routes and session.get("admin"):
+        return None
+
+    if not (session.get("logged_in") or session.get("user_id") or session.get("admin")):
         return redirect(url_for("home"))
 
 @app.errorhandler(500)
 def handle_500_error(error):
-    """Handle 500 errors and return JSON for API routes"""
-    # For login/register routes, always return JSON
     if request.path in ["/login", "/register"]:
         import traceback
-        error_msg = str(error) if hasattr(error, '__str__') else "Internal server error"
-        print(f"500 Error in {request.path}: {error_msg}")
         traceback.print_exc()
-        response = jsonify({"error": "Server error. Please try again."})
-        response.status_code = 500
-        return response
-    # For other requests, return default Flask error handling
+        return jsonify({"error": "Server error. Please try again."}), 500
     return error, 500
 
 @app.route("/maintenance")
@@ -73,146 +79,100 @@ def maintenance():
         <title>Maintenance</title>
         <style>
             body {
-                background:#101010;
+                background:#081821;
                 color:white;
                 text-align:center;
                 padding-top:120px;
-                font-family: Arial;
+                font-family: 'Poppins', Arial, sans-serif;
             }
-            h1 { font-size:40px; color:#ffcc00; }
-            p { font-size:20px; }
+            h1 { font-size:40px; color:#FFD54A; }
+            p { font-size:20px; color:#ccc; }
         </style>
     </head>
     <body>
         <h1>🚧 Website Under Maintenance</h1>
-        <p>We’ll be back soon.</p>
+        <p>We'll be back soon with premium stock signals.</p>
     </body>
     </html>
     """
 
-DATA_FILE = "payments.json"
-LIKES_FILE = "likes.json"
+# -------------------------------------------------
+# FIREBASE CONFIGURATION
+# -------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-USERS_FILE = os.path.join(BASE_DIR, "users.json")  # Persistent file storage for users
-UPLOAD_FOLDER = "static/uploads"  # For course materials (PDFs, videos)
-PAYMENT_SS_FOLDER = "payment_ss"   # For payment screenshots only
 
-# Initialize users.json file
-def init_json_storage():
-    """Initialize JSON file storage for users."""
-    try:
-        if not os.path.exists(USERS_FILE):
-            with open(USERS_FILE, "w") as f:
-                f.write("[]")
-            print("⚠️ users.json created fresh on startup")
-        print("✅ JSON file storage ready - using users.json")
-    except Exception as e:
-        print(f"⚠️ Error initializing users.json: {e}")
-
-def load_users_json():
-    """Load users from JSON file."""
-    try:
-        if not os.path.exists(USERS_FILE):
-            return []
-        with open(USERS_FILE, "r") as f:
-            data = json.load(f)
-            return data if isinstance(data, list) else []
-    except Exception as e:
-        print(f"⚠️ Error loading users.json: {e}")
-        return []
-
-def save_users_json(users):
-    """Save users to JSON file."""
-    try:
-        with open(USERS_FILE, "w") as f:
-            json.dump(users, f, indent=4)
-        print(f"✅ Saved {len(users)} users to users.json")
-    except Exception as e:
-        print(f"❌ Error saving users.json: {e}")
-        raise
-
-# Initialize storage on startup
-init_json_storage()
-
-# Firebase Configuration
 try:
     import firebase_admin
-    from firebase_admin import credentials, auth
+    from firebase_admin import credentials, auth, firestore
     FIREBASE_AVAILABLE = True
 except ImportError:
-    print("⚠️ firebase-admin not installed - install with: pip install firebase-admin")
+    print("⚠️ firebase-admin not installed — pip install firebase-admin")
     FIREBASE_AVAILABLE = False
     firebase_admin = None
     auth = None
+    firestore = None
 
 # Initialize Firebase Admin SDK
+db = None  # Firestore client
+
 if FIREBASE_AVAILABLE:
     import glob
     FIREBASE_CREDENTIALS_PATH = None
-    
-    # First, try environment variable
+
     env_path = os.getenv("FIREBASE_CREDENTIALS")
     if env_path:
-        # Check if it's a JSON string
         if env_path.strip().startswith("{"):
             FIREBASE_CREDENTIALS_PATH = env_path
-        # Check if it's a valid file path
         elif os.path.exists(env_path):
             FIREBASE_CREDENTIALS_PATH = env_path
             print(f"📄 Using FIREBASE_CREDENTIALS from environment variable")
-    
-    # If env var didn't work, auto-detect from current directory
+
     if not FIREBASE_CREDENTIALS_PATH:
         firebase_files = glob.glob(os.path.join(BASE_DIR, "*-firebase-adminsdk-*.json"))
         if firebase_files:
             FIREBASE_CREDENTIALS_PATH = firebase_files[0]
             print(f"📁 Auto-detected Firebase credentials: {os.path.basename(FIREBASE_CREDENTIALS_PATH)}")
-    
+
     if FIREBASE_CREDENTIALS_PATH:
         try:
-            # Check if it's a file path
             if os.path.exists(FIREBASE_CREDENTIALS_PATH):
                 cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
                 print(f"✅ Loading Firebase credentials from file: {os.path.basename(FIREBASE_CREDENTIALS_PATH)}")
-            # Check if it's a JSON string
             elif FIREBASE_CREDENTIALS_PATH.strip().startswith("{"):
                 cred_dict = json.loads(FIREBASE_CREDENTIALS_PATH)
                 cred = credentials.Certificate(cred_dict)
                 print("✅ Loading Firebase credentials from JSON string")
             else:
-                raise ValueError(f"Invalid FIREBASE_CREDENTIALS: not a file path or JSON string")
-            
+                raise ValueError("Invalid FIREBASE_CREDENTIALS")
+
             firebase_admin.initialize_app(cred)
-            print("✅ Firebase Admin SDK initialized successfully")
+            db = firestore.client()
+            print("✅ Firebase Admin SDK + Firestore initialized successfully")
         except Exception as e:
             print(f"⚠️ Firebase initialization error: {e}")
-            print("   Continuing without Firebase - using fallback authentication")
             FIREBASE_AVAILABLE = False
     else:
-        print("⚠️ FIREBASE_CREDENTIALS not set and no Firebase credentials file found")
-        print("   Place a Firebase service account JSON file in the project directory")
-        print("   Continuing without Firebase - using fallback authentication")
+        print("⚠️ FIREBASE_CREDENTIALS not set — Firestore unavailable")
         FIREBASE_AVAILABLE = False
 
-# Razorpay Configuration
+# -------------------------------------------------
+# RAZORPAY CONFIGURATION
+# -------------------------------------------------
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "").strip()
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "").strip()
 
-# Fallback to hardcoded values if env vars are empty (for local dev)
 if not RAZORPAY_KEY_ID:
     RAZORPAY_KEY_ID = "rzp_live_RrVTwgfzN5BkyP"
-    print("⚠️ Using default RAZORPAY_KEY_ID (set env var in production)")
+    print("⚠️ Using default RAZORPAY_KEY_ID")
 
 if not RAZORPAY_KEY_SECRET:
     RAZORPAY_KEY_SECRET = "jUyYy6Zre24pcrH9fMcaOBtw"
-    print("⚠️ Using default RAZORPAY_KEY_SECRET (set env var in production)")
+    print("⚠️ Using default RAZORPAY_KEY_SECRET")
 
-# Initialize Razorpay client - SAFE VERSION
 razorpay = None
 razorpay_client = None
 razorpay_init_error = None
 
-# Safe import with explicit error handling
 try:
     import razorpay
     print("📦 Razorpay package imported successfully")
@@ -221,52 +181,270 @@ except Exception as e:
     razorpay = None
     razorpay_init_error = f"Razorpay import failed: {str(e)}"
 
-# Initialize client only if import succeeded
 if razorpay:
     try:
-        # Get keys from environment
         key_id = os.getenv("RAZORPAY_KEY_ID", "").strip() or RAZORPAY_KEY_ID
         key_secret = os.getenv("RAZORPAY_KEY_SECRET", "").strip() or RAZORPAY_KEY_SECRET
-        
+
         if not key_id or not key_secret:
             raise ValueError("RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is empty")
-        
+
         razorpay_client = razorpay.Client(auth=(key_id, key_secret))
         print("✅ Razorpay client initialized successfully")
-        
-        # Test client by fetching account info (optional - validates keys work)
-        try:
-            account = razorpay_client.account.fetch()
-            print(f"   Key ID: {key_id[:20]}...")
-            print(f"   Account: {account.get('name', 'N/A')}")
-        except Exception as auth_error:
-            print(f"⚠️ Razorpay account fetch failed (keys may be invalid): {auth_error}")
-            # Don't fail initialization - let it try during actual payment
     except Exception as e:
         razorpay_init_error = str(e)
         print(f"❌ Razorpay client init failed: {e}")
         razorpay_client = None
 else:
-    razorpay_init_error = "razorpay package not installed - install with: pip install razorpay"
+    razorpay_init_error = "razorpay package not installed"
     print(f"⚠️ {razorpay_init_error}")
 
-# Telegram Bot Configuration - REMOVED (Replaced by Razorpay)
-# All Telegram payment approval functionality has been removed
-# Payments are now handled automatically via Razorpay
+# -------------------------------------------------
+# MEMBERSHIP PLANS CONFIGURATION
+# -------------------------------------------------
+MEMBERSHIP_PLANS = {
+    "monthly": {
+        "name": "1 Month Membership",
+        "slug": "monthly",
+        "price": 499,
+        "price_display": "₹499",
+        "duration_days": 30,
+        "badge": "STARTER",
+        "popular": False,
+    },
+    "quarterly": {
+        "name": "3 Month Membership",
+        "slug": "quarterly",
+        "price": 1299,
+        "price_display": "₹1,299",
+        "duration_days": 90,
+        "badge": "POPULAR",
+        "popular": True,
+    },
+    "yearly": {
+        "name": "Yearly Membership",
+        "slug": "yearly",
+        "price": 3999,
+        "price_display": "₹3,999",
+        "duration_days": 365,
+        "badge": "BEST VALUE",
+        "popular": False,
+    },
+    "lifetime": {
+        "name": "Lifetime Membership",
+        "slug": "lifetime",
+        "price": 9999,
+        "price_display": "₹9,999",
+        "duration_days": None,  # Never expires
+        "badge": "ELITE",
+        "popular": False,
+    },
+}
 
-# Firebase token verification decorator
+PLAN_BENEFITS = [
+    "Premium Stock Signals",
+    "Entry Price Alerts",
+    "Target Updates",
+    "Stop Loss Levels",
+    "Market Opportunities",
+    "Premium Dashboard Access",
+    "Subscription Support",
+]
+
+# -------------------------------------------------
+# FIRESTORE HELPERS
+# -------------------------------------------------
+def get_user_doc(uid):
+    """Get user document from Firestore."""
+    if not db:
+        return None
+    try:
+        doc = db.collection("users").document(uid).get()
+        return doc.to_dict() if doc.exists else None
+    except Exception as e:
+        print(f"⚠️ Error fetching user {uid}: {e}")
+        return None
+
+def create_or_update_user(uid, data):
+    """Create or update user document in Firestore."""
+    if not db:
+        return False
+    try:
+        db.collection("users").document(uid).set(data, merge=True)
+        return True
+    except Exception as e:
+        print(f"⚠️ Error saving user {uid}: {e}")
+        return False
+
+def check_subscription_active(uid):
+    """Check if user has an active subscription."""
+    user_doc = get_user_doc(uid)
+    if not user_doc:
+        return False
+
+    status = user_doc.get("subscriptionStatus", "none")
+    if status != "active":
+        return False
+
+    plan = user_doc.get("plan", "none")
+    if plan == "lifetime":
+        return True
+
+    expiry = user_doc.get("subscriptionExpiry")
+    if not expiry:
+        return False
+
+    # Handle Firestore timestamp
+    if hasattr(expiry, 'timestamp'):
+        expiry_dt = datetime.fromtimestamp(expiry.timestamp())
+    elif isinstance(expiry, str):
+        try:
+            expiry_dt = datetime.fromisoformat(expiry.replace("Z", "+00:00")).replace(tzinfo=None)
+        except ValueError:
+            expiry_dt = datetime.strptime(expiry, "%Y-%m-%d %H:%M:%S")
+    elif isinstance(expiry, datetime):
+        expiry_dt = expiry
+    else:
+        return False
+
+    if datetime.now() > expiry_dt:
+        # Auto-expire subscription
+        try:
+            db.collection("users").document(uid).update({
+                "subscriptionStatus": "expired",
+                "updatedAt": datetime.now().isoformat()
+            })
+            # Also update the subscription document
+            subs = db.collection("subscriptions").where("userId", "==", uid).where("status", "==", "active").limit(1).stream()
+            for sub in subs:
+                sub.reference.update({"status": "expired"})
+            print(f"⏰ Subscription expired for user {uid}")
+        except Exception as e:
+            print(f"⚠️ Error auto-expiring subscription: {e}")
+        return False
+
+    return True
+
+def activate_subscription(uid, plan_slug, payment_id, razorpay_order_id):
+    """Activate a subscription for a user after successful payment."""
+    if not db:
+        return False
+
+    plan = MEMBERSHIP_PLANS.get(plan_slug)
+    if not plan:
+        return False
+
+    now = datetime.now()
+
+    # Calculate expiry
+    if plan["duration_days"] is None:
+        expiry_date = None  # Lifetime — never expires
+    else:
+        expiry_date = now + timedelta(days=plan["duration_days"])
+
+    # Update user document
+    user_update = {
+        "plan": plan_slug,
+        "subscriptionStatus": "active",
+        "subscriptionExpiry": expiry_date.isoformat() if expiry_date else "lifetime",
+        "updatedAt": now.isoformat()
+    }
+    create_or_update_user(uid, user_update)
+
+    # Create subscription document
+    sub_data = {
+        "userId": uid,
+        "plan": plan_slug,
+        "amount": plan["price"],
+        "status": "active",
+        "startDate": now.isoformat(),
+        "expiryDate": expiry_date.isoformat() if expiry_date else "lifetime",
+        "paymentId": payment_id,
+        "razorpayOrderId": razorpay_order_id,
+        "createdAt": now.isoformat()
+    }
+    db.collection("subscriptions").add(sub_data)
+
+    print(f"✅ Subscription activated: {plan_slug} for user {uid}, expires: {expiry_date or 'NEVER'}")
+    return True
+
+def get_active_signals():
+    """Get all active stock signals from Firestore, ordered by creation date."""
+    if not db:
+        return []
+    try:
+        signals = []
+        docs = db.collection("stockSignals").order_by("createdAt", direction=firestore.Query.DESCENDING).stream()
+        for doc in docs:
+            signal = doc.to_dict()
+            signal["id"] = doc.id
+            signals.append(signal)
+        return signals
+    except Exception as e:
+        print(f"⚠️ Error fetching signals: {e}")
+        return []
+
+def get_all_subscribers():
+    """Get all users who have or had a subscription."""
+    if not db:
+        return []
+    try:
+        users = []
+        docs = db.collection("users").where("plan", "!=", "none").stream()
+        for doc in docs:
+            user = doc.to_dict()
+            user["uid"] = doc.id
+            users.append(user)
+        return users
+    except Exception as e:
+        print(f"⚠️ Error fetching subscribers: {e}")
+        return []
+
+def get_all_payments():
+    """Get all payment records from Firestore."""
+    if not db:
+        return []
+    try:
+        payments = []
+        docs = db.collection("payments").order_by("createdAt", direction=firestore.Query.DESCENDING).limit(100).stream()
+        for doc in docs:
+            payment = doc.to_dict()
+            payment["id"] = doc.id
+            payments.append(payment)
+        return payments
+    except Exception as e:
+        print(f"⚠️ Error fetching payments: {e}")
+        return []
+
+def log_admin_action(admin_id, action, target_id, details):
+    """Log admin actions to Firestore."""
+    if not db:
+        return
+    try:
+        db.collection("adminLogs").add({
+            "adminId": admin_id,
+            "action": action,
+            "targetId": target_id,
+            "details": details,
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        print(f"⚠️ Error logging admin action: {e}")
+
+# -------------------------------------------------
+# FIREBASE TOKEN VERIFICATION
+# -------------------------------------------------
 def firebase_required(f):
-    """Decorator to verify Firebase ID token from Authorization header."""
+    """Decorator to verify Firebase ID token."""
     @wraps(f)
     def decorated(*args, **kwargs):
         if not FIREBASE_AVAILABLE or not auth:
             return jsonify({"error": "Firebase authentication not configured"}), 500
-        
+
         auth_header = request.headers.get("Authorization")
         if not auth_header:
             return jsonify({"error": "Missing authorization token"}), 401
-        
-        # Extract token from "Bearer <token>" format
+
         try:
             token = auth_header.split("Bearer ")[-1] if "Bearer " in auth_header else auth_header
             decoded_token = auth.verify_id_token(token)
@@ -276,677 +454,179 @@ def firebase_required(f):
         except Exception as e:
             print(f"❌ Token verification error: {e}")
             return jsonify({"error": "Invalid or expired token"}), 401
-        
+
         return f(*args, **kwargs)
     return decorated
 
-# MySQL Configuration - Force disabled (using JSON storage)
-# To use MySQL, set environment variables:
-# USE_MYSQL=true (optional, will auto-detect if MySQL credentials are provided)
-# MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
-USE_MYSQL_ENV = "false"  # Force disable MySQL - always use JSON storage
-# Auto-enable MySQL if credentials are provided, or explicitly set via env var
-USE_MYSQL = USE_MYSQL_ENV == "true" or (USE_MYSQL_ENV == "" and os.getenv("MYSQL_HOST") and os.getenv("MYSQL_PASSWORD"))
-
-MYSQL_CONFIG = {
-    "host": os.getenv("MYSQL_HOST", "localhost"),
-    "user": os.getenv("MYSQL_USER", "root"),
-    "password": os.getenv("MYSQL_PASSWORD", ""),
-    "database": os.getenv("MYSQL_DATABASE", "stockboy"),
-}
-
-PASSWORD_REGEX = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{6,}$"
-COURSE_EXTENSIONS = {
-    "pdf": "PDF",
-    "mp4": "Video",
-    "mkv": "Video",
-    "webm": "Video",
-    "avi": "Video",
-    "mov": "Video",
-    "mp3": "Audio",
-    "wav": "Audio"
-}
-
-PRODUCT_DETAILS = {
-    "product1": {
-        "title": "Stockboy Starter Kit",
-        "tagline": "Market basics + first profitable trades",
-        "price": "₹1,499",
-        "level": "Beginner"
-    },
-    "product2": {
-        "title": "Price Action Accelerator",
-        "tagline": "Institutional price-action systems",
-        "price": "₹3,499",
-        "level": "Intermediate"
-    },
-    "product3": {
-        "title": "Pro Options Lab",
-        "tagline": "Elite options flow + psychology",
-        "price": "₹4,999",
-        "level": "Advanced"
-    }
-}
-
-
-
 # -------------------------------------------------
-# FOLDER CHECK
+# PUBLIC ROUTES
 # -------------------------------------------------
-def ensure_folders():
-    if not os.path.exists(UPLOAD_FOLDER):
-        os.makedirs(UPLOAD_FOLDER)
-
-ensure_folders()
-
-
-# -------------------------------------------------
-# DATABASE HELPERS (MySQL + JSON Fallback)
-# -------------------------------------------------
-_db_available = False  # Force disabled - always use JSON storage
-
-def check_db_available():
-    """Check if MySQL database is available and enabled."""
-    global _db_available
-    if _db_available is not None:
-        return _db_available
-    
-    # If MySQL is explicitly disabled, don't try
-    if USE_MYSQL_ENV == "false":
-        _db_available = False
-        return False
-    
-    # If no MySQL credentials provided, use JSON
-    if not MYSQL_CONFIG.get("host") or not MYSQL_CONFIG.get("password"):
-        _db_available = False
-        return False
-    
-    try:
-        conn = mysql.connector.connect(**MYSQL_CONFIG)
-        # Test if we can actually query the database (checks if database exists)
-        try:
-            cur = conn.cursor()
-            cur.execute("SELECT 1")
-            cur.close()
-            _db_available = True
-            print("✅ MySQL database connection successful - using MySQL for user storage")
-            conn.close()
-            return True
-        except mysql.connector.Error as db_error:
-            conn.close()
-            print(f"⚠️ MySQL database not accessible: {db_error} - using JSON storage")
-            _db_available = False
-            return False
-    except mysql.connector.Error as e:
-        error_msg = str(e).lower()
-        # Handle common MySQL connection errors
-        if "unknown database" in error_msg or "1049" in str(e.args[0] if e.args else ""):
-            print(f"⚠️ MySQL database '{MYSQL_CONFIG.get('database')}' does not exist - using JSON storage")
-        elif "access denied" in error_msg or "1045" in str(e.args[0] if e.args else ""):
-            print(f"⚠️ MySQL access denied - check credentials - using JSON storage")
-        else:
-            print(f"⚠️ MySQL connection failed: {e} - using JSON storage")
-        _db_available = False
-        return False
-    except Exception as e:
-        print(f"⚠️ MySQL connection failed: {e} - using JSON storage")
-        _db_available = False
-        return False
-
-
-def get_db_connection():
-    """Create a new MySQL connection using env config."""
-    global _db_available
-    try:
-        return mysql.connector.connect(**MYSQL_CONFIG)
-    except mysql.connector.Error as e:
-        print(f"Database connection error: {e}")
-        # Reset cache on connection failure so we can retry or fallback
-        _db_available = None
-        raise
-
-
-def init_database():
-    """Initialize database - Try MySQL first if credentials available, otherwise JSON."""
-    global _db_available
-    # Try MySQL first if credentials are provided
-    if check_db_available():
-        conn = None
-        try:
-            conn = get_db_connection()
-            cur = conn.cursor()
-            
-            create_table_sql = """
-            CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                username VARCHAR(100) NOT NULL,
-                mobile VARCHAR(15) NOT NULL UNIQUE,
-                password VARCHAR(255) NOT NULL,
-                registration_date DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-            """
-            cur.execute(create_table_sql)
-            conn.commit()
-            print("✅ MySQL database initialized successfully - user data will be stored in database")
-            cur.close()
-        except mysql.connector.Error as e:
-            error_msg = str(e).lower()
-            if "unknown database" in error_msg or "1049" in str(e.args[0] if e.args else ""):
-                print(f"❌ MySQL database '{MYSQL_CONFIG.get('database')}' does not exist")
-            elif "access denied" in error_msg or "1045" in str(e.args[0] if e.args else ""):
-                print(f"❌ MySQL access denied - check credentials")
-            else:
-                print(f"❌ MySQL initialization failed: {e}")
-            print(f"   Falling back to JSON file storage (users.json)")
-            # Reset cache so we don't try MySQL again
-            _db_available = False
-            init_json_storage()
-        except Exception as e:
-            print(f"❌ Unexpected error during MySQL initialization: {e}")
-            print(f"   Falling back to JSON file storage (users.json)")
-            _db_available = False
-            init_json_storage()
-        finally:
-            if conn and conn.is_connected():
-                conn.close()
-    else:
-        # No MySQL credentials or MySQL disabled - use JSON file storage
-        init_json_storage()
-
-
-# User storage functions are defined above (load_users_json, save_users_json)
-
-
-# Initialize storage on startup
-try:
-    init_database()
-except Exception as e:
-    print(f"⚠️ Storage initialization error: {e}")
-    import traceback
-    traceback.print_exc()
-    # Ensure JSON storage is initialized as fallback
-    try:
-        init_json_storage()
-    except Exception as json_err:
-        print(f"⚠️ JSON storage initialization also failed: {json_err}")
-
-
-def is_valid_password(password):
-    """Enforce at least one lower/upper/number/special, min 6 chars."""
-    return bool(password and re.match(PASSWORD_REGEX, password))
-
-
-def get_product_catalog():
-    """Build public product listing from configured folders."""
-    catalog = []
-    for slug, meta in PRODUCT_DETAILS.items():
-        folder = os.path.join(UPLOAD_FOLDER, slug)
-        files = []
-        if os.path.isdir(folder):
-            for name in os.listdir(folder):
-                ext = name.rsplit(".", 1)[-1].lower()
-                if ext in COURSE_EXTENSIONS:
-                    files.append(name)
-
-        catalog.append({
-            "slug": slug,
-            "title": meta["title"],
-            "tagline": meta["tagline"],
-            "price": meta["price"],
-            "level": meta["level"],
-            "file_count": len(files),
-            "preview": files[0] if files else None,
-        })
-    return catalog
-
-
-# -------------------------------------------------
-# PAYMENT SYSTEM
-# -------------------------------------------------
-def load_data():
-    if not os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "w") as f:
-            json.dump([], f)
-    with open(DATA_FILE, "r") as f:
-        return json.load(f)
-
-
-def save_data(data):
-    with open(DATA_FILE, "w") as f:
-        json.dump(data, f, indent=4)
-
 @app.route("/")
 def home():
-    """Homepage - Public landing page (Razorpay requirement)"""
-    # Show public landing page with login/register options
-    # This must be public for Razorpay verification
-    return render_template("auth.html")
+    """Homepage — Public landing page with membership plans"""
+    logged_in = session.get("logged_in") or session.get("user_id")
+    username = session.get("username", "")
 
-@app.route("/products")
-def products_page():
-    """Product catalog page - requires login"""
-    # Authentication is handled by before_request
-    if not (session.get("logged_in") or session.get("user_id")):
-        return redirect(url_for("home"))
-    username = session.get("username", "User")
-    mobile = session.get("mobile", "")
-    email = session.get("email", "")
-    return render_template("products.html", products=get_product_catalog(), username=username, mobile=mobile, email=email, logged_in=True)
+    # Check subscription status if logged in
+    has_subscription = False
+    if logged_in and session.get("user_id"):
+        has_subscription = check_subscription_active(session["user_id"])
 
-@app.route("/product/<product_slug>")
-def product_detail(product_slug):
-    """Individual product page with download options - requires payment approval"""
-    if not (session.get("logged_in") or session.get("user_id")):
-        return redirect(url_for("home"))
-    
-    if product_slug not in PRODUCT_DETAILS:
-        return "Product not found", 404
-    
-    product_info = PRODUCT_DETAILS[product_slug]
-    username = session.get("username", "User")
-    email = session.get("email", "")
-    user_id = session.get("user_id") or session.get("email", "")
-    
-    # Check payment approval status for this product
-    payments = load_data()
-    payment_status = "not_submitted"  # not_submitted, pending, approved, rejected
-    payment_entry = None
-    
-    # Check if user has approved access for this product (from session)
-    approved_products = session.get("approved_products", [])
-    if product_slug in approved_products:
-        payment_status = "approved"
-    else:
-        # Find payment for this user and product
-        for entry in payments:
-            if (entry.get("user") == username or entry.get("user_email") == email) and entry.get("product_slug") == product_slug:
-                payment_entry = entry
-                payment_status = entry.get("status", "pending")
-                # If approved, add to session
-                if payment_status == "approved" and product_slug not in approved_products:
-                    if "approved_products" not in session:
-                        session["approved_products"] = []
-                    session["approved_products"].append(product_slug)
-                break
-    
-    # Get files for this product (only if approved)
-    product_folder = os.path.join(UPLOAD_FOLDER, product_slug)
-    files = []
-    if payment_status == "approved":
-        if os.path.isdir(product_folder):
-            for filename in os.listdir(product_folder):
-                ext = filename.rsplit(".", 1)[-1].lower()
-                if ext in COURSE_EXTENSIONS:
-                    file_path = os.path.join(product_folder, filename)
-                    file_size = os.path.getsize(file_path)
-                    # Format file size
-                    if file_size < 1024:
-                        size_str = f"{file_size} B"
-                    elif file_size < 1024 * 1024:
-                        size_str = f"{file_size / 1024:.1f} KB"
-                    else:
-                        size_str = f"{file_size / (1024 * 1024):.1f} MB"
-                    
-                    files.append({
-                        "name": filename,
-                        "url": f"/static/uploads/{product_slug}/{filename}",
-                        "download_url": f"/download/{product_slug}/{filename}",
-                        "type": COURSE_EXTENSIONS.get(ext, "File"),
-                        "size": size_str
-                    })
-    
-    return render_template("product_detail.html", 
-                         product_slug=product_slug,
-                         product=product_info,
-                         files=files,
-                         username=username,
-                         email=email,
-                         payment_status=payment_status,
-                         payment_entry=payment_entry,
-                         logged_in=True,
-                         razorpay_key_id=RAZORPAY_KEY_ID)
+    return render_template("index.html",
+        plans=MEMBERSHIP_PLANS,
+        benefits=PLAN_BENEFITS,
+        logged_in=logged_in,
+        username=username,
+        has_subscription=has_subscription,
+        razorpay_key_id=RAZORPAY_KEY_ID)
 
-@app.route("/about")
-def about_page():
-    """About page - requires login"""
-    # Authentication is handled by before_request
-    if not (session.get("logged_in") or session.get("user_id")):
-        return redirect(url_for("home"))
-    username = session.get("username", "User")
-    mobile = session.get("mobile", "")
-    return render_template("about.html", username=username, mobile=mobile, logged_in=True)
-
-@app.route("/payment")
-def payment_page():
-    """Payment page - requires login"""
-    # Authentication is handled by before_request
-    if not (session.get("logged_in") or session.get("user_id")):
-        return redirect(url_for("home"))
-    username = session.get("username", "User")
-    mobile = session.get("mobile", "")
-    return render_template("index.html", username=username, mobile=mobile, logged_in=True)
+@app.route("/plans")
+def plans_page():
+    """Membership plans page — Public"""
+    logged_in = session.get("logged_in") or session.get("user_id")
+    username = session.get("username", "")
+    return render_template("products.html",
+        plans=MEMBERSHIP_PLANS,
+        benefits=PLAN_BENEFITS,
+        logged_in=logged_in,
+        username=username,
+        razorpay_key_id=RAZORPAY_KEY_ID)
 
 @app.route("/auth")
 def auth_page():
-    """Auth page (alias for homepage)"""
-    # Redirect if user is already logged in
+    """Auth page (login/register)"""
     if session.get("logged_in") or session.get("user_id"):
-        # If approved, go to dashboard; otherwise go to products page
-        if session.get("approved"):
+        uid = session.get("user_id")
+        if uid and check_subscription_active(uid):
             return redirect(url_for("dashboard"))
-        return redirect(url_for("products_page"))
-    
+        return redirect(url_for("plans_page"))
     return render_template("auth.html")
 
-# Payment screenshot folder - kept for legacy data access (if needed)
-# New payments use Razorpay, no screenshots needed
-if not os.path.exists(PAYMENT_SS_FOLDER):
-    os.makedirs(PAYMENT_SS_FOLDER)
-
 # -------------------------------------------------
-# RAZORPAY PAYMENT INTEGRATION
-# -------------------------------------------------
-@app.route("/create-payment-order", methods=["POST"])
-def create_payment_order():
-    """Create Razorpay payment order"""
-    try:
-        # Check if Razorpay is configured
-        if not razorpay_client:
-            error_details = f"Razorpay client not initialized. "
-            if razorpay_init_error:
-                error_details += f"Error: {razorpay_init_error}. "
-            error_details += "Check RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables in Render dashboard."
-            print(f"❌ {error_details}")
-            print(f"   Current KEY_ID: {'Set' if RAZORPAY_KEY_ID else 'NOT SET'}")
-            print(f"   Current KEY_SECRET: {'Set' if RAZORPAY_KEY_SECRET else 'NOT SET'}")
-            return jsonify({"error": error_details}), 500
-        
-        # Check if keys are set
-        if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
-            error_msg = "Razorpay keys not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in Render environment variables."
-            print(f"❌ {error_msg}")
-            return jsonify({"error": error_msg}), 500
-        
-        # Get request data
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "Invalid request data"}), 400
-        
-        product_slug = data.get("product_slug", "product1")
-        
-        # Get product details
-        product_info = PRODUCT_DETAILS.get(product_slug)
-        if not product_info:
-            return jsonify({"error": f"Product {product_slug} not found"}), 404
-        
-        amount_str = product_info.get("price", "₹1,499")
-        
-        # Convert amount to paise (remove ₹ and commas, multiply by 100)
-        try:
-            amount_rupees = int(amount_str.replace("₹", "").replace(",", ""))
-            amount_paise = amount_rupees * 100
-        except ValueError as e:
-            error_msg = f"Invalid amount format: {amount_str}"
-            print(f"❌ {error_msg}: {e}")
-            return jsonify({"error": error_msg}), 400
-        
-        # Validate amount (minimum 100 paise = ₹1)
-        if amount_paise < 100:
-            return jsonify({"error": "Amount must be at least ₹1"}), 400
-        
-        # Create Razorpay order
-        order_data = {
-            "amount": amount_paise,
-            "currency": "INR",
-            "payment_capture": 1,  # Auto-capture payment
-            "notes": {
-                "product_slug": product_slug,
-                "user_email": session.get("email", ""),
-                "username": session.get("username", "User")
-            }
-        }
-        
-        print(f"📦 Creating Razorpay order for {product_slug}: {amount_rupees} INR ({amount_paise} paise)")
-        print(f"   Key ID: {RAZORPAY_KEY_ID[:20]}...")
-        
-        order = razorpay_client.order.create(data=order_data)
-        
-        if not order or "id" not in order:
-            error_msg = "Razorpay order creation failed - no order ID returned"
-            print(f"❌ {error_msg}")
-            return jsonify({"error": error_msg}), 500
-        
-        print(f"✅ Razorpay order created: {order['id']} for {amount_rupees} INR")
-        
-        return jsonify({
-            "order_id": order["id"],
-            "amount": amount_paise,
-            "currency": "INR",
-            "key_id": RAZORPAY_KEY_ID
-        })
-        
-    except Exception as e:
-        error_msg = f"Error creating Razorpay order: {str(e)}"
-        print(f"❌ {error_msg}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": error_msg}), 500
-
-@app.route("/verify-payment", methods=["POST"])
-def verify_payment():
-    """Verify Razorpay payment and grant access"""
-    if not razorpay_client:
-        return jsonify({"error": "Razorpay not configured"}), 500
-    
-    try:
-        payment_data = request.get_json()
-        razorpay_payment_id = payment_data.get("razorpay_payment_id")
-        razorpay_order_id = payment_data.get("razorpay_order_id")
-        razorpay_signature = payment_data.get("razorpay_signature")
-        
-        if not all([razorpay_payment_id, razorpay_order_id, razorpay_signature]):
-            return jsonify({"error": "Missing payment details"}), 400
-        
-        # Verify payment signature
-        params_dict = {
-            "razorpay_order_id": razorpay_order_id,
-            "razorpay_payment_id": razorpay_payment_id,
-            "razorpay_signature": razorpay_signature
-        }
-        
-        try:
-            razorpay_client.utility.verify_payment_signature(params_dict)
-            print(f"✅ Payment signature verified: {razorpay_payment_id}")
-        except Exception as e:
-            print(f"❌ Payment signature verification failed: {e}")
-            return jsonify({"error": "Invalid payment signature"}), 400
-        
-        # Get order details to extract product info
-        order = razorpay_client.order.fetch(razorpay_order_id)
-        product_slug = order.get("notes", {}).get("product_slug", "product1")
-        user_email = order.get("notes", {}).get("user_email", session.get("email", ""))
-        username = order.get("notes", {}).get("username", session.get("username", ""))
-        
-        # Get product info
-        product_info = PRODUCT_DETAILS.get(product_slug, PRODUCT_DETAILS["product1"])
-        course_name = product_info.get("title", "Unknown Course")
-        amount = product_info.get("price", "₹0")
-        
-        # Save payment record
-        payments = load_data()
-        payment_entry = {
-            "user": username,
-            "txn_id": razorpay_payment_id,  # Use Razorpay payment ID
-            "razorpay_order_id": razorpay_order_id,
-            "status": "approved",  # Auto-approved via Razorpay
-            "product_slug": product_slug,
-            "course_name": course_name,
-            "amount": amount,
-            "user_email": user_email,
-            "payment_method": "Razorpay",
-            "submitted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "approved_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }
-        payments.append(payment_entry)
-        save_data(payments)
-        
-        # Grant access automatically
-        if "approved_products" not in session:
-            session["approved_products"] = []
-        if product_slug not in session["approved_products"]:
-            session["approved_products"].append(product_slug)
-        
-        session["approved"] = True
-        
-        print(f"✅ Payment verified and access granted: {razorpay_payment_id} for {username}")
-        
-        return jsonify({
-            "success": True,
-            "message": "Payment successful! Access granted.",
-            "redirect": url_for("product_detail", product_slug=product_slug)
-        })
-    except Exception as e:
-        print(f"❌ Payment verification error: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": "Payment verification failed"}), 500
-
-@app.route("/submit_payment", methods=["POST"])
-def submit_payment():
-    """Legacy route - Redirected to Razorpay payment"""
-    return jsonify({"error": "Please use Razorpay payment gateway. Visit product page and click 'Pay' button."}), 400
-
-
-# Legacy routes removed - payments now handled automatically via Razorpay
-# check_approval and start_session routes are no longer needed
-
-
-# -------------------------------------------------
-# USER REGISTRATION & LOGIN (Firebase Authentication)
+# USER AUTHENTICATION (Firebase)
 # -------------------------------------------------
 @app.route("/register", methods=["POST"])
 def register_user():
     try:
-        print(f"📝 Registration request received - Method: {request.method}, Path: {request.path}")
-        
-        # Get token from Authorization header first (preferred), then from body
+        print(f"📝 Registration request received")
+
         auth_header = request.headers.get("Authorization")
         if auth_header:
             token = auth_header.split("Bearer ")[-1] if "Bearer " in auth_header else auth_header
         else:
             payload = request.get_json(silent=True) or request.form
             token = payload.get("idToken") or payload.get("token")
-        
-        if not token:
-            response = jsonify({"error": "Missing Firebase ID token"})
-            response.headers["Content-Type"] = "application/json"
-            return response, 400
 
-        # Verify Firebase ID token
+        if not token:
+            return jsonify({"error": "Missing Firebase ID token"}), 400
+
         if FIREBASE_AVAILABLE and auth:
             try:
                 decoded_token = auth.verify_id_token(token)
                 uid = decoded_token['uid']
                 email = decoded_token.get('email', '')
                 name = decoded_token.get('name', email.split('@')[0] if email else 'User')
-                
+
+                # Create user document in Firestore
+                create_or_update_user(uid, {
+                    "uid": uid,
+                    "name": name,
+                    "email": email,
+                    "phone": "",
+                    "role": "user",
+                    "plan": "none",
+                    "subscriptionStatus": "none",
+                    "subscriptionExpiry": None,
+                    "createdAt": datetime.now().isoformat(),
+                    "updatedAt": datetime.now().isoformat()
+                })
+
                 # Store user info in session
                 session["user_id"] = uid
                 session["username"] = name
                 session["email"] = email
                 session["logged_in"] = True
-                session["reg_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                
-                print(f"✅ User registered successfully: {email} (UID: {uid})")
-                response = jsonify({
+
+                print(f"✅ User registered: {email} (UID: {uid})")
+                return jsonify({
                     "message": "Registration successful!",
-                    "redirect": url_for("products_page"),
-                    "registration_date": session["reg_date"]
-                })
-                response.headers["Content-Type"] = "application/json"
-                return response, 201
+                    "redirect": url_for("plans_page")
+                }), 201
             except Exception as e:
                 print(f"❌ Firebase token verification error: {e}")
-                response = jsonify({"error": "Invalid authentication token"})
-                response.headers["Content-Type"] = "application/json"
-                return response, 401
+                return jsonify({"error": "Invalid authentication token"}), 401
         else:
-            response = jsonify({"error": "Firebase authentication not configured"})
-            response.headers["Content-Type"] = "application/json"
-            return response, 500
+            return jsonify({"error": "Firebase authentication not configured"}), 500
     except Exception as e:
         print(f"❌ Register route error: {e}")
         import traceback
         traceback.print_exc()
-        response = jsonify({"error": "Registration failed. Please try again."})
-        response.headers["Content-Type"] = "application/json"
-        return response, 500
-
+        return jsonify({"error": "Registration failed. Please try again."}), 500
 
 
 @app.route("/login", methods=["POST"])
 def login_user():
     try:
-        print(f"🔐 Login request received - Method: {request.method}, Path: {request.path}")
-        
-        # Get token from Authorization header or request body
+        print(f"🔐 Login request received")
+
         auth_header = request.headers.get("Authorization")
         if auth_header:
             token = auth_header.split("Bearer ")[-1] if "Bearer " in auth_header else auth_header
         else:
             payload = request.get_json(silent=True) or request.form
             token = payload.get("idToken") or payload.get("token")
-        
-        if not token:
-            response = jsonify({"error": "Missing Firebase ID token"})
-            response.headers["Content-Type"] = "application/json"
-            return response, 400
 
-        # Verify Firebase ID token
+        if not token:
+            return jsonify({"error": "Missing Firebase ID token"}), 400
+
         if FIREBASE_AVAILABLE and auth:
             try:
                 decoded_token = auth.verify_id_token(token)
                 uid = decoded_token['uid']
                 email = decoded_token.get('email', '')
                 name = decoded_token.get('name', email.split('@')[0] if email else 'User')
-                
+
+                # Ensure user document exists in Firestore
+                user_doc = get_user_doc(uid)
+                if not user_doc:
+                    create_or_update_user(uid, {
+                        "uid": uid,
+                        "name": name,
+                        "email": email,
+                        "phone": "",
+                        "role": "user",
+                        "plan": "none",
+                        "subscriptionStatus": "none",
+                        "subscriptionExpiry": None,
+                        "createdAt": datetime.now().isoformat(),
+                        "updatedAt": datetime.now().isoformat()
+                    })
+
                 # Store user info in session
                 session["user_id"] = uid
                 session["username"] = name
                 session["email"] = email
                 session["logged_in"] = True
-                
-                # Try to get registration date from token (if available)
-                if 'auth_time' in decoded_token:
-                    reg_date = datetime.fromtimestamp(decoded_token['auth_time']).strftime("%Y-%m-%d %H:%M:%S")
-                    session["reg_date"] = reg_date
-                else:
-                    session["reg_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                
-                print(f"✅ User logged in successfully: {email} (UID: {uid})")
-                response = jsonify({
+
+                # Check subscription and redirect accordingly
+                has_sub = check_subscription_active(uid)
+                redirect_url = url_for("dashboard") if has_sub else url_for("plans_page")
+
+                print(f"✅ User logged in: {email} (UID: {uid}), subscription: {has_sub}")
+                return jsonify({
                     "message": "Login successful!",
-                    "redirect": url_for("products_page"),
-                    "registration_date": session["reg_date"]
+                    "redirect": redirect_url
                 })
-                response.headers["Content-Type"] = "application/json"
-                return response
             except Exception as e:
                 print(f"❌ Firebase token verification error: {e}")
-                response = jsonify({"error": "Invalid authentication token"})
-                response.headers["Content-Type"] = "application/json"
-                return response, 401
+                return jsonify({"error": "Invalid authentication token"}), 401
         else:
-            response = jsonify({"error": "Firebase authentication not configured"})
-            response.headers["Content-Type"] = "application/json"
-            return response, 500
+            return jsonify({"error": "Firebase authentication not configured"}), 500
     except Exception as e:
         print(f"❌ Login route error: {e}")
         import traceback
         traceback.print_exc()
-        response = jsonify({"error": "Login failed. Please try again."})
-        response.headers["Content-Type"] = "application/json"
-        return response, 500
+        return jsonify({"error": "Login failed. Please try again."}), 500
 
 
 @app.route("/logout")
@@ -955,52 +635,234 @@ def logout():
     session.clear()
     return redirect(url_for("home"))
 
+# -------------------------------------------------
+# USER DASHBOARD
+# -------------------------------------------------
+@app.route("/dashboard")
+def dashboard():
+    """Premium stock signals dashboard — requires active subscription"""
+    uid = session.get("user_id")
+    if not uid:
+        return redirect(url_for("auth_page"))
+
+    if not check_subscription_active(uid):
+        return redirect(url_for("plans_page"))
+
+    user_doc = get_user_doc(uid) or {}
+    signals = get_active_signals()
+
+    # Separate active and closed signals
+    active_signals = [s for s in signals if s.get("status") in ["ACTIVE", "T1_HIT", "T2_HIT"]]
+    closed_signals = [s for s in signals if s.get("status") in ["T3_HIT", "SL_HIT", "CLOSED"]]
+
+    user_name = session.get("username") or user_doc.get("name", "User")
+    plan = user_doc.get("plan", "none")
+    expiry = user_doc.get("subscriptionExpiry", "")
+
+    return render_template("dashboard.html",
+        name=user_name,
+        plan=plan,
+        expiry=expiry,
+        active_signals=active_signals,
+        closed_signals=closed_signals,
+        total_signals=len(signals),
+        plans=MEMBERSHIP_PLANS)
+
 
 @app.route("/check-subscription")
 def check_subscription():
-    reg_date_str = session.get("reg_date")
-    if not reg_date_str:
+    """Check current user's subscription status"""
+    uid = session.get("user_id")
+    if not uid:
         return jsonify({"status": "unknown", "message": "Login required"}), 401
 
+    is_active = check_subscription_active(uid)
+    user_doc = get_user_doc(uid) or {}
+
+    return jsonify({
+        "status": "active" if is_active else "expired",
+        "plan": user_doc.get("plan", "none"),
+        "expiry": user_doc.get("subscriptionExpiry", ""),
+        "message": "Premium active!" if is_active else "Subscription expired or not found."
+    })
+
+# -------------------------------------------------
+# RAZORPAY PAYMENT INTEGRATION
+# -------------------------------------------------
+@app.route("/create-payment-order", methods=["POST"])
+def create_payment_order():
+    """Create Razorpay payment order for a membership plan"""
+    if not razorpay_client:
+        error_msg = "Razorpay not initialized"
+        if razorpay_init_error:
+            error_msg += f": {razorpay_init_error}"
+        return jsonify({"error": error_msg}), 500
+
     try:
-        reg_date = datetime.strptime(reg_date_str, "%Y-%m-%d %H:%M:%S")
-    except ValueError:
-        return jsonify({"status": "unknown", "message": "Registration date invalid"}), 400
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Invalid request data"}), 400
 
-    if datetime.now() - reg_date > timedelta(days=30):
-        return jsonify({"status": "expired", "message": "Your Premium expired!"})
+        plan_slug = data.get("plan", "monthly")
+        plan = MEMBERSHIP_PLANS.get(plan_slug)
+        if not plan:
+            return jsonify({"error": f"Invalid plan: {plan_slug}"}), 404
 
-    return jsonify({"status": "active", "message": "Premium active!"})
+        amount_paise = plan["price"] * 100
+
+        order_data = {
+            "amount": amount_paise,
+            "currency": "INR",
+            "payment_capture": 1,
+            "notes": {
+                "plan": plan_slug,
+                "plan_name": plan["name"],
+                "user_email": session.get("email", ""),
+                "username": session.get("username", "User"),
+                "user_id": session.get("user_id", "")
+            }
+        }
+
+        print(f"📦 Creating Razorpay order: {plan['name']} — ₹{plan['price']}")
+        order = razorpay_client.order.create(data=order_data)
+
+        if not order or "id" not in order:
+            return jsonify({"error": "Order creation failed"}), 500
+
+        print(f"✅ Razorpay order created: {order['id']}")
+
+        return jsonify({
+            "order_id": order["id"],
+            "amount": amount_paise,
+            "currency": "INR",
+            "key_id": RAZORPAY_KEY_ID,
+            "plan": plan_slug,
+            "plan_name": plan["name"]
+        })
+
+    except Exception as e:
+        print(f"❌ Error creating Razorpay order: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
 
 
-# -------------------------------------------------
-# LIKES SYSTEM
-# -------------------------------------------------
-def load_likes():
-    if not os.path.exists(LIKES_FILE):
-        with open(LIKES_FILE, "w") as f:
-            json.dump({"likes": 0}, f)
-    with open(LIKES_FILE, "r") as f:
-        return json.load(f)
+@app.route("/verify-payment", methods=["POST"])
+def verify_payment():
+    """Verify Razorpay payment and activate subscription"""
+    if not razorpay_client:
+        return jsonify({"error": "Razorpay not configured"}), 500
+
+    try:
+        payment_data = request.get_json()
+        razorpay_payment_id = payment_data.get("razorpay_payment_id")
+        razorpay_order_id = payment_data.get("razorpay_order_id")
+        razorpay_signature = payment_data.get("razorpay_signature")
+
+        if not all([razorpay_payment_id, razorpay_order_id, razorpay_signature]):
+            return jsonify({"error": "Missing payment details"}), 400
+
+        # Verify payment signature
+        params_dict = {
+            "razorpay_order_id": razorpay_order_id,
+            "razorpay_payment_id": razorpay_payment_id,
+            "razorpay_signature": razorpay_signature
+        }
+
+        try:
+            razorpay_client.utility.verify_payment_signature(params_dict)
+            print(f"✅ Payment signature verified: {razorpay_payment_id}")
+        except Exception as e:
+            print(f"❌ Payment signature verification failed: {e}")
+            return jsonify({"error": "Invalid payment signature"}), 400
+
+        # Get order details
+        order = razorpay_client.order.fetch(razorpay_order_id)
+        plan_slug = order.get("notes", {}).get("plan", "monthly")
+        user_email = order.get("notes", {}).get("user_email", session.get("email", ""))
+        username = order.get("notes", {}).get("username", session.get("username", ""))
+        user_id = order.get("notes", {}).get("user_id", session.get("user_id", ""))
+
+        plan = MEMBERSHIP_PLANS.get(plan_slug)
+        if not plan:
+            return jsonify({"error": "Invalid plan"}), 400
+
+        # Save payment record to Firestore
+        if db:
+            payment_record = {
+                "paymentId": razorpay_payment_id,
+                "userId": user_id,
+                "userEmail": user_email,
+                "userName": username,
+                "plan": plan_slug,
+                "amount": plan["price"],
+                "status": "captured",
+                "razorpayOrderId": razorpay_order_id,
+                "razorpaySignature": razorpay_signature,
+                "createdAt": datetime.now().isoformat()
+            }
+            db.collection("payments").document(razorpay_payment_id).set(payment_record)
+
+        # Activate subscription
+        if user_id:
+            activate_subscription(user_id, plan_slug, razorpay_payment_id, razorpay_order_id)
+
+        # Update session
+        session["approved"] = True
+
+        print(f"✅ Payment verified & subscription activated: {plan['name']} for {username}")
+
+        return jsonify({
+            "success": True,
+            "message": f"Payment successful! {plan['name']} activated.",
+            "redirect": url_for("dashboard")
+        })
+    except Exception as e:
+        print(f"❌ Payment verification error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": "Payment verification failed"}), 500
 
 
-def save_likes(data):
-    with open(LIKES_FILE, "w") as f:
-        json.dump(data, f, indent=4)
+@app.route("/razorpay-webhook", methods=["POST"])
+def razorpay_webhook():
+    """Handle Razorpay webhook events (payment failures, refunds)"""
+    try:
+        payload = request.get_json()
+        event = payload.get("event", "")
 
+        if event == "payment.failed":
+            payment = payload.get("payload", {}).get("payment", {}).get("entity", {})
+            order_id = payment.get("order_id", "")
+            print(f"⚠️ Payment failed for order: {order_id}")
 
-@app.route("/like", methods=["POST"])
-def like_site():
-    data = load_likes()
-    data["likes"] += 1
-    save_likes(data)
-    return jsonify(data)
+            if db and order_id:
+                db.collection("payments").add({
+                    "paymentId": payment.get("id", ""),
+                    "razorpayOrderId": order_id,
+                    "status": "failed",
+                    "errorCode": payment.get("error_code", ""),
+                    "errorDescription": payment.get("error_description", ""),
+                    "createdAt": datetime.now().isoformat()
+                })
 
+        elif event == "refund.created":
+            refund = payload.get("payload", {}).get("refund", {}).get("entity", {})
+            payment_id = refund.get("payment_id", "")
+            print(f"💰 Refund created for payment: {payment_id}")
 
-@app.route("/get_likes")
-def get_likes():
-    return jsonify(load_likes())
+            if db and payment_id:
+                db.collection("payments").document(payment_id).update({
+                    "status": "refunded",
+                    "refundId": refund.get("id", ""),
+                    "refundAmount": refund.get("amount", 0) / 100,
+                    "refundedAt": datetime.now().isoformat()
+                })
 
+        return jsonify({"status": "ok"}), 200
+    except Exception as e:
+        print(f"⚠️ Webhook error: {e}")
+        return jsonify({"status": "error"}), 500
 
 # -------------------------------------------------
 # ADMIN LOGIN + PANEL
@@ -1026,49 +888,71 @@ def admin_login():
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Admin Login – Stockboy</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-        <script>
-          tailwind.config = {
-            theme: {
-              extend: {
-                colors: {
-                  gold: { light: '#f6d67c', DEFAULT: '#d9a520' },
-                  dark: { bg1: '#0f2027', bg2: '#203a43', bg3: '#2c5364' }
-                },
-                fontFamily: { sans: ['Poppins', 'sans-serif'] }
-              }
-            }
-          }
-        </script>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
-          .bg-gradient-dark { background: linear-gradient(160deg, #0f2027, #203a43, #2c5364); }
-          .text-gradient-gold {
-            background: linear-gradient(90deg, #f6d67c, #d9a520);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-          }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                background: linear-gradient(160deg, #081821, #0d2a38, #102530);
+                color: white;
+                font-family: 'Poppins', sans-serif;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 1rem;
+            }
+            .card {
+                background: rgba(16, 37, 48, 0.8);
+                backdrop-filter: blur(16px);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 1.5rem;
+                padding: 2rem;
+                max-width: 400px;
+                width: 100%;
+                box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            }
+            .card h2 {
+                color: #FFD54A;
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+                text-align: center;
+            }
+            .card .error { color: #FF5252; text-align: center; font-size: 0.85rem; margin-bottom: 1rem; }
+            input {
+                width: 100%;
+                padding: 0.75rem 1rem;
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.15);
+                border-radius: 0.75rem;
+                color: white;
+                font-size: 0.95rem;
+                margin-bottom: 0.75rem;
+                outline: none;
+            }
+            input:focus { border-color: #FFD54A; }
+            button {
+                width: 100%;
+                padding: 0.75rem;
+                background: linear-gradient(135deg, #FFD54A, #FFC107);
+                color: #081821;
+                font-weight: 700;
+                font-size: 1rem;
+                border: none;
+                border-radius: 0.75rem;
+                cursor: pointer;
+            }
+            button:hover { box-shadow: 0 8px 25px rgba(255,213,74,0.4); }
         </style>
         </head>
-        <body class="bg-gradient-dark text-white font-sans min-h-screen flex items-center justify-center px-4">
-        <div class="bg-black/40 backdrop-blur-md rounded-2xl p-8 border border-white/10 shadow-2xl max-w-md w-full">
-          <div class="text-center mb-6">
-            <h2 class="text-2xl font-bold text-gradient-gold mb-2">Admin Login</h2>
-            <p class="text-red-400 text-sm">Invalid Credentials</p>
-          </div>
-          <form method="POST" class="space-y-4">
-            <input name='username' placeholder='Username' 
-                   class='w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT'>
-            <input name='password' type='password' placeholder='Password' 
-                   class='w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT'>
-            <button type='submit' 
-                    class='w-full bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 font-bold py-3 px-6 rounded-xl shadow-lg shadow-yellow-500/50 hover:shadow-yellow-500/70 transition-all duration-300 active:scale-95'>
-              Login
-            </button>
-          </form>
+        <body>
+        <div class="card">
+            <h2>Admin Login</h2>
+            <p class="error">Invalid Credentials</p>
+            <form method="POST">
+                <input name="username" placeholder="Username">
+                <input name="password" type="password" placeholder="Password">
+                <button type="submit">Login</button>
+            </form>
         </div>
         </body>
         </html>
@@ -1081,50 +965,79 @@ def admin_login():
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin Login – Stockboy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              gold: { light: '#f6d67c', DEFAULT: '#d9a520' },
-              dark: { bg1: '#0f2027', bg2: '#203a43', bg3: '#2c5364' }
-            },
-            fontFamily: { sans: ['Poppins', 'sans-serif'] }
-          }
-        }
-      }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-      .bg-gradient-dark { background: linear-gradient(160deg, #0f2027, #203a43, #2c5364); }
-      .text-gradient-gold {
-        background: linear-gradient(90deg, #f6d67c, #d9a520);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(160deg, #081821, #0d2a38, #102530);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .card {
+            background: rgba(16, 37, 48, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+        }
+        .card h2 {
+            color: #FFD54A;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .card p { color: #aaa; text-align: center; font-size: 0.85rem; margin-bottom: 1.5rem; }
+        .logo {
+            width: 4rem; height: 4rem; border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: block;
+            box-shadow: 0 0 20px rgba(255,213,74,0.3);
+        }
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 0.75rem;
+            color: white;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+            outline: none;
+        }
+        input:focus { border-color: #FFD54A; }
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #FFD54A, #FFC107);
+            color: #081821;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover { box-shadow: 0 8px 25px rgba(255,213,74,0.4); transform: translateY(-1px); }
     </style>
     </head>
-    <body class="bg-gradient-dark text-white font-sans min-h-screen flex items-center justify-center px-4">
-    <div class="bg-black/40 backdrop-blur-md rounded-2xl p-8 border border-white/10 shadow-2xl max-w-md w-full">
-      <div class="text-center mb-6">
-        <img src="/static/logo.png" alt="Logo" class="w-16 h-16 mx-auto mb-4 rounded-full shadow-lg shadow-yellow-500/45">
-        <h2 class="text-2xl font-bold text-gradient-gold mb-2">Admin Login</h2>
-        <p class="text-gray-400 text-sm">Enter your credentials to access the admin panel</p>
-      </div>
-      <form method="POST" class="space-y-4">
-        <input name='username' placeholder='Username' 
-               class='w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT'>
-        <input name='password' type='password' placeholder='Password' 
-               class='w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-DEFAULT'>
-        <button type='submit' 
-                class='w-full bg-gradient-to-r from-gold-light to-gold-DEFAULT text-gray-900 font-bold py-3 px-6 rounded-xl shadow-lg shadow-yellow-500/50 hover:shadow-yellow-500/70 transition-all duration-300 active:scale-95'>
-          Login
-        </button>
-      </form>
+    <body>
+    <div class="card">
+        <img src="/static/logo.png" alt="Logo" class="logo">
+        <h2>Admin Login</h2>
+        <p>Enter credentials to access admin panel</p>
+        <form method="POST">
+            <input name="username" placeholder="Username">
+            <input name="password" type="password" placeholder="Password">
+            <button type="submit">Login</button>
+        </form>
     </div>
     </body>
     </html>
@@ -1136,223 +1049,263 @@ def admin_panel():
     if not session.get("admin"):
         return redirect("/admin-login")
 
-    data = load_data()
-    return render_template("admin_panel.html", data=data)
+    signals = get_active_signals()
+    subscribers = get_all_subscribers()
+    payments = get_all_payments()
 
+    # Stats
+    active_subs = len([s for s in subscribers if s.get("subscriptionStatus") == "active"])
+    total_revenue = sum(p.get("amount", 0) for p in payments if p.get("status") == "captured")
+    active_signals = len([s for s in signals if s.get("status") == "ACTIVE"])
 
-@app.route("/approve/<int:index>")
-def approve(index):
-    data = load_data()
-    user = data[index]["user"]
-    txn_id = data[index]["txn_id"]
-
-    data[index]["status"] = "approved"
-    save_data(data)
-
-    print(f"✅ Payment approved: {txn_id} for user: {user}")
-
-    return redirect("/admin")
-
-
-@app.route("/reject/<int:index>")
-def reject(index):
-    data = load_data()
-    user = data[index]["user"]
-    txn_id = data[index]["txn_id"]
-
-    data[index]["status"] = "rejected"
-    save_data(data)
-
-    print(f"❌ Payment rejected: {txn_id} for user: {user}")
-
-    return redirect("/admin")
+    return render_template("admin_panel.html",
+        signals=signals,
+        subscribers=subscribers,
+        payments=payments,
+        active_subs=active_subs,
+        total_revenue=total_revenue,
+        active_signals_count=active_signals,
+        plans=MEMBERSHIP_PLANS)
 
 
 # -------------------------------------------------
-# FILE UPLOAD
+# ADMIN API — SIGNAL MANAGEMENT
 # -------------------------------------------------
-@app.route("/upload", methods=["GET", "POST"])
-def upload_file():
-    """Upload files to specific product folders"""
+@app.route("/admin/signal/create", methods=["GET", "POST"])
+def admin_create_signal():
+    """Create a new stock signal"""
     if not session.get("admin"):
         return redirect("/admin-login")
-    
+
     if request.method == "POST":
-        product_slug = request.form.get("product", "product1")
-        f = request.files.get("file")
-        
-        if not f or f.filename == "":
-            return redirect("/upload?error=No file selected")
-        
-        # Ensure product folder exists
-        product_folder = os.path.join(UPLOAD_FOLDER, product_slug)
-        if not os.path.exists(product_folder):
-            os.makedirs(product_folder)
-        
-        # Save file to product folder
-        filename = secure_filename(f.filename)
-        filepath = os.path.join(product_folder, filename)
-        f.save(filepath)
-        
-        return redirect(f"/upload?success=File uploaded to {PRODUCT_DETAILS.get(product_slug, {}).get('title', product_slug)}")
+        if not db:
+            return redirect("/admin?error=Firestore not available")
 
-    # Get files from all products
-    all_files = {}
-    for product_slug in PRODUCT_DETAILS.keys():
-        product_folder = os.path.join(UPLOAD_FOLDER, product_slug)
-        if os.path.isdir(product_folder):
-            all_files[product_slug] = os.listdir(product_folder)
-        else:
-            all_files[product_slug] = []
-    
-    return render_template("upload.html", files=all_files, products=PRODUCT_DETAILS)
+        try:
+            now = datetime.now().isoformat()
+            signal_data = {
+                "stockName": request.form.get("stockName", "").strip().upper(),
+                "stockSymbol": request.form.get("stockSymbol", "").strip().upper(),
+                "exchange": request.form.get("exchange", "NSE"),
+                "signalType": request.form.get("signalType", "BUY"),
+                "entryPrice": float(request.form.get("entryPrice", 0)),
+                "target1": float(request.form.get("target1", 0)),
+                "target2": float(request.form.get("target2", 0)),
+                "target3": float(request.form.get("target3", 0)),
+                "stopLoss": float(request.form.get("stopLoss", 0)),
+                "riskRewardRatio": request.form.get("riskRewardRatio", ""),
+                "duration": request.form.get("duration", "1_WEEK"),
+                "status": request.form.get("status", "ACTIVE"),
+                "notes": request.form.get("notes", "").strip(),
+                "createdAt": now,
+                "updatedAt": now,
+                "createdBy": "admin"
+            }
 
-@app.route("/download/<product_slug>/<filename>")
-def download_file(product_slug, filename):
-    """Download file from product folder"""
-    if not (session.get("logged_in") or session.get("user_id")):
-        return redirect(url_for("home"))
-    
-    # Security: prevent directory traversal
-    filename = secure_filename(filename)
-    if product_slug not in PRODUCT_DETAILS:
-        return "Product not found", 404
-    
-    file_path = os.path.join(UPLOAD_FOLDER, product_slug, filename)
-    
-    if not os.path.exists(file_path) or not os.path.isfile(file_path):
-        return "File not found", 404
-    
-    return send_from_directory(
-        os.path.join(UPLOAD_FOLDER, product_slug),
-        filename,
-        as_attachment=True
-    )
+            db.collection("stockSignals").add(signal_data)
+            log_admin_action("admin", "CREATE_SIGNAL", "", f"Created {signal_data['signalType']} signal for {signal_data['stockName']}")
+            print(f"✅ Signal created: {signal_data['signalType']} {signal_data['stockName']}")
+            return redirect("/admin?success=Signal created successfully")
+        except Exception as e:
+            print(f"❌ Error creating signal: {e}")
+            return redirect(f"/admin?error=Error creating signal: {str(e)}")
+
+    return render_template("signal_form.html", signal=None, mode="create")
+
+
+@app.route("/admin/signal/edit/<signal_id>", methods=["GET", "POST"])
+def admin_edit_signal(signal_id):
+    """Edit an existing stock signal"""
+    if not session.get("admin"):
+        return redirect("/admin-login")
+
+    if not db:
+        return redirect("/admin?error=Firestore not available")
+
+    if request.method == "POST":
+        try:
+            now = datetime.now().isoformat()
+            update_data = {
+                "stockName": request.form.get("stockName", "").strip().upper(),
+                "stockSymbol": request.form.get("stockSymbol", "").strip().upper(),
+                "exchange": request.form.get("exchange", "NSE"),
+                "signalType": request.form.get("signalType", "BUY"),
+                "entryPrice": float(request.form.get("entryPrice", 0)),
+                "target1": float(request.form.get("target1", 0)),
+                "target2": float(request.form.get("target2", 0)),
+                "target3": float(request.form.get("target3", 0)),
+                "stopLoss": float(request.form.get("stopLoss", 0)),
+                "riskRewardRatio": request.form.get("riskRewardRatio", ""),
+                "duration": request.form.get("duration", "1_WEEK"),
+                "status": request.form.get("status", "ACTIVE"),
+                "notes": request.form.get("notes", "").strip(),
+                "updatedAt": now
+            }
+
+            db.collection("stockSignals").document(signal_id).update(update_data)
+            log_admin_action("admin", "UPDATE_SIGNAL", signal_id, f"Updated signal for {update_data['stockName']}")
+            print(f"✅ Signal updated: {signal_id}")
+            return redirect("/admin?success=Signal updated successfully")
+        except Exception as e:
+            print(f"❌ Error updating signal: {e}")
+            return redirect(f"/admin?error=Error updating signal: {str(e)}")
+
+    # GET — load signal data for editing
+    try:
+        doc = db.collection("stockSignals").document(signal_id).get()
+        if not doc.exists:
+            return redirect("/admin?error=Signal not found")
+        signal = doc.to_dict()
+        signal["id"] = doc.id
+    except Exception as e:
+        return redirect(f"/admin?error=Error loading signal: {str(e)}")
+
+    return render_template("signal_form.html", signal=signal, mode="edit")
+
+
+@app.route("/admin/signal/delete/<signal_id>", methods=["POST"])
+def admin_delete_signal(signal_id):
+    """Delete a stock signal"""
+    if not session.get("admin"):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    if not db:
+        return jsonify({"error": "Firestore not available"}), 500
+
+    try:
+        db.collection("stockSignals").document(signal_id).delete()
+        log_admin_action("admin", "DELETE_SIGNAL", signal_id, "Deleted signal")
+        print(f"🗑️ Signal deleted: {signal_id}")
+        return redirect("/admin?success=Signal deleted")
+    except Exception as e:
+        print(f"❌ Error deleting signal: {e}")
+        return redirect(f"/admin?error=Error deleting signal: {str(e)}")
+
+
+@app.route("/admin/signal/status/<signal_id>", methods=["POST"])
+def admin_update_signal_status(signal_id):
+    """Quick-update signal status"""
+    if not session.get("admin"):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    if not db:
+        return jsonify({"error": "Firestore not available"}), 500
+
+    try:
+        new_status = request.form.get("status", "ACTIVE")
+        db.collection("stockSignals").document(signal_id).update({
+            "status": new_status,
+            "updatedAt": datetime.now().isoformat()
+        })
+        log_admin_action("admin", "UPDATE_STATUS", signal_id, f"Status → {new_status}")
+        return redirect("/admin?success=Status updated")
+    except Exception as e:
+        return redirect(f"/admin?error=Error updating status: {str(e)}")
 
 
 # -------------------------------------------------
-# DASHBOARD
+# ADMIN API — SUBSCRIBER MANAGEMENT
 # -------------------------------------------------
-@app.route("/dashboard")
-def dashboard():
-    # Only allow access if user has approved payment (dashboard is premium only)
-    if not session.get("approved"):
-        return redirect(url_for("products_page"))
+@app.route("/admin/subscriber/extend/<uid>", methods=["POST"])
+def admin_extend_subscription(uid):
+    """Extend a user's subscription"""
+    if not session.get("admin"):
+        return redirect("/admin-login")
 
-    modules = {}
+    if not db:
+        return redirect("/admin?error=Firestore not available")
 
-    for root, _, files in os.walk(UPLOAD_FOLDER):
-        rel_dir = os.path.relpath(root, UPLOAD_FOLDER)
-        rel_dir = "" if rel_dir == "." else rel_dir.replace("\\", "/")
+    try:
+        days = int(request.form.get("days", 30))
+        user_doc = get_user_doc(uid)
 
-        for filename in files:
-            ext = filename.rsplit(".", 1)[-1].lower()
-            if ext not in COURSE_EXTENSIONS:
-                continue
+        if not user_doc:
+            return redirect("/admin?error=User not found")
 
-            kind = COURSE_EXTENSIONS.get(ext, "File")
-
-            module_name = "General"
-            if rel_dir:
-                module_name = rel_dir.title()
+        # Calculate new expiry
+        current_expiry = user_doc.get("subscriptionExpiry")
+        if current_expiry and current_expiry != "lifetime":
+            if isinstance(current_expiry, str):
+                try:
+                    base_date = datetime.fromisoformat(current_expiry.replace("Z", "+00:00")).replace(tzinfo=None)
+                except ValueError:
+                    base_date = datetime.now()
             else:
-                tag = filename.split("_")[0]
-                if tag.lower().startswith("m") and tag[1:].isdigit():
-                    module_name = tag.upper()
+                base_date = datetime.now()
+        else:
+            base_date = datetime.now()
 
-            rel_path = filename if not rel_dir else f"{rel_dir}/{filename}"
-            modules.setdefault(module_name, []).append({
-                "name": filename,
-                "url": f"/static/uploads/{rel_path}",
-                "path": rel_path,  # Relative path for PDF/Video viewer
-                "kind": kind
-            })
+        new_expiry = base_date + timedelta(days=days)
 
-    # Get username from session - check both payment-based and login-based sessions
-    user_name = session.get("user_name") or session.get("username") or "User"
-    return render_template("dashboard.html", name=user_name, modules=modules)
+        db.collection("users").document(uid).update({
+            "subscriptionStatus": "active",
+            "subscriptionExpiry": new_expiry.isoformat(),
+            "updatedAt": datetime.now().isoformat()
+        })
+
+        log_admin_action("admin", "EXTEND_SUBSCRIPTION", uid, f"Extended by {days} days → {new_expiry.isoformat()}")
+        return redirect("/admin?success=Subscription extended")
+    except Exception as e:
+        return redirect(f"/admin?error=Error extending subscription: {str(e)}")
 
 
+@app.route("/admin/subscriber/revoke/<uid>", methods=["POST"])
+def admin_revoke_subscription(uid):
+    """Revoke a user's subscription"""
+    if not session.get("admin"):
+        return redirect("/admin-login")
 
+    if not db:
+        return redirect("/admin?error=Firestore not available")
 
-# -------------------------------------------------
-# VIEW PDF AND VIDEO
-# -------------------------------------------------
-@app.route("/view_pdf/<path:filepath>")
-def view_pdf(filepath):
-    # Check if user has approved access
-    if not session.get("approved"):
-        return redirect(url_for("products_page"))
-    
-    # Ensure the filepath is safe and exists
-    # Replace any directory traversal attempts
-    safe_path = filepath.replace("..", "").replace("\\", "/").lstrip("/")
-    
-    # Construct full path
-    full_path = os.path.join(UPLOAD_FOLDER, safe_path)
-    
-    # Verify file exists
-    if not os.path.exists(full_path) or not os.path.isfile(full_path):
-        # Try searching in subdirectories if just filename provided
-        found = False
-        for root, _, files in os.walk(UPLOAD_FOLDER):
-            if os.path.basename(safe_path) in files:
-                safe_path = os.path.relpath(os.path.join(root, os.path.basename(safe_path)), UPLOAD_FOLDER).replace("\\", "/")
-                found = True
-                break
-        
-        if not found:
-            return "File not found. Please check your spelling and try again.", 404
-    
-    # Pass the relative path to template
-    return render_template("view_pdf.html", filename=safe_path)
-
-@app.route("/view_video/<filename>")
-def view_video(filename):
-    return render_template("view_video.html", filename=filename)
+    try:
+        db.collection("users").document(uid).update({
+            "subscriptionStatus": "expired",
+            "updatedAt": datetime.now().isoformat()
+        })
+        log_admin_action("admin", "REVOKE_SUBSCRIPTION", uid, "Subscription revoked")
+        return redirect("/admin?success=Subscription revoked")
+    except Exception as e:
+        return redirect(f"/admin?error=Error revoking subscription: {str(e)}")
 
 # -------------------------------------------------
 # RAZORPAY COMPLIANCE PAGES (Must be public)
 # -------------------------------------------------
 @app.route("/privacy-policy")
 def privacy_policy():
-    """Privacy Policy page - Required for Razorpay verification"""
     return render_template("privacy_policy.html")
 
 @app.route("/terms")
 def terms():
-    """Terms & Conditions page - Required for Razorpay verification"""
     return render_template("terms.html")
 
 @app.route("/refund")
 def refund():
-    """Refund Policy page - Required for Razorpay verification"""
     return render_template("refund.html")
 
 @app.route("/contact")
 def contact():
-    """Contact page - Required for Razorpay verification"""
     return render_template("contact.html")
 
-# -------------------------------------------------
-# SERVE PAYMENT SCREENSHOTS
-# -------------------------------------------------
-@app.route("/payment_ss/<filename>")
-def serve_payment_ss(filename):
-    """Serve payment screenshots from payment_ss folder"""
-    return send_from_directory(PAYMENT_SS_FOLDER, filename)
+@app.route("/about")
+def about_page():
+    logged_in = session.get("logged_in") or session.get("user_id")
+    username = session.get("username", "")
+    return render_template("about.html", username=username, logged_in=logged_in)
 
+# Legacy routes — redirect to new pages
+@app.route("/products")
+def products_page():
+    return redirect(url_for("plans_page"))
 
-# Telegram polling code removed - payments now handled via Razorpay
+@app.route("/payment")
+def payment_page():
+    return redirect(url_for("plans_page"))
 
 # -------------------------------------------------
 # RUN SERVER
 # -------------------------------------------------
 if __name__ == "__main__":
-    # Get port from environment variable (Render requirement) or default to 5000
     port = int(os.getenv("PORT", 5000))
-    # Disable debug mode in production (Render sets FLASK_ENV or similar)
     debug_mode = os.getenv("FLASK_ENV", "production").lower() != "production"
-    
     app.run(host="0.0.0.0", port=port, debug=debug_mode)
-
