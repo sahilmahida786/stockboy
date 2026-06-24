@@ -15,6 +15,8 @@ app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
 app.secret_key = os.getenv("SECRET_KEY", "change_this_secret_key")
 app.permanent_session_lifetime = timedelta(days=7)
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # -------------------------------------------------
 # MAINTENANCE MODE
@@ -62,6 +64,17 @@ def require_login():
 
     if not (session.get("logged_in") or session.get("user_id") or session.get("admin")):
         return redirect(url_for("home"))
+
+@app.after_request
+def add_security_headers(response):
+    """Add security headers to all responses"""
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    if request.is_secure:
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    return response
 
 @app.errorhandler(500)
 def handle_500_error(error):
@@ -160,14 +173,13 @@ if FIREBASE_AVAILABLE:
 # -------------------------------------------------
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "").strip()
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "").strip()
+RAZORPAY_WEBHOOK_SECRET = os.getenv("RAZORPAY_WEBHOOK_SECRET", "").strip()
 
 if not RAZORPAY_KEY_ID:
-    RAZORPAY_KEY_ID = "rzp_live_RrVTwgfzN5BkyP"
-    print("⚠️ Using default RAZORPAY_KEY_ID")
+    print("⚠️ RAZORPAY_KEY_ID not set in environment")
 
 if not RAZORPAY_KEY_SECRET:
-    RAZORPAY_KEY_SECRET = "jUyYy6Zre24pcrH9fMcaOBtw"
-    print("⚠️ Using default RAZORPAY_KEY_SECRET")
+    print("⚠️ RAZORPAY_KEY_SECRET not set in environment")
 
 razorpay = None
 razorpay_client = None
@@ -250,6 +262,19 @@ PLAN_BENEFITS = [
     "Premium Dashboard Access",
     "Subscription Support",
 ]
+
+# -------------------------------------------------
+# INPUT SANITIZATION
+# -------------------------------------------------
+def sanitize_input(text):
+    """Strip HTML tags and dangerous characters from user input."""
+    if not isinstance(text, str):
+        return text
+    # Remove HTML tags
+    clean = re.sub(r'<[^>]+>', '', text)
+    # Remove script-related patterns
+    clean = re.sub(r'(?i)(javascript|on\w+\s*=)', '', clean)
+    return clean.strip()
 
 # -------------------------------------------------
 # FIRESTORE HELPERS
@@ -828,6 +853,23 @@ def verify_payment():
 def razorpay_webhook():
     """Handle Razorpay webhook events (payment failures, refunds)"""
     try:
+        # Verify webhook signature if secret is configured
+        if RAZORPAY_WEBHOOK_SECRET and razorpay_client:
+            webhook_signature = request.headers.get("X-Razorpay-Signature", "")
+            webhook_body = request.get_data(as_text=True)
+            try:
+                import hmac, hashlib
+                expected = hmac.new(
+                    RAZORPAY_WEBHOOK_SECRET.encode('utf-8'),
+                    webhook_body.encode('utf-8'),
+                    hashlib.sha256
+                ).hexdigest()
+                if not hmac.compare_digest(expected, webhook_signature):
+                    print("❌ Webhook signature verification failed")
+                    return jsonify({"status": "invalid_signature"}), 400
+            except Exception as e:
+                print(f"⚠️ Webhook signature check error: {e}")
+
         payload = request.get_json()
         event = payload.get("event", "")
 
@@ -1084,19 +1126,19 @@ def admin_create_signal():
         try:
             now = datetime.now().isoformat()
             signal_data = {
-                "stockName": request.form.get("stockName", "").strip().upper(),
-                "stockSymbol": request.form.get("stockSymbol", "").strip().upper(),
-                "exchange": request.form.get("exchange", "NSE"),
-                "signalType": request.form.get("signalType", "BUY"),
+                "stockName": sanitize_input(request.form.get("stockName", "")).upper(),
+                "stockSymbol": sanitize_input(request.form.get("stockSymbol", "")).upper(),
+                "exchange": request.form.get("exchange", "NSE") if request.form.get("exchange") in ("NSE", "BSE") else "NSE",
+                "signalType": request.form.get("signalType", "BUY") if request.form.get("signalType") in ("BUY", "SELL") else "BUY",
                 "entryPrice": float(request.form.get("entryPrice", 0)),
                 "target1": float(request.form.get("target1", 0)),
                 "target2": float(request.form.get("target2", 0)),
                 "target3": float(request.form.get("target3", 0)),
                 "stopLoss": float(request.form.get("stopLoss", 0)),
-                "riskRewardRatio": request.form.get("riskRewardRatio", ""),
+                "riskRewardRatio": sanitize_input(request.form.get("riskRewardRatio", "")),
                 "duration": request.form.get("duration", "1_WEEK"),
-                "status": request.form.get("status", "ACTIVE"),
-                "notes": request.form.get("notes", "").strip(),
+                "status": request.form.get("status", "ACTIVE") if request.form.get("status") in ("ACTIVE", "T1_HIT", "T2_HIT", "T3_HIT", "SL_HIT", "CLOSED") else "ACTIVE",
+                "notes": sanitize_input(request.form.get("notes", "")),
                 "createdAt": now,
                 "updatedAt": now,
                 "createdBy": "admin"
