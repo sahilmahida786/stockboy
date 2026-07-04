@@ -1408,21 +1408,14 @@ def admin_extend_subscription(uid):
             else:
                 base_date = datetime.now()
         else:
-            plan_details = MEMBERSHIP_PLANS.get(plan, MEMBERSHIP_PLANS.get("monthly"))
-        duration_days = plan_details.get("duration_days", 30)
+            base_date = datetime.now()
 
-        now = datetime.now()
-        if duration_days > 1000:
-            expiry_str = "lifetime"
-        else:
-            expiry = now + timedelta(days=duration_days)
-            expiry_str = expiry.isoformat()
+        new_expiry = base_date + timedelta(days=days)
 
-        user_ref.update({
+        db.collection("users").document(uid).update({
             "subscriptionStatus": "active",
-            "plan": plan,
-            "subscriptionExpiry": expiry_str,
-            "updatedAt": now.isoformat()
+            "subscriptionExpiry": new_expiry.isoformat(),
+            "updatedAt": datetime.now().isoformat()
         })
 
         log_admin_action("admin", "EXTEND_SUBSCRIPTION", uid, f"Extended by {days} days → {new_expiry.isoformat()}")
