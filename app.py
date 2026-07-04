@@ -162,6 +162,8 @@ if FIREBASE_AVAILABLE:
             db = firestore.client()
             print("✅ Firebase Admin SDK + Firestore initialized successfully")
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             print(f"⚠️ Firebase initialization error: {e}")
             FIREBASE_AVAILABLE = False
     else:
@@ -348,6 +350,8 @@ def check_subscription_active(uid):
                 sub.reference.update({"status": "expired"})
             print(f"⏰ Subscription expired for user {uid}")
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             print(f"⚠️ Error auto-expiring subscription: {e}")
         return False
 
@@ -588,6 +592,8 @@ def firebase_required(f):
             request.firebase_email = decoded_token.get("email", "")
             request.firebase_name = decoded_token.get("name", "")
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             print(f"❌ Token verification error: {e}")
             return jsonify({"error": "Invalid or expired token"}), 401
 
@@ -912,6 +918,8 @@ def verify_payment():
             razorpay_client.utility.verify_payment_signature(params_dict)
             print(f"✅ Payment signature verified: {razorpay_payment_id}")
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             print(f"❌ Payment signature verification failed: {e}")
             return jsonify({"error": "Invalid payment signature"}), 400
 
@@ -1205,55 +1213,66 @@ def admin_panel():
     if not session.get("admin"):
         return redirect("/admin-login")
 
-    signals = get_active_signals()
-    subscribers = get_all_subscribers()
-    payments = get_all_payments()
+    try:
+        signals = get_active_signals()
+        subscribers = get_all_subscribers()
+        payments = get_all_payments()
 
-    # Additional Stats
-    today = datetime.now().date()
-    todays_signals = 0
-    expired_signals = 0
-    target_hits = 0
-    
-    for s in signals:
-        created = s.get("createdAt", "")
-        if created:
-            try:
-                sig_date = datetime.fromisoformat(created.replace("Z", "+00:00")).replace(tzinfo=None).date()
-                if sig_date == today:
-                    todays_signals += 1
-            except ValueError:
-                pass
+        # Additional Stats
+        today = datetime.now().date()
+        todays_signals = 0
+        expired_signals = 0
+        target_hits = 0
         
-        status = s.get("status", "")
-        if status == "EXPIRED":
-            expired_signals += 1
-        elif status in ["T1_HIT", "T2_HIT", "T3_HIT"]:
-            target_hits += 1
+        for s in signals:
+            created = s.get("createdAt", "")
+            if created:
+                try:
+                    sig_date = datetime.fromisoformat(created.replace("Z", "+00:00")).replace(tzinfo=None).date()
+                    if sig_date == today:
+                        todays_signals += 1
+                except ValueError:
+                    pass
+            
+            status = s.get("status", "")
+            if status == "EXPIRED":
+                expired_signals += 1
+            elif status in ["T1_HIT", "T2_HIT", "T3_HIT"]:
+                target_hits += 1
 
-    pending_payments = len([p for p in payments if p.get("status") not in ["captured", "refunded"]])
-    
-    current_month = datetime.now().strftime("%Y-%m")
-    monthly_revenue = 0
-    for p in payments:
-        if p.get("status") == "captured":
-            p_date = p.get("createdAt", "")
-            if p_date and p_date.startswith(current_month):
-                monthly_revenue += p.get("amount", 0)
+        pending_payments = len([p for p in payments if p.get("status") not in ["captured", "refunded"]])
+        
+        current_month = datetime.now().strftime("%Y-%m")
+        monthly_revenue = 0
+        total_revenue = 0
+        for p in payments:
+            if p.get("status") == "captured":
+                amt = p.get("amount", 0)
+                total_revenue += amt
+                p_date = p.get("createdAt", "")
+                if p_date and p_date.startswith(current_month):
+                    monthly_revenue += amt
 
-    return render_template("admin_panel.html",
-        signals=signals,
-        subscribers=subscribers,
-        payments=payments,
-        active_subs=active_subs,
-        total_revenue=total_revenue,
-        active_signals_count=active_signals,
-        todays_signals=todays_signals,
-        expired_signals=expired_signals,
-        monthly_revenue=monthly_revenue,
-        pending_payments=pending_payments,
-        target_hits=target_hits,
-        plans=MEMBERSHIP_PLANS)
+        active_signals_count = len([s for s in signals if s.get("status") == "ACTIVE"])
+        active_subs = len([s for s in subscribers if s.get("subscriptionStatus") == "active"])
+
+        return render_template("admin_panel.html",
+            signals=signals,
+            subscribers=subscribers,
+            payments=payments,
+            active_subs=active_subs,
+            total_revenue=total_revenue,
+            active_signals_count=active_signals_count,
+            todays_signals=todays_signals,
+            expired_signals=expired_signals,
+            monthly_revenue=monthly_revenue,
+            pending_payments=pending_payments,
+            target_hits=target_hits,
+            plans=MEMBERSHIP_PLANS)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return f"<h1>Internal Server Error</h1><pre>{traceback.format_exc()}</pre>", 500
 
 
 # -------------------------------------------------
@@ -1292,6 +1311,8 @@ def admin_create_signal():
             print(f"✅ Signal created: {signal_data['stockName']}")
             return redirect("/admin?success=Signal created successfully")
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             print(f"❌ Error creating signal: {e}")
             return redirect(f"/admin?error=Error creating signal: {str(e)}")
 
@@ -1331,6 +1352,8 @@ def admin_edit_signal(signal_id):
             print(f"✅ Signal updated: {signal_id}")
             return redirect("/admin?success=Signal updated successfully")
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             print(f"❌ Error updating signal: {e}")
             return redirect(f"/admin?error=Error updating signal: {str(e)}")
 
@@ -1342,6 +1365,8 @@ def admin_edit_signal(signal_id):
         signal = doc.to_dict()
         signal["id"] = doc.id
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return redirect(f"/admin?error=Error loading signal: {str(e)}")
 
     return render_template("signal_form.html", signal=signal, mode="edit")
@@ -1384,6 +1409,8 @@ def admin_update_signal_status(signal_id):
         log_admin_action("admin", "UPDATE_STATUS", signal_id, f"Status → {new_status}")
         return redirect("/admin?success=Status updated")
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return redirect(f"/admin?error=Error updating status: {str(e)}")
 
 
@@ -1430,6 +1457,8 @@ def admin_extend_subscription(uid):
         log_admin_action("admin", "EXTEND_SUBSCRIPTION", uid, f"Extended by {days} days → {new_expiry.isoformat()}")
         return redirect("/admin?success=Subscription extended")
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return redirect(f"/admin?error=Error extending subscription: {str(e)}")
 
 
@@ -1450,6 +1479,8 @@ def admin_revoke_subscription(uid):
         log_admin_action("admin", "REVOKE_SUBSCRIPTION", uid, "Subscription revoked")
         return redirect("/admin?success=Subscription revoked")
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return redirect(f"/admin?error=Error revoking subscription: {str(e)}")
 
 # -------------------------------------------------
