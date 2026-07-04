@@ -191,7 +191,7 @@ try:
 except Exception as e:
     print(f"❌ Razorpay import failed: {e}")
     razorpay = None
-    razorpay_init_error = f"Razorpay import failed: {str(e)}"
+    razorpay_init_error = f"Razorpay package import failed: {str(e)}. Please ensure requirements.txt is up to date."
 
 if razorpay:
     try:
@@ -199,17 +199,16 @@ if razorpay:
         key_secret = os.getenv("RAZORPAY_KEY_SECRET", "").strip() or RAZORPAY_KEY_SECRET
 
         if not key_id or not key_secret:
-            raise ValueError("RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is empty")
-
-        razorpay_client = razorpay.Client(auth=(key_id, key_secret))
-        print("✅ Razorpay client initialized successfully")
+            razorpay_init_error = "RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is missing from environment variables"
+            print(f"⚠️ {razorpay_init_error}")
+            razorpay_client = None
+        else:
+            razorpay_client = razorpay.Client(auth=(key_id, key_secret))
+            print("✅ Razorpay client initialized successfully")
     except Exception as e:
         razorpay_init_error = str(e)
         print(f"❌ Razorpay client init failed: {e}")
         razorpay_client = None
-else:
-    razorpay_init_error = "razorpay package not installed"
-    print(f"⚠️ {razorpay_init_error}")
 
 # -------------------------------------------------
 # MEMBERSHIP PLANS CONFIGURATION
@@ -829,10 +828,9 @@ def check_subscription():
 def create_payment_order():
     """Create Razorpay payment order for a membership plan"""
     if not razorpay_client:
-        error_msg = "Razorpay not initialized"
         if razorpay_init_error:
-            error_msg += f": {razorpay_init_error}"
-        return jsonify({"error": error_msg}), 500
+            print(f"⚠️ Payment error: {razorpay_init_error}")
+        return jsonify({"error": "Payment system is temporarily unavailable. Please try again later."}), 500
 
     try:
         data = request.get_json()
@@ -878,16 +876,14 @@ def create_payment_order():
 
     except Exception as e:
         print(f"❌ Error creating Razorpay order: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Unable to initialize checkout. Please contact support if the issue persists."}), 500
 
 
 @app.route("/verify-payment", methods=["POST"])
 def verify_payment():
     """Verify Razorpay payment and activate subscription"""
     if not razorpay_client:
-        return jsonify({"error": "Razorpay not configured"}), 500
+        return jsonify({"error": "Payment verification system is currently unavailable."}), 500
 
     try:
         payment_data = request.get_json()
@@ -955,9 +951,7 @@ def verify_payment():
         })
     except Exception as e:
         print(f"❌ Payment verification error: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": "Payment verification failed"}), 500
+        return jsonify({"error": "Payment verification failed. If your account was charged, please contact support."}), 500
 
 
 @app.route("/razorpay-webhook", methods=["POST"])
@@ -1414,14 +1408,21 @@ def admin_extend_subscription(uid):
             else:
                 base_date = datetime.now()
         else:
-            base_date = datetime.now()
+            plan_details = MEMBERSHIP_PLANS.get(plan, MEMBERSHIP_PLANS.get("monthly"))
+        duration_days = plan_details.get("duration_days", 30)
 
-        new_expiry = base_date + timedelta(days=days)
+        now = datetime.now()
+        if duration_days > 1000:
+            expiry_str = "lifetime"
+        else:
+            expiry = now + timedelta(days=duration_days)
+            expiry_str = expiry.isoformat()
 
-        db.collection("users").document(uid).update({
+        user_ref.update({
             "subscriptionStatus": "active",
-            "subscriptionExpiry": new_expiry.isoformat(),
-            "updatedAt": datetime.now().isoformat()
+            "plan": plan,
+            "subscriptionExpiry": expiry_str,
+            "updatedAt": now.isoformat()
         })
 
         log_admin_action("admin", "EXTEND_SUBSCRIPTION", uid, f"Extended by {days} days → {new_expiry.isoformat()}")
