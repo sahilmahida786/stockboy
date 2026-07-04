@@ -171,6 +171,25 @@
     </div>
   </div>
 
+  <!-- Notifications -->
+  {% if notifications %}
+  <div class="fade-in" style="animation-delay:0.15s; margin-bottom: 2rem;">
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:1rem; padding:1rem 1.25rem;">
+      <h3 style="font-size:0.9rem; color:var(--gold); margin-bottom:0.75rem; display:flex; align-items:center; gap:0.5rem;">
+        🔔 Recent Notifications
+      </h3>
+      <div style="display:flex; flex-direction:column; gap:0.5rem;">
+        {% for notif in notifications %}
+        <div style="font-size:0.8rem; background:rgba(255,255,255,0.03); padding:0.6rem 1rem; border-radius:0.5rem; border-left:2px solid var(--gold);">
+          {{ notif.message }}
+          <span style="display:block; font-size:0.65rem; color:var(--muted); margin-top:0.2rem;">{{ notif.createdAt[:10] }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
   <!-- Active Signals -->
   <div class="sec-header fade-in" style="animation-delay:0.2s">
     <h2>📡 Active Signals</h2>
@@ -183,10 +202,9 @@
     <div class="signal-card {{ 'buy' if signal.signalType == 'BUY' else 'sell' }} fade-in" style="animation-delay:{{ loop.index * 0.08 }}s">
       <div class="signal-header">
         <div style="display:flex;gap:0.5rem;align-items:center;">
-          <span class="signal-type {{ 'buy' if signal.signalType == 'BUY' else 'sell' }}">
-            {{ '▲' if signal.signalType == 'BUY' else '▼' }} {{ signal.signalType }}
+          <span class="signal-type buy">
+            ▲ BUY
           </span>
-          <span class="signal-exchange">{{ signal.exchange or 'NSE' }}</span>
         </div>
         <span class="status-badge
           {% if signal.status == 'ACTIVE' %}status-active
@@ -207,18 +225,24 @@
           <span class="lbl">Entry Price</span>
           <span class="val gold">₹{{ "%.2f"|format(signal.entryPrice) }}</span>
         </div>
+        {% if signal.target1 and signal.target1 > 0 %}
         <div class="price-row">
           <span class="lbl">Target 1</span>
           <span class="val green">₹{{ "%.2f"|format(signal.target1) }}</span>
         </div>
+        {% endif %}
+        {% if signal.target2 and signal.target2 > 0 %}
         <div class="price-row">
           <span class="lbl">Target 2</span>
           <span class="val green">₹{{ "%.2f"|format(signal.target2) }}</span>
         </div>
+        {% endif %}
+        {% if signal.target3 and signal.target3 > 0 %}
         <div class="price-row">
           <span class="lbl">Target 3</span>
           <span class="val green">₹{{ "%.2f"|format(signal.target3) }}</span>
         </div>
+        {% endif %}
         <div class="price-row">
           <span class="lbl">Stop Loss</span>
           <span class="val red">₹{{ "%.2f"|format(signal.stopLoss) }}</span>
@@ -252,10 +276,9 @@
       <div class="signal-card {{ 'buy' if signal.signalType == 'BUY' else 'sell' }} fade-in" style="opacity:0.7">
         <div class="signal-header">
           <div style="display:flex;gap:0.5rem;align-items:center;">
-            <span class="signal-type {{ 'buy' if signal.signalType == 'BUY' else 'sell' }}">
-              {{ '▲' if signal.signalType == 'BUY' else '▼' }} {{ signal.signalType }}
+            <span class="signal-type buy">
+              ▲ BUY
             </span>
-            <span class="signal-exchange">{{ signal.exchange or 'NSE' }}</span>
           </div>
           <span class="status-badge
             {% if signal.status == 'T3_HIT' %}status-t3
@@ -267,7 +290,9 @@
         <div class="signal-name">{{ signal.stockName }}</div>
         <div class="signal-prices" style="grid-template-columns:1fr 1fr 1fr;">
           <div class="price-row"><span class="lbl">Entry</span><span class="val gold">₹{{ "%.2f"|format(signal.entryPrice) }}</span></div>
+          {% if signal.target1 and signal.target1 > 0 %}
           <div class="price-row"><span class="lbl">Target 1</span><span class="val green">₹{{ "%.2f"|format(signal.target1) }}</span></div>
+          {% endif %}
           <div class="price-row"><span class="lbl">SL</span><span class="val red">₹{{ "%.2f"|format(signal.stopLoss) }}</span></div>
         </div>
         <div class="signal-meta">

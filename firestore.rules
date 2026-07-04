@@ -36,6 +36,7 @@ service cloud.firestore {
         (resource.data.userId == request.auth.uid || isAdmin());
       allow create, update, delete: if isAdmin();
     }
+    
 
     // Stock Signals collection
     match /stockSignals/{signalId} {

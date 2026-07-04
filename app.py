@@ -7,7 +7,7 @@ if hasattr(sys.stderr, 'reconfigure'):
 
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import requests, json, os, re
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 from functools import wraps
 
 
@@ -218,8 +218,8 @@ MEMBERSHIP_PLANS = {
     "monthly": {
         "name": "1 Month Membership",
         "slug": "monthly",
-        "price": 499,
-        "price_display": "₹499",
+        "price": 999,
+        "price_display": "₹999",
         "duration_days": 30,
         "badge": "STARTER",
         "popular": False,
@@ -227,8 +227,8 @@ MEMBERSHIP_PLANS = {
     "quarterly": {
         "name": "3 Month Membership",
         "slug": "quarterly",
-        "price": 1299,
-        "price_display": "₹1,299",
+        "price": 1999,
+        "price_display": "₹1,999",
         "duration_days": 90,
         "badge": "POPULAR",
         "popular": True,
@@ -409,6 +409,29 @@ def get_active_signals():
         print(f"⚠️ Error fetching signals: {e}")
         return []
 
+def get_recent_notifications(uid):
+    """Get recent notifications for a user and global ones."""
+    if not db:
+        return []
+    try:
+        docs = db.collection("notifications").where("userId", "in", ["global", uid]).order_by("createdAt", direction=firestore.Query.DESCENDING).limit(5).stream()
+        return [doc.to_dict() for doc in docs]
+    except Exception as e:
+        # If index is missing, fallback to getting all and filtering in memory for small datasets
+        try:
+            docs = db.collection("notifications").order_by("createdAt", direction=firestore.Query.DESCENDING).limit(20).stream()
+            notifs = []
+            for doc in docs:
+                data = doc.to_dict()
+                if data.get("userId") in ["global", uid]:
+                    notifs.append(data)
+                if len(notifs) >= 5:
+                    break
+            return notifs
+        except Exception as fallback_e:
+            print(f"⚠️ Error fetching notifications: {fallback_e}")
+            return []
+
 def get_all_subscribers():
     """Get all users who have or had a subscription."""
     if not db:
@@ -455,6 +478,91 @@ def log_admin_action(admin_id, action, target_id, details):
         })
     except Exception as e:
         print(f"⚠️ Error logging admin action: {e}")
+
+def create_notification(user_id, message, notif_type="info"):
+    """Create an in-app notification"""
+    if not db:
+        return
+    try:
+        db.collection("notifications").add({
+            "userId": user_id,  # "global" for all users
+            "message": message,
+            "type": notif_type,
+            "read": False,
+            "createdAt": datetime.now().isoformat()
+        })
+    except Exception as e:
+        print(f"⚠️ Error creating notification: {e}")
+
+# -------------------------------------------------
+# AUTOMATION: SIGNAL EXPIRY
+# -------------------------------------------------
+def check_expired_signals():
+    """Background task to automatically expire signals"""
+    if not db:
+        return
+        
+    try:
+        ist = timezone(timedelta(hours=5, minutes=30))
+        now_ist = datetime.now(ist)
+        now_naive = datetime.now()
+        
+        active_signals = db.collection("stockSignals").where("status", "in", ["ACTIVE", "T1_HIT", "T2_HIT"]).stream()
+        
+        for doc in active_signals:
+            signal = doc.to_dict()
+            duration = signal.get("duration")
+            created_at_str = signal.get("createdAt")
+            if not created_at_str:
+                continue
+                
+            try:
+                # createdAt is usually naive local time (UTC on server)
+                created_at = datetime.fromisoformat(created_at_str.replace("Z", "+00:00")).replace(tzinfo=None)
+            except ValueError:
+                continue
+                
+            is_expired = False
+            
+            if duration == "INTRADAY":
+                # Check if current time in IST is > 15:30
+                if now_ist.hour > 15 or (now_ist.hour == 15 and now_ist.minute >= 30):
+                    is_expired = True
+                # Also expire if the signal is older than 12 hours as a fallback
+                elif now_naive > created_at + timedelta(hours=12):
+                    is_expired = True
+            elif duration == "24_HOURS":
+                if now_naive > created_at + timedelta(hours=24):
+                    is_expired = True
+            elif duration == "2_DAYS":
+                if now_naive > created_at + timedelta(days=2):
+                    is_expired = True
+            elif duration == "3_DAYS":
+                if now_naive > created_at + timedelta(days=3):
+                    is_expired = True
+            elif duration == "1_WEEK":
+                if now_naive > created_at + timedelta(days=7):
+                    is_expired = True
+                    
+            if is_expired:
+                db.collection("stockSignals").document(doc.id).update({
+                    "status": "EXPIRED",
+                    "updatedAt": now_naive.isoformat()
+                })
+                print(f"⏰ Auto-expired signal: {signal.get('stockName')} ({duration})")
+                create_notification("global", f"Signal for {signal.get('stockName')} has expired.")
+    except Exception as e:
+        print(f"⚠️ Error checking signal expirations: {e}")
+
+def start_scheduler():
+    try:
+        from apscheduler.schedulers.background import BackgroundScheduler
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(func=check_expired_signals, trigger="interval", minutes=1)
+        scheduler.start()
+        print("✅ Background scheduler started")
+    except Exception as e:
+        print(f"⚠️ Failed to start scheduler: {e}")
 
 # -------------------------------------------------
 # FIREBASE TOKEN VERIFICATION
@@ -683,6 +791,8 @@ def dashboard():
     user_name = session.get("username") or user_doc.get("name", "User")
     plan = user_doc.get("plan", "none")
     expiry = user_doc.get("subscriptionExpiry", "")
+    
+    notifications = get_recent_notifications(uid)
 
     return render_template("dashboard.html",
         name=user_name,
@@ -691,6 +801,7 @@ def dashboard():
         active_signals=active_signals,
         closed_signals=closed_signals,
         total_signals=len(signals),
+        notifications=notifications,
         plans=MEMBERSHIP_PLANS)
 
 
@@ -1095,10 +1206,37 @@ def admin_panel():
     subscribers = get_all_subscribers()
     payments = get_all_payments()
 
-    # Stats
-    active_subs = len([s for s in subscribers if s.get("subscriptionStatus") == "active"])
-    total_revenue = sum(p.get("amount", 0) for p in payments if p.get("status") == "captured")
-    active_signals = len([s for s in signals if s.get("status") == "ACTIVE"])
+    # Additional Stats
+    today = datetime.now().date()
+    todays_signals = 0
+    expired_signals = 0
+    target_hits = 0
+    
+    for s in signals:
+        created = s.get("createdAt", "")
+        if created:
+            try:
+                sig_date = datetime.fromisoformat(created.replace("Z", "+00:00")).replace(tzinfo=None).date()
+                if sig_date == today:
+                    todays_signals += 1
+            except ValueError:
+                pass
+        
+        status = s.get("status", "")
+        if status == "EXPIRED":
+            expired_signals += 1
+        elif status in ["T1_HIT", "T2_HIT", "T3_HIT"]:
+            target_hits += 1
+
+    pending_payments = len([p for p in payments if p.get("status") not in ["captured", "refunded"]])
+    
+    current_month = datetime.now().strftime("%Y-%m")
+    monthly_revenue = 0
+    for p in payments:
+        if p.get("status") == "captured":
+            p_date = p.get("createdAt", "")
+            if p_date and p_date.startswith(current_month):
+                monthly_revenue += p.get("amount", 0)
 
     return render_template("admin_panel.html",
         signals=signals,
@@ -1107,6 +1245,11 @@ def admin_panel():
         active_subs=active_subs,
         total_revenue=total_revenue,
         active_signals_count=active_signals,
+        todays_signals=todays_signals,
+        expired_signals=expired_signals,
+        monthly_revenue=monthly_revenue,
+        pending_payments=pending_payments,
+        target_hits=target_hits,
         plans=MEMBERSHIP_PLANS)
 
 
@@ -1127,15 +1270,11 @@ def admin_create_signal():
             now = datetime.now().isoformat()
             signal_data = {
                 "stockName": sanitize_input(request.form.get("stockName", "")).upper(),
-                "stockSymbol": sanitize_input(request.form.get("stockSymbol", "")).upper(),
-                "exchange": request.form.get("exchange", "NSE") if request.form.get("exchange") in ("NSE", "BSE") else "NSE",
-                "signalType": request.form.get("signalType", "BUY") if request.form.get("signalType") in ("BUY", "SELL") else "BUY",
                 "entryPrice": float(request.form.get("entryPrice", 0)),
-                "target1": float(request.form.get("target1", 0)),
-                "target2": float(request.form.get("target2", 0)),
-                "target3": float(request.form.get("target3", 0)),
+                "target1": 0.0,
+                "target2": 0.0,
+                "target3": 0.0,
                 "stopLoss": float(request.form.get("stopLoss", 0)),
-                "riskRewardRatio": sanitize_input(request.form.get("riskRewardRatio", "")),
                 "duration": request.form.get("duration", "1_WEEK"),
                 "status": request.form.get("status", "ACTIVE") if request.form.get("status") in ("ACTIVE", "T1_HIT", "T2_HIT", "T3_HIT", "SL_HIT", "CLOSED") else "ACTIVE",
                 "notes": sanitize_input(request.form.get("notes", "")),
@@ -1145,8 +1284,9 @@ def admin_create_signal():
             }
 
             db.collection("stockSignals").add(signal_data)
-            log_admin_action("admin", "CREATE_SIGNAL", "", f"Created {signal_data['signalType']} signal for {signal_data['stockName']}")
-            print(f"✅ Signal created: {signal_data['signalType']} {signal_data['stockName']}")
+            log_admin_action("admin", "CREATE_SIGNAL", "", f"Created signal for {signal_data['stockName']}")
+            create_notification("global", f"New Signal: {signal_data['stockName']} is now active!")
+            print(f"✅ Signal created: {signal_data['stockName']}")
             return redirect("/admin?success=Signal created successfully")
         except Exception as e:
             print(f"❌ Error creating signal: {e}")
@@ -1169,15 +1309,11 @@ def admin_edit_signal(signal_id):
             now = datetime.now().isoformat()
             update_data = {
                 "stockName": request.form.get("stockName", "").strip().upper(),
-                "stockSymbol": request.form.get("stockSymbol", "").strip().upper(),
-                "exchange": request.form.get("exchange", "NSE"),
-                "signalType": request.form.get("signalType", "BUY"),
                 "entryPrice": float(request.form.get("entryPrice", 0)),
-                "target1": float(request.form.get("target1", 0)),
-                "target2": float(request.form.get("target2", 0)),
-                "target3": float(request.form.get("target3", 0)),
+                "target1": float(request.form.get("target1") or 0),
+                "target2": float(request.form.get("target2") or 0),
+                "target3": float(request.form.get("target3") or 0),
                 "stopLoss": float(request.form.get("stopLoss", 0)),
-                "riskRewardRatio": request.form.get("riskRewardRatio", ""),
                 "duration": request.form.get("duration", "1_WEEK"),
                 "status": request.form.get("status", "ACTIVE"),
                 "notes": request.form.get("notes", "").strip(),
@@ -1185,6 +1321,9 @@ def admin_edit_signal(signal_id):
             }
 
             db.collection("stockSignals").document(signal_id).update(update_data)
+            
+            # Create notifications for targets if they are newly added (but we don't have old state here easily unless we fetch first, 
+            # let's just fetch it to see if targets changed from 0 to > 0)
             log_admin_action("admin", "UPDATE_SIGNAL", signal_id, f"Updated signal for {update_data['stockName']}")
             print(f"✅ Signal updated: {signal_id}")
             return redirect("/admin?success=Signal updated successfully")
@@ -1348,6 +1487,7 @@ def payment_page():
 # RUN SERVER
 # -------------------------------------------------
 if __name__ == "__main__":
+    start_scheduler()
     port = int(os.getenv("PORT", 5000))
     debug_mode = os.getenv("FLASK_ENV", "production").lower() != "production"
     app.run(host="0.0.0.0", port=port, debug=debug_mode)

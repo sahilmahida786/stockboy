@@ -3,8 +3,49 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Stockboy – Premium Stock Signals & Membership Platform</title>
-<meta name="description" content="Get premium stock signals, entry price alerts, target updates, and stop loss levels. Subscribe to Stockboy for expert-curated market opportunities. Best stock signal platform in India." />
+
+<!-- ── Primary SEO ── -->
+<title>Stockboy – Premium Stock Signals & Membership Platform | India</title>
+<meta name="description" content="Get expert stock signals with precise entry, targets & stop-loss levels. Join 500+ traders using Stockboy's premium signal platform. NSE & BSE covered. Subscribe now."/>
+<meta name="keywords" content="stock signals india, buy sell signals, NSE signals, intraday signals, stock market alerts, premium stock tips"/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://stockboy.works/"/>
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="Stockboy"/>
+<meta property="og:title" content="Stockboy – Premium Stock Signals Platform India"/>
+<meta property="og:description" content="Expert stock signals with entry, 3 targets & stop loss. 85% historical accuracy. 500+ active members. Join Stockboy today."/>
+<meta property="og:url" content="https://stockboy.works/"/>
+<meta property="og:image" content="https://stockboy.works/static/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:locale" content="en_IN"/>
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Stockboy – Premium Stock Signals Platform"/>
+<meta name="twitter:description" content="Expert NSE & BSE stock signals with precise entry, targets & stop-loss. Join 500+ traders."/>
+<meta name="twitter:image" content="https://stockboy.works/static/og-image.png"/>
+
+<!-- ── JSON-LD Structured Data ── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Stockboy",
+  "url": "https://stockboy.works",
+  "description": "Premium stock signal platform providing expert NSE & BSE buy/sell signals with entry price, targets, and stop loss levels.",
+  "offers": {
+    "@type": "AggregateOffer",
+    "priceCurrency": "INR",
+    "lowPrice": "499",
+    "highPrice": "9999"
+  }
+}
+</script>
+
+<!-- ── Fonts ── -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -312,7 +353,600 @@
   }
 
   /* ═══════════════════════════════════════════════
-     REST OF PAGE (unchanged)
+     NEW SECTIONS — Premium Conversion Optimization
+     ═══════════════════════════════════════════════ */
+
+  /* Shared section styling */
+  .sec { max-width: 900px; margin: 0 auto; padding: 4rem 1.25rem; }
+  .sec-title { text-align: center; margin-bottom: 2.5rem; }
+  .sec-title h2 { font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 700; margin-bottom: 0.4rem; letter-spacing: -0.02em; }
+  .sec-title p { color: var(--text-muted); font-size: 0.9rem; }
+  .sec-label { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 0.75rem; }
+
+  /* ── Section 1: Live Signal Preview ── */
+  .signal-preview { padding-top: 2rem; padding-bottom: 2rem; }
+  .signal-card {
+    max-width: 500px; margin: 0 auto;
+    background: rgba(16,37,48,0.5);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 1rem;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .signal-card:hover {
+    border-color: rgba(0,200,83,0.2);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  }
+  .signal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .signal-header .stock-info { display: flex; align-items: center; gap: 0.6rem; }
+  .signal-header .ticker {
+    font-size: 0.95rem; font-weight: 700; color: #fff; letter-spacing: -0.01em;
+  }
+  .signal-header .type-badge {
+    padding: 0.2rem 0.55rem; border-radius: 0.3rem; font-size: 0.6rem; font-weight: 700;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .type-badge.buy { background: rgba(0,200,83,0.15); color: var(--success); }
+  .type-badge.sell { background: rgba(255,82,82,0.15); color: var(--danger); }
+  .signal-header .time { font-size: 0.65rem; color: var(--text-muted); }
+  .signal-header .exchange { font-size: 0.55rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 0.15rem 0.4rem; border-radius: 0.25rem; }
+  .signal-body { padding: 1rem 1.25rem; }
+  .signal-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem;
+  }
+  .signal-metric {
+    padding: 0.6rem 0.75rem;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 0.5rem;
+  }
+  .signal-metric .metric-label { font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.2rem; }
+  .signal-metric .metric-value { font-size: 0.95rem; font-weight: 700; color: #fff; }
+  .signal-metric .metric-value.green { color: var(--success); }
+  .signal-metric .metric-value.red { color: var(--danger); }
+  .signal-metric .hit { font-size: 0.55rem; color: var(--success); margin-left: 0.25rem; }
+  .signal-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+  .signal-footer .status { display: flex; align-items: center; gap: 0.35rem; font-size: 0.65rem; color: var(--success); font-weight: 600; }
+  .signal-footer .status .pulse { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: dotPulse 2s infinite; }
+  .signal-footer .rr { font-size: 0.65rem; color: var(--text-muted); }
+  .signal-blur-msg { text-align: center; padding: 0.6rem; font-size: 0.7rem; color: var(--text-muted); background: rgba(255,213,74,0.04); border-top: 1px solid rgba(255,213,74,0.08); }
+  .signal-blur-msg a { color: var(--gold); text-decoration: none; font-weight: 600; }
+
+  /* ── Section 2: Performance Metrics ── */
+  .metrics-section { padding-top: 1.5rem; }
+  .metrics-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem;
+    max-width: 700px; margin: 0 auto;
+  }
+  .metric-card {
+    text-align: center; padding: 1.25rem 0.5rem;
+    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 0.75rem; transition: all 0.3s;
+  }
+  .metric-card:hover { border-color: rgba(255,213,74,0.12); background: rgba(255,213,74,0.025); }
+  .metric-card .m-val {
+    font-size: clamp(1.25rem, 3.5vw, 1.6rem); font-weight: 800; color: #fff;
+    letter-spacing: -0.02em; line-height: 1; margin-bottom: 0.3rem;
+  }
+  .metric-card .m-label { font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; line-height: 1.3; }
+
+  /* ── Section 3: Dashboard Preview ── */
+  .dash-preview { overflow: hidden; }
+  .dash-mockup {
+    max-width: 740px; margin: 0 auto;
+    background: rgba(16,37,48,0.4);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 0.75rem; overflow: hidden;
+  }
+  .dash-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.6rem 1rem;
+    background: rgba(8,24,33,0.8);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .dash-topbar .dots { display: flex; gap: 0.35rem; }
+  .dash-topbar .dots span { width: 8px; height: 8px; border-radius: 50%; }
+  .dash-topbar .dots span:nth-child(1) { background: #FF5F56; }
+  .dash-topbar .dots span:nth-child(2) { background: #FFBD2E; }
+  .dash-topbar .dots span:nth-child(3) { background: #27C93F; }
+  .dash-topbar .url { font-size: 0.6rem; color: var(--text-muted); background: rgba(255,255,255,0.04); padding: 0.2rem 0.6rem; border-radius: 0.3rem; }
+  .dash-body { padding: 1rem; }
+  .dash-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
+  .dash-stat-card { padding: 0.75rem; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.04); border-radius: 0.5rem; }
+  .dash-stat-card .ds-label { font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+  .dash-stat-card .ds-val { font-size: 1.1rem; font-weight: 700; color: #fff; }
+  .dash-stat-card .ds-val.gold { color: var(--gold); }
+  .dash-signals { display: flex; flex-direction: column; gap: 0.4rem; }
+  .dash-signal-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.55rem 0.75rem; background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04); border-radius: 0.4rem;
+    font-size: 0.75rem;
+  }
+  .dash-signal-row .dsr-name { font-weight: 600; color: #fff; }
+  .dash-signal-row .dsr-type { font-size: 0.55rem; font-weight: 700; padding: 0.12rem 0.35rem; border-radius: 0.2rem; }
+  .dash-signal-row .dsr-price { color: var(--text-muted); }
+  .dash-signal-row .dsr-status { font-size: 0.6rem; font-weight: 600; }
+  .dsr-status.active { color: var(--success); }
+  .dsr-status.hit { color: var(--gold); }
+
+  /* ── Section 4: Testimonials ── */
+  .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto; }
+  .testi-card {
+    padding: 1.25rem;
+    background: rgba(16,37,48,0.4); border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 0.75rem; transition: border-color 0.3s;
+  }
+  .testi-card:hover { border-color: rgba(255,213,74,0.15); }
+  .testi-stars { color: var(--gold); font-size: 0.7rem; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+  .testi-text { font-size: 0.82rem; color: rgba(255,255,255,0.75); line-height: 1.6; margin-bottom: 1rem; font-style: italic; }
+  .testi-author { display: flex; align-items: center; gap: 0.6rem; }
+  .testi-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-dim), rgba(255,213,74,0.05)); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--gold); flex-shrink: 0; }
+  .testi-meta .testi-name { font-size: 0.78rem; font-weight: 600; color: #fff; }
+  .testi-meta .testi-loc { font-size: 0.6rem; color: var(--text-muted); }
+  .testi-meta .verified { font-size: 0.55rem; color: var(--success); font-weight: 500; }
+
+  /* ── Section 5: Why Stockboy (Comparison) ── */
+  .compare-table {
+    max-width: 600px; margin: 0 auto;
+    border: 1px solid rgba(255,255,255,0.06); border-radius: 0.75rem; overflow: hidden;
+  }
+  .compare-row {
+    display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.78rem;
+  }
+  .compare-row:last-child { border-bottom: none; }
+  .compare-row > div { padding: 0.65rem 0.85rem; }
+  .compare-row.head { background: rgba(255,213,74,0.04); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+  .compare-row.head .col-sb { color: var(--gold); }
+  .compare-row .feature-name { color: rgba(255,255,255,0.75); font-size: 0.78rem; }
+  .compare-row .col-sb { text-align: center; color: var(--success); }
+  .compare-row .col-tg { text-align: center; color: var(--text-muted); }
+  .col-sb .yes { color: var(--success); font-weight: 600; }
+  .col-tg .no { color: rgba(255,82,82,0.6); }
+
+  /* ── Section 6: Trust Section ── */
+  .trust-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;
+    max-width: 700px; margin: 0 auto;
+  }
+  .trust-card {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    padding: 1rem;
+    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 0.6rem; transition: border-color 0.3s;
+  }
+  .trust-card:hover { border-color: rgba(255,213,74,0.12); }
+  .trust-card .tc-icon {
+    width: 36px; height: 36px; border-radius: 0.5rem; flex-shrink: 0;
+    background: rgba(255,213,74,0.06); display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+  }
+  .trust-card .tc-title { font-size: 0.82rem; font-weight: 600; color: #fff; margin-bottom: 0.15rem; }
+  .trust-card .tc-desc { font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; }
+
+  /* ── Section 7: Premium CTA ── */
+  .final-cta {
+    text-align: center; padding: 3.5rem 1.25rem;
+    position: relative; overflow: hidden;
+  }
+  .final-cta::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(255,213,74,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .final-cta h2 {
+    font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700;
+    letter-spacing: -0.02em; margin-bottom: 0.5rem; position: relative;
+  }
+  .final-cta .fc-sub {
+    font-size: 0.9rem; color: var(--text-muted); max-width: 480px;
+    margin: 0 auto 1.75rem; line-height: 1.6; position: relative;
+  }
+  .final-cta .fc-btns {
+    display: flex; justify-content: center; gap: 0.65rem; flex-wrap: wrap; position: relative;
+  }
+
+  /* ── Responsive for new sections ── */
+  @media (max-width: 480px) {
+    .metrics-grid { grid-template-columns: repeat(3, 1fr); gap: 0.4rem; }
+    .metric-card { padding: 0.85rem 0.25rem; }
+    .metric-card .m-val { font-size: 1.1rem; }
+    .signal-grid { grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+    .dash-stats { grid-template-columns: 1fr; }
+    .compare-row { font-size: 0.7rem; }
+    .compare-row > div { padding: 0.5rem 0.6rem; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .trust-grid { grid-template-columns: 1fr; }
+    .final-cta .fc-btns { flex-direction: column; align-items: center; }
+    .final-cta .fc-btns a { width: 100%; max-width: 280px; }
+  }
+  @media (max-width: 374px) {
+    .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    .sec { padding: 2.5rem 0.85rem; }
+    .sec-title h2 { font-size: 1.3rem; }
+  }
+
+  /* ══════════════════════════════════════════════════════
+     PREMIUM SIGNAL CARD V2 — Glassmorphism Trading Terminal
+     ══════════════════════════════════════════════════════ */
+  @keyframes floatCard {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-7px); }
+  }
+  .signal-card-v2 {
+    max-width: 520px; margin: 0 auto;
+    background: rgba(10,28,38,0.7);
+    border: 1px solid rgba(0,200,83,0.15);
+    border-radius: 1.1rem;
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 16px 56px rgba(0,0,0,0.45);
+    overflow: hidden;
+    animation: floatCard 7s ease-in-out infinite;
+    transition: border-color 0.35s, box-shadow 0.35s;
+  }
+  .signal-card-v2:hover {
+    border-color: rgba(0,200,83,0.35);
+    box-shadow: 0 0 0 1px rgba(0,200,83,0.08), 0 24px 72px rgba(0,0,0,0.5), 0 0 56px rgba(0,200,83,0.06);
+  }
+  .signal-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.9rem 1.25rem;
+    background: rgba(4,15,24,0.75);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .signal-ticker-group { display: flex; align-items: center; gap: 0.55rem; }
+  .signal-ticker-name { font-size: 1.05rem; font-weight: 800; color: #fff; letter-spacing: -0.01em; }
+  .signal-badge-buy {
+    padding: 0.2rem 0.62rem; border-radius: 0.35rem;
+    background: rgba(0,200,83,0.14); border: 1px solid rgba(0,200,83,0.25);
+    font-size: 0.62rem; font-weight: 800; color: var(--success);
+    letter-spacing: 0.07em; text-transform: uppercase;
+  }
+  .signal-exchange-chip {
+    font-size: 0.52rem; color: var(--text-muted);
+    background: rgba(255,255,255,0.05); padding: 0.15rem 0.42rem;
+    border-radius: 0.25rem; border: 1px solid rgba(255,255,255,0.08);
+  }
+  .signal-time-badge { display: flex; align-items: center; gap: 0.35rem; font-size: 0.62rem; color: var(--text-muted); }
+  .signal-time-badge .live-pulse { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: dotPulse 2s infinite; flex-shrink: 0; }
+  .signal-data-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .signal-data-cell { padding: 0.9rem 1rem; border-right: 1px solid rgba(255,255,255,0.04); }
+  .signal-data-cell:last-child { border-right: none; }
+  .sdc-label { font-size: 0.52rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.3rem; }
+  .sdc-val { font-size: 0.95rem; font-weight: 700; color: #fff; }
+  .sdc-val.green { color: var(--success); }
+  .sdc-val.red   { color: var(--danger); }
+  .signal-target-row { padding: 0.9rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .str-label { font-size: 0.52rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.6rem; }
+  .targets-progress { display: flex; align-items: center; gap: 0; }
+  .target-step { display: flex; flex-direction: column; align-items: center; gap: 0.28rem; }
+  .ts-circle {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.58rem; font-weight: 700; border: 1.5px solid;
+  }
+  .target-step.hit     .ts-circle { background: rgba(0,200,83,0.15); border-color: var(--success); color: var(--success); }
+  .target-step.pending .ts-circle { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.12); color: var(--text-muted); }
+  .ts-price { font-size: 0.58rem; font-weight: 500; }
+  .target-step.hit     .ts-price { color: var(--success); }
+  .target-step.pending .ts-price { color: var(--text-muted); }
+  .target-connector { flex: 1; height: 1.5px; background: rgba(255,255,255,0.07); }
+  .target-connector.hit { background: rgba(0,200,83,0.3); }
+  .signal-bottom-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.65rem 1.25rem;
+  }
+  .sig-live-status { display: flex; align-items: center; gap: 0.4rem; font-size: 0.64rem; color: var(--success); font-weight: 600; }
+  .sig-live-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: dotPulse 2s infinite; }
+  .sig-rr { font-size: 0.64rem; color: var(--gold); font-weight: 500; }
+  .signal-lock-bar {
+    display: flex; align-items: center; justify-content: center; gap: 0.45rem;
+    padding: 0.6rem 1.25rem;
+    background: rgba(255,213,74,0.04); border-top: 1px solid rgba(255,213,74,0.08);
+    font-size: 0.72rem; color: var(--text-muted);
+  }
+  .signal-lock-bar a { color: var(--gold); text-decoration: none; font-weight: 600; }
+  .signal-lock-bar a:hover { text-decoration: underline; }
+
+  /* ══════════════════════════════════════════════════════
+     SECTION 3: DASHBOARD PREVIEW — Enterprise Grade
+     ══════════════════════════════════════════════════════ */
+  .dash-preview-section { padding-top: 1rem; }
+  .dash-window {
+    max-width: 760px; margin: 0 auto;
+    background: rgba(7,21,31,0.8);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 1rem; overflow: hidden;
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 28px 72px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+    animation: floatCard 9s ease-in-out infinite;
+    transition: box-shadow 0.3s;
+  }
+  .dash-window:hover {
+    box-shadow: 0 36px 88px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,213,74,0.06), 0 0 60px rgba(255,213,74,0.04);
+  }
+  .dash-chrome {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.65rem 1rem;
+    background: rgba(4,12,20,0.92);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .chrome-dots { display: flex; gap: 0.35rem; }
+  .chrome-dots span { width: 9px; height: 9px; border-radius: 50%; }
+  .chrome-dots span:nth-child(1) { background: #FF5F56; }
+  .chrome-dots span:nth-child(2) { background: #FFBD2E; }
+  .chrome-dots span:nth-child(3) { background: #27C93F; }
+  .chrome-url {
+    font-size: 0.6rem; color: var(--text-muted);
+    background: rgba(255,255,255,0.04); padding: 0.22rem 0.75rem;
+    border-radius: 0.3rem; border: 1px solid rgba(255,255,255,0.05);
+  }
+  .chrome-live { display: flex; align-items: center; gap: 0.32rem; font-size: 0.6rem; color: var(--success); font-weight: 600; }
+  .chrome-live-dot { width: 5px; height: 5px; background: var(--success); border-radius: 50%; animation: dotPulse 2s infinite; }
+  .dash-inner { padding: 1rem; }
+  .dash-header-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem; }
+  .dash-greeting { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.82); }
+  .dash-greeting span { color: var(--gold); }
+  .dash-plan-pill {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.22rem 0.65rem;
+    background: rgba(255,213,74,0.1); border: 1px solid rgba(255,213,74,0.22);
+    border-radius: 1rem; font-size: 0.58rem; color: var(--gold); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .plan-pill-dot { width: 5px; height: 5px; background: var(--gold); border-radius: 50%; animation: dotPulse 3s infinite; }
+  .dash-kpi-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;
+    margin-bottom: 0.9rem;
+  }
+  .dash-kpi-card {
+    padding: 0.75rem 0.85rem;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 0.5rem;
+  }
+  .dkc-label { font-size: 0.52rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.25rem; }
+  .dkc-val { font-size: 1.05rem; font-weight: 700; }
+  .dkc-val.green { color: var(--success); }
+  .dkc-val.gold  { color: var(--gold); }
+  .dkc-val.white { color: #fff; }
+  .dash-section-label { font-size: 0.58rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; margin-bottom: 0.5rem; }
+  .dash-sig-list { display: flex; flex-direction: column; gap: 0.32rem; }
+  .dash-sig-row {
+    display: grid; grid-template-columns: 1fr auto auto auto;
+    align-items: center; gap: 0.5rem; padding: 0.48rem 0.7rem;
+    background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 0.42rem; transition: border-color 0.2s;
+  }
+  .dash-sig-row:hover { border-color: rgba(255,213,74,0.12); }
+  .dsr-name { font-size: 0.72rem; font-weight: 600; color: #fff; }
+  .dsr-type { font-size: 0.5rem; font-weight: 700; padding: 0.1rem 0.36rem; border-radius: 0.2rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .dsr-type.buy  { background: rgba(0,200,83,0.12);  color: var(--success); }
+  .dsr-type.sell { background: rgba(255,82,82,0.12); color: var(--danger);  }
+  .dsr-price { font-size: 0.65rem; color: var(--text-muted); }
+  .dsr-status { font-size: 0.58rem; font-weight: 600; padding: 0.1rem 0.38rem; border-radius: 0.22rem; white-space: nowrap; }
+  .dsr-status.active { color: var(--success);    background: rgba(0,200,83,0.08); }
+  .dsr-status.t1hit  { color: var(--gold);       background: rgba(255,213,74,0.08); }
+  .dsr-status.closed { color: var(--text-muted); background: rgba(255,255,255,0.04); }
+
+  /* ══════════════════════════════════════════════════════
+     SECTION 4: TESTIMONIALS — Verified Member Stories
+     ══════════════════════════════════════════════════════ */
+  .testi-section { overflow: hidden; }
+  .testi-slider-wrap { position: relative; overflow: hidden; max-width: 840px; margin: 0 auto; }
+  .testi-track {
+    display: flex; gap: 1rem;
+    transition: transform 0.55s cubic-bezier(0.22,1,0.36,1);
+    will-change: transform;
+  }
+  .testi-card-v2 {
+    min-width: calc(33.333% - 0.67rem); flex-shrink: 0;
+    padding: 1.35rem;
+    background: rgba(14,33,44,0.6);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.85rem;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  }
+  .testi-card-v2:hover {
+    border-color: rgba(255,213,74,0.22);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+  }
+  .testi-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem; }
+  .testi-author-row { display: flex; align-items: center; gap: 0.65rem; }
+  .testi-av {
+    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; font-weight: 700;
+  }
+  .testi-av.gold { background: linear-gradient(135deg,#FFD54A,#FFC107); color: var(--bg-primary); }
+  .testi-av.blue { background: linear-gradient(135deg,#4facfe,#00f2fe); color: #0B1220; }
+  .testi-av.pink { background: linear-gradient(135deg,#f093fb,#f5576c); color: #fff; }
+  .testi-name { font-size: 0.82rem; font-weight: 600; color: #fff; }
+  .testi-city { font-size: 0.6rem; color: var(--text-muted); margin-top: 0.04rem; }
+  .verified-badge {
+    display: flex; align-items: center; gap: 0.25rem;
+    font-size: 0.54rem; color: var(--success); font-weight: 600;
+    background: rgba(0,200,83,0.08); padding: 0.18rem 0.48rem;
+    border-radius: 1rem; border: 1px solid rgba(0,200,83,0.15);
+    white-space: nowrap;
+  }
+  .testi-stars { color: var(--gold); font-size: 0.7rem; letter-spacing: 0.06em; margin-bottom: 0.65rem; }
+  .testi-quote {
+    font-size: 0.8rem; color: rgba(255,255,255,0.72); line-height: 1.65;
+    font-style: italic; margin-bottom: 0.85rem;
+  }
+  .testi-footer-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .profit-badge {
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    font-size: 0.62rem; font-weight: 600; color: var(--success);
+    background: rgba(0,200,83,0.07); padding: 0.18rem 0.5rem;
+    border-radius: 0.3rem; border: 1px solid rgba(0,200,83,0.12);
+  }
+  .exp-label { font-size: 0.6rem; color: var(--text-muted); }
+  .testi-dots { display: flex; justify-content: center; gap: 0.45rem; margin-top: 1.4rem; }
+  .testi-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.18); cursor: pointer;
+    transition: all 0.3s ease; border: none; padding: 0; outline: none;
+  }
+  .testi-dot.active { width: 20px; border-radius: 3px; background: var(--gold); }
+
+  /* ══════════════════════════════════════════════════════
+     SECTION 5: WHY STOCKBOY — Comparison Table
+     ══════════════════════════════════════════════════════ */
+  .compare-section { }
+  .compare-table-v2 {
+    max-width: 620px; margin: 0 auto;
+    border: 1px solid rgba(255,255,255,0.07); border-radius: 0.85rem; overflow: hidden;
+    background: rgba(12,30,40,0.45);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .compare-head {
+    display: grid; grid-template-columns: 1.6fr 1fr 1fr;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 0.75rem 1rem;
+  }
+  .ch-feature { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; }
+  .ch-sb { font-size: 0.68rem; font-weight: 700; color: var(--gold); text-align: center; }
+  .ch-tg { font-size: 0.68rem; font-weight: 600; color: var(--text-muted); text-align: center; }
+  .compare-body-row {
+    display: grid; grid-template-columns: 1.6fr 1fr 1fr;
+    padding: 0.68rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.2s;
+  }
+  .compare-body-row:last-child { border-bottom: none; }
+  .compare-body-row:hover { background: rgba(255,213,74,0.02); }
+  .cbr-feature { font-size: 0.78rem; color: rgba(255,255,255,0.75); display: flex; align-items: center; }
+  .cbr-sb, .cbr-tg { display: flex; align-items: center; justify-content: center; }
+  .check-icon {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(0,200,83,0.1); border: 1px solid rgba(0,200,83,0.22);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.62rem; color: var(--success); font-weight: 700;
+  }
+  .cross-icon {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(255,82,82,0.07); border: 1px solid rgba(255,82,82,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.62rem; color: rgba(255,82,82,0.55); font-weight: 700;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     SECTION 6: TRUST CARDS V2
+     ══════════════════════════════════════════════════════ */
+  .trust-section-v2 { padding: 1.5rem 1.25rem 2.5rem; }
+  .trust-cards-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;
+    max-width: 840px; margin: 0 auto;
+  }
+  .trust-card-v2 {
+    text-align: center; padding: 1.35rem 1rem;
+    background: rgba(14,33,44,0.5); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 0.8rem; transition: all 0.3s;
+  }
+  .trust-card-v2:hover {
+    border-color: rgba(255,213,74,0.2);
+    background: rgba(255,213,74,0.02);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 36px rgba(0,0,0,0.22);
+  }
+  .trust-icon-wrap {
+    width: 46px; height: 46px; border-radius: 0.65rem; margin: 0 auto 0.85rem;
+    background: rgba(255,213,74,0.07); border: 1px solid rgba(255,213,74,0.12);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .trust-icon-wrap svg { width: 22px; height: 22px; }
+  .trust-title-v2 { font-size: 0.8rem; font-weight: 600; color: #fff; margin-bottom: 0.32rem; }
+  .trust-desc-v2 { font-size: 0.65rem; color: var(--text-muted); line-height: 1.55; }
+
+  /* ══════════════════════════════════════════════════════
+     SECTION 7: PREMIUM CTA
+     ══════════════════════════════════════════════════════ */
+  .premium-cta-section {
+    position: relative; text-align: center;
+    padding: 5rem 1.25rem 4.5rem; overflow: hidden;
+  }
+  .premium-cta-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 65% 70% at 50% 50%, rgba(255,213,74,0.05) 0%, transparent 65%),
+      linear-gradient(180deg, rgba(8,24,33,0) 0%, rgba(255,213,74,0.025) 50%, rgba(8,24,33,0) 100%);
+    pointer-events: none;
+  }
+  .premium-cta-section::after {
+    content: '';
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 60%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,213,74,0.25), transparent);
+  }
+  .cta-inner-wrap { position: relative; max-width: 560px; margin: 0 auto; }
+  .cta-eyebrow-row {
+    display: flex; align-items: center; justify-content: center; gap: 0.65rem;
+    font-size: 0.62rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--gold); margin-bottom: 1.15rem;
+  }
+  .cta-eyebrow-row .cer-line { width: 24px; height: 1px; background: rgba(255,213,74,0.45); }
+  .premium-cta-h {
+    font-size: clamp(1.7rem, 4.5vw, 2.5rem); font-weight: 700;
+    letter-spacing: -0.025em; margin-bottom: 0.75rem; line-height: 1.15; color: #fff;
+  }
+  .premium-cta-h .cta-gold {
+    background: linear-gradient(135deg, #FFD54A, #FFB300);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .premium-cta-sub {
+    font-size: 0.93rem; color: var(--text-muted); max-width: 420px;
+    margin: 0 auto 2.25rem; line-height: 1.62;
+  }
+  .premium-cta-btns { display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap; }
+
+  /* ══════════════════════════════════════════════════════
+     RESPONSIVE — ALL NEW SECTIONS
+     ══════════════════════════════════════════════════════ */
+  @media (max-width: 768px) {
+    .testi-card-v2 { min-width: 100%; }
+    .trust-cards-grid { grid-template-columns: repeat(2, 1fr); }
+    .dash-kpi-row { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .dash-kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .dash-kpi-card:nth-child(3) { grid-column: span 2; }
+    .dash-sig-row { grid-template-columns: 1fr auto auto; }
+    .dsr-price { display: none; }
+    .compare-head, .compare-body-row { padding: 0.65rem 0.75rem; }
+    .cbr-feature { font-size: 0.72rem; }
+    .trust-cards-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+    .premium-cta-btns { flex-direction: column; align-items: center; }
+    .premium-cta-btns > * { width: 100%; max-width: 300px; justify-content: center; display: flex; }
+  }
+  @media (max-width: 374px) {
+    .signal-data-grid { grid-template-columns: repeat(2, 1fr); }
+    .signal-data-cell:last-child { border-right: none; }
+    .trust-cards-grid { grid-template-columns: 1fr 1fr; }
+    .compare-head .ch-feature, .compare-body-row .cbr-feature { font-size: 0.68rem; }
+    .premium-cta-h { font-size: 1.6rem; }
+  }
+
+  /* ═══════════════════════════════════════════════
+     REST OF PAGE
      ═══════════════════════════════════════════════ */
 
   /* Scroll reveal for remaining sections */
@@ -396,31 +1030,437 @@
     .trust-bar { gap: 0.5rem; }
     .trust-item { font-size: 0.7rem; padding: 0.5rem 0.85rem; }
   }
+
+  /* ════════════════════════════════════════════════════════
+     ENTERPRISE PHASE 2 — PREMIUM UX SYSTEM
+     ════════════════════════════════════════════════════════ */
+
+  /* ── Scroll Progress Bar ── */
+  #navProgress {
+    position: fixed; top: 0; left: 0; z-index: 200;
+    height: 2px; width: 0%;
+    background: linear-gradient(90deg, var(--gold), #FFB300);
+    transition: width 0.1s linear;
+    pointer-events: none;
+    will-change: width;
+  }
+
+  /* ── Navbar scroll state ── */
+  .navbar {
+    transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+  }
+  .navbar.scrolled {
+    background: rgba(8,24,33,0.97);
+    backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+    border-bottom-color: rgba(255,213,74,0.12);
+    box-shadow: 0 4px 32px rgba(0,0,0,0.3);
+  }
+
+  /* ── Nav link animated underline ── */
+  .nav-links a:not(.btn-gold) {
+    position: relative;
+    overflow: hidden;
+  }
+  .nav-links a:not(.btn-gold)::after {
+    content: '';
+    position: absolute; bottom: 4px; left: 50%; right: 50%;
+    height: 1.5px; background: var(--gold);
+    transition: left 0.25s ease, right 0.25s ease;
+    border-radius: 1px;
+  }
+  .nav-links a:not(.btn-gold):hover::after { left: 12%; right: 12%; }
+  .nav-links a:not(.btn-gold):focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* ── Hamburger button ── */
+  .hamburger {
+    display: none;
+    flex-direction: column; justify-content: center; gap: 5px;
+    width: 44px; height: 44px; cursor: pointer;
+    background: none; border: none; padding: 0.75rem 0.5rem;
+    border-radius: 0.4rem; transition: background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hamburger:hover { background: rgba(255,255,255,0.05); }
+  .hamburger span {
+    display: block; width: 20px; height: 1.5px;
+    background: var(--text-muted);
+    border-radius: 2px;
+    transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
+    transform-origin: center;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); background: var(--gold); }
+  .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); background: var(--gold); }
+  @media (max-width: 768px) { .hamburger { display: flex; } }
+
+  /* ── Mobile Drawer ── */
+  .mobile-drawer {
+    position: fixed; inset: 0; z-index: 90;
+    pointer-events: none;
+  }
+  .mobile-drawer.open { pointer-events: all; }
+  .drawer-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0);
+    transition: background 0.35s ease;
+    cursor: pointer;
+  }
+  .mobile-drawer.open .drawer-backdrop { background: rgba(0,0,0,0.55); }
+  .drawer-panel {
+    position: absolute; right: 0; top: 0; bottom: 0;
+    width: min(280px, 85vw);
+    background: rgba(10,26,36,0.98);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border-left: 1px solid rgba(255,255,255,0.07);
+    padding: 5rem 1.5rem 2rem;
+    transform: translateX(100%);
+    transition: transform 0.38s cubic-bezier(0.22,1,0.36,1);
+    display: flex; flex-direction: column; gap: 0.25rem;
+    will-change: transform;
+  }
+  .mobile-drawer.open .drawer-panel { transform: translateX(0); }
+  .drawer-link {
+    display: block; padding: 0.9rem 1rem;
+    font-size: 1rem; font-weight: 500; color: rgba(255,255,255,0.75);
+    text-decoration: none; border-radius: 0.5rem;
+    transition: all 0.2s; border: 1px solid transparent;
+  }
+  .drawer-link:hover { background: rgba(255,255,255,0.05); color: #fff; border-color: rgba(255,255,255,0.06); }
+  .drawer-link.gold { color: var(--gold); }
+  .drawer-link.gold:hover { background: rgba(255,213,74,0.08); border-color: rgba(255,213,74,0.15); }
+  .drawer-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 0.5rem 0; }
+
+  /* ── Notification Bell ── */
+  .nav-notif-btn {
+    position: relative;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.45rem; cursor: pointer;
+    transition: all 0.2s; text-decoration: none;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .nav-notif-btn:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.12); }
+  .nav-notif-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 6px; }
+  .notif-badge {
+    position: absolute; top: -4px; right: -4px;
+    width: 16px; height: 16px;
+    background: var(--danger);
+    border-radius: 50%;
+    font-size: 0.5rem; font-weight: 700; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid var(--bg-primary);
+    animation: dotPulse 2s infinite;
+  }
+
+  /* ── Notification Dropdown ── */
+  .notif-dropdown {
+    position: absolute; top: calc(100% + 10px); right: 0;
+    width: 320px;
+    background: rgba(10,26,36,0.98);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 0.85rem;
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    opacity: 0; transform: translateY(-8px) scale(0.97);
+    pointer-events: none;
+    transition: all 0.25s cubic-bezier(0.22,1,0.36,1);
+    z-index: 200;
+    overflow: hidden;
+  }
+  .notif-dropdown.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: all; }
+  .notif-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.9rem 1.1rem 0.6rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .notif-title { font-size: 0.8rem; font-weight: 600; color: #fff; }
+  .notif-mark-all { font-size: 0.62rem; color: var(--gold); cursor: pointer; text-decoration: none; font-weight: 500; background: none; border: none; }
+  .notif-mark-all:hover { text-decoration: underline; }
+  .notif-list { max-height: 280px; overflow-y: auto; }
+  .notif-list::-webkit-scrollbar { width: 3px; }
+  .notif-list::-webkit-scrollbar-track { background: transparent; }
+  .notif-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+  .notif-item {
+    display: flex; gap: 0.75rem; padding: 0.8rem 1.1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+  .notif-item:hover { background: rgba(255,255,255,0.03); }
+  .notif-item.unread { background: rgba(255,213,74,0.03); }
+  .notif-icon {
+    width: 32px; height: 32px; border-radius: 0.4rem; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+  }
+  .notif-icon.green { background: rgba(0,200,83,0.12); }
+  .notif-icon.gold  { background: rgba(255,213,74,0.12); }
+  .notif-icon.red   { background: rgba(255,82,82,0.12); }
+  .notif-body { flex: 1; min-width: 0; }
+  .notif-msg { font-size: 0.76rem; color: rgba(255,255,255,0.82); line-height: 1.45; margin-bottom: 0.2rem; }
+  .notif-time { font-size: 0.6rem; color: var(--text-muted); }
+  .notif-empty { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 0.8rem; }
+  .notif-footer {
+    padding: 0.6rem 1.1rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    text-align: center;
+  }
+  .notif-footer a { font-size: 0.68rem; color: var(--gold); text-decoration: none; }
+
+  /* ── Global Search Modal (Ctrl+K) ── */
+  #searchOverlay {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    display: flex; align-items: flex-start; justify-content: center;
+    padding-top: clamp(4rem, 12vh, 8rem);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  #searchOverlay.open { opacity: 1; pointer-events: all; }
+  .search-modal {
+    width: 100%; max-width: 560px; margin: 0 1rem;
+    background: rgba(10,26,36,0.98);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 1rem;
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 32px 80px rgba(0,0,0,0.55);
+    overflow: hidden;
+    transform: translateY(-12px) scale(0.98);
+    transition: transform 0.25s cubic-bezier(0.22,1,0.36,1);
+  }
+  #searchOverlay.open .search-modal { transform: translateY(0) scale(1); }
+  .search-input-row {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.9rem 1.1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .search-input-row svg { flex-shrink: 0; color: var(--text-muted); }
+  #globalSearchInput {
+    flex: 1; background: none; border: none; outline: none;
+    color: #fff; font-size: 1rem; font-family: inherit;
+    caret-color: var(--gold);
+  }
+  #globalSearchInput::placeholder { color: rgba(138,155,176,0.5); }
+  .search-kbd {
+    display: flex; gap: 0.25rem; align-items: center; flex-shrink: 0;
+  }
+  .search-kbd kbd {
+    font-size: 0.6rem; padding: 0.15rem 0.4rem;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 0.3rem; color: var(--text-muted); font-family: inherit;
+  }
+  .search-results { max-height: 340px; overflow-y: auto; padding: 0.5rem; }
+  .search-results::-webkit-scrollbar { width: 3px; }
+  .search-results::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+  .search-group-label { font-size: 0.58rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); padding: 0.5rem 0.75rem 0.25rem; }
+  .search-result-item {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.7rem 0.75rem; border-radius: 0.5rem;
+    cursor: pointer; transition: background 0.15s; text-decoration: none;
+    color: inherit;
+  }
+  .search-result-item:hover, .search-result-item.active {
+    background: rgba(255,213,74,0.08);
+  }
+  .sri-icon {
+    width: 30px; height: 30px; border-radius: 0.4rem; flex-shrink: 0;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+  }
+  .sri-title { font-size: 0.82rem; font-weight: 500; color: rgba(255,255,255,0.85); }
+  .sri-sub { font-size: 0.62rem; color: var(--text-muted); }
+  .sri-arrow { margin-left: auto; font-size: 0.7rem; color: var(--text-muted); }
+  .search-empty { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 0.82rem; }
+  .search-footer {
+    display: flex; align-items: center; gap: 1.25rem;
+    padding: 0.6rem 1.1rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.6rem; color: var(--text-muted);
+  }
+  .search-footer span { display: flex; align-items: center; gap: 0.3rem; }
+
+  /* ── Search hint in navbar ── */
+  .nav-search-hint {
+    display: flex; align-items: center; gap: 0.45rem;
+    padding: 0.35rem 0.75rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.45rem;
+    font-size: 0.68rem; color: var(--text-muted);
+    cursor: pointer; transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-search-hint:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); }
+  .nav-search-hint kbd {
+    font-size: 0.58rem; padding: 0.1rem 0.35rem;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 0.25rem; font-family: inherit;
+  }
+  @media (max-width: 768px) { .nav-search-hint { display: none; } }
+
+  /* ── Focus-visible global system ── */
+  :focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+  }
+  .cta-main:focus-visible, .cta-ghost:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+    border-radius: 0.6rem;
+  }
+  .btn-plan:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+    border-radius: 0.55rem;
+  }
+
+  /* ── Button Loading State ── */
+  .btn-plan.loading {
+    opacity: 0.7; cursor: not-allowed; pointer-events: none;
+    position: relative;
+  }
+  .btn-plan.loading::after {
+    content: '';
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid rgba(8,24,33,0.4);
+    border-top-color: #081821;
+    border-radius: 50%;
+    animation: btnSpin 0.7s linear infinite;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  @keyframes btnSpin { to { transform: rotate(360deg); } }
+
+  /* ── Expiry Warning Banner ── */
+  .expiry-warning {
+    background: rgba(255,193,7,0.08);
+    border-bottom: 1px solid rgba(255,193,7,0.18);
+    padding: 0.5rem 1.25rem;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    font-size: 0.72rem; color: rgba(255,193,7,0.9);
+  }
+
+  /* ── prefers-reduced-motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    .hf { opacity: 1 !important; transform: none !important; }
+    .fade-up { opacity: 1 !important; animation: none !important; }
+    #navProgress { display: none; }
+  }
+
+  /* ── Min touch target 44px ── */
+  .hamburger, .nav-notif-btn, .testi-dot { min-height: 44px; min-width: 44px; }
+  .testi-dot { display: flex; align-items: center; justify-content: center; }
+
 </style>
 </head>
 <body>
 
+<!-- Scroll Progress Bar -->
+<div id="navProgress" aria-hidden="true"></div>
+
 <!-- Navbar -->
-<nav class="navbar">
+<nav class="navbar" id="mainNav" role="navigation" aria-label="Main navigation">
   <div class="nav-brand">
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Stockboy Logo">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Stockboy Logo" width="38" height="38">
     <h1>Stockboy</h1>
   </div>
-  {% if logged_in and username %}
-  <div class="user-info">
-    <div class="name">Welcome, <span>{{ username }}</span></div>
-    {% if has_subscription %}
-    <a href="/dashboard" class="logout" style="color:var(--success); margin-right:0.75rem;">Dashboard →</a>
+
+  <!-- Desktop: right side controls -->
+  <div style="display:flex;align-items:center;gap:0.6rem;">
+
+    <!-- Search hint (desktop only) -->
+    <button class="nav-search-hint" id="navSearchBtn" onclick="openSearch()" aria-label="Open search (Ctrl+K)">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5l3 3"/></svg>
+      Search
+      <span class="search-kbd"><kbd>Ctrl</kbd><kbd>K</kbd></span>
+    </button>
+
+    {% if logged_in and username %}
+    <!-- Notification Bell -->
+    <div style="position:relative;">
+      <button class="nav-notif-btn" id="notifBtn" onclick="toggleNotif()" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-badge" id="notifBadge" style="display:none;" aria-live="polite"></span>
+      </button>
+      <!-- Notification Dropdown -->
+      <div class="notif-dropdown" id="notifDropdown" role="region" aria-label="Notifications">
+        <div class="notif-header">
+          <span class="notif-title">Notifications</span>
+          <button class="notif-mark-all" onclick="markAllRead()" aria-label="Mark all as read">Mark all read</button>
+        </div>
+        <div class="notif-list" id="notifList">
+          <div class="notif-empty">No new notifications</div>
+        </div>
+        <div class="notif-footer">
+          {% if has_subscription %}
+          <a href="/dashboard">View Dashboard →</a>
+          {% else %}
+          <a href="#plans">View Plans →</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- User info -->
+    <div class="user-info">
+      <div class="name">Hi, <span>{{ username }}</span></div>
+      {% if has_subscription %}
+      <a href="/dashboard" class="logout" style="color:var(--success);">Dashboard →</a>
+      {% endif %}
+      <a href="/logout" class="logout">Logout</a>
+    </div>
+
+    {% else %}
+    <!-- Guest nav links -->
+    <div class="nav-links">
+      <a href="/about">About</a>
+      <a href="#plans">Plans</a>
+      <a href="/auth" class="btn-gold">Login / Register</a>
+    </div>
     {% endif %}
-    <a href="/logout" class="logout">Logout</a>
+
+    <!-- Hamburger (mobile) -->
+    <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileDrawer" onclick="toggleDrawer()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
-  {% else %}
-  <div class="nav-links">
-    <a href="/about">About</a>
-    <a href="/auth" class="btn-gold">Login / Register</a>
-  </div>
-  {% endif %}
 </nav>
+
+<!-- Mobile Drawer -->
+<div class="mobile-drawer" id="mobileDrawer" role="dialog" aria-modal="true" aria-label="Navigation menu">
+  <div class="drawer-backdrop" onclick="closeDrawer()" aria-hidden="true"></div>
+  <nav class="drawer-panel">
+    <a href="/" class="drawer-link" onclick="closeDrawer()">🏠 Home</a>
+    <a href="#plans" class="drawer-link" onclick="closeDrawer()">💎 Plans</a>
+    <a href="#live-signal" class="drawer-link" onclick="closeDrawer()">📡 Live Signals</a>
+    <a href="/about" class="drawer-link" onclick="closeDrawer()">ℹ️ About</a>
+    <a href="/contact" class="drawer-link" onclick="closeDrawer()">📩 Contact</a>
+    <div class="drawer-divider"></div>
+    {% if logged_in %}
+      {% if has_subscription %}
+      <a href="/dashboard" class="drawer-link gold" onclick="closeDrawer()">📊 Dashboard</a>
+      {% endif %}
+      <a href="/logout" class="drawer-link" onclick="closeDrawer()">🚪 Logout</a>
+    {% else %}
+    <a href="/auth" class="drawer-link gold" onclick="closeDrawer()">→ Login / Register</a>
+    {% endif %}
+  </nav>
+</div>
 
 <!-- ════════════════════════════════════════════
      HERO SECTION — Premium Enterprise Design
@@ -540,6 +1580,185 @@
   </div>
 </section>
 
+<!-- ══ Section 1: Live Signal Preview ══ -->
+<section class="sec signal-preview" id="live-signal">
+  <div class="sec-title fade-up">
+    <span class="sec-label">
+      <span style="width:6px;height:6px;background:var(--success);border-radius:50%;display:inline-block;animation:dotPulse 2s infinite"></span>
+      Live Signal Preview
+    </span>
+    <h2>See What Members Get</h2>
+    <p>Real-time stock signals with precise entry, targets &amp; risk management</p>
+  </div>
+
+  <!-- Premium Signal Card V2 -->
+  <div class="signal-card-v2 fade-up">
+    <!-- Top bar -->
+    <div class="signal-topbar">
+      <div class="signal-ticker-group">
+        <span class="signal-ticker-name">RELIANCE</span>
+        <span class="signal-badge-buy">BUY</span>
+        <span class="signal-exchange-chip">NSE</span>
+      </div>
+      <div class="signal-time-badge">
+        <span class="live-pulse"></span>
+        2 hours ago
+      </div>
+    </div>
+
+    <!-- Data cells -->
+    <div class="signal-data-grid">
+      <div class="signal-data-cell">
+        <div class="sdc-label">Entry Price</div>
+        <div class="sdc-val">₹1,450</div>
+      </div>
+      <div class="signal-data-cell">
+        <div class="sdc-label">Stop Loss</div>
+        <div class="sdc-val red">₹1,420</div>
+      </div>
+      <div class="signal-data-cell">
+        <div class="sdc-label">Risk : Reward</div>
+        <div class="sdc-val">1 : 3</div>
+      </div>
+    </div>
+
+    <!-- Target progress -->
+    <div class="signal-target-row">
+      <div class="str-label">Targets</div>
+      <div class="targets-progress">
+        <div class="target-step hit">
+          <div class="ts-circle">✓</div>
+          <div class="ts-price">₹1,480</div>
+        </div>
+        <div class="target-connector hit"></div>
+        <div class="target-step pending">
+          <div class="ts-circle">T2</div>
+          <div class="ts-price">₹1,520</div>
+        </div>
+        <div class="target-connector"></div>
+        <div class="target-step pending">
+          <div class="ts-circle">T3</div>
+          <div class="ts-price">₹1,580</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="signal-bottom-bar">
+      <div class="sig-live-status">
+        <span class="sig-live-dot"></span>
+        Active · Intraday
+      </div>
+      <span class="sig-rr">Target 1 ✅ HIT</span>
+    </div>
+
+    {% if not logged_in %}
+    <div class="signal-lock-bar">
+      🔒 <a href="/auth">Subscribe</a> to access all live signals
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ══ Section 2: Performance Metrics ══ -->
+<section class="sec metrics-section fade-up">
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="m-val" data-count="500" data-suffix="+">0</div>
+      <div class="m-label">Active<br>Members</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-val" data-count="85" data-suffix="%+">0</div>
+      <div class="m-label">Historical<br>Accuracy</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-val" data-static="24/7">24/7</div>
+      <div class="m-label">Market<br>Coverage</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-val" data-count="3" data-suffix="+">0</div>
+      <div class="m-label">Signals<br>Daily</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-val" data-count="25" data-prefix="₹" data-suffix="L+">0</div>
+      <div class="m-label">Capital<br>Tracked</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Section 3: Dashboard Preview ══ -->
+<section class="sec dash-preview-section fade-up" id="dashboard-preview">
+  <div class="sec-title">
+    <span class="sec-label">
+      <svg width="5" height="5" viewBox="0 0 5 5"><circle cx="2.5" cy="2.5" r="2.5" fill="var(--gold)"/></svg>
+      Member Dashboard
+    </span>
+    <h2>Your Trading Command Centre</h2>
+    <p>Everything you need, beautifully organized in one place</p>
+  </div>
+  <div class="dash-window">
+    <!-- macOS window chrome -->
+    <div class="dash-chrome">
+      <div class="chrome-dots"><span></span><span></span><span></span></div>
+      <div class="chrome-url">stockboy.works/dashboard</div>
+      <div class="chrome-live"><span class="chrome-live-dot"></span> LIVE</div>
+    </div>
+    <!-- Dashboard body -->
+    <div class="dash-inner">
+      <div class="dash-header-bar">
+        <div class="dash-greeting">Welcome back, <span>Rahul</span> 👋</div>
+        <div class="dash-plan-pill">
+          <span class="plan-pill-dot"></span>
+          Gold Member · Active
+        </div>
+      </div>
+      <!-- KPI Cards -->
+      <div class="dash-kpi-row">
+        <div class="dash-kpi-card">
+          <div class="dkc-label">Active Signals</div>
+          <div class="dkc-val green">4</div>
+        </div>
+        <div class="dash-kpi-card">
+          <div class="dkc-label">Plan Status</div>
+          <div class="dkc-val gold">Active</div>
+        </div>
+        <div class="dash-kpi-card">
+          <div class="dkc-label">Days Remaining</div>
+          <div class="dkc-val white">18</div>
+        </div>
+      </div>
+      <!-- Signal list -->
+      <div class="dash-section-label">Today's Signals</div>
+      <div class="dash-sig-list">
+        <div class="dash-sig-row">
+          <span class="dsr-name">RELIANCE</span>
+          <span class="dsr-type buy">BUY</span>
+          <span class="dsr-price">₹1,450</span>
+          <span class="dsr-status active">Active</span>
+        </div>
+        <div class="dash-sig-row">
+          <span class="dsr-name">INFY</span>
+          <span class="dsr-type buy">BUY</span>
+          <span class="dsr-price">₹1,842</span>
+          <span class="dsr-status t1hit">T1 Hit ✓</span>
+        </div>
+        <div class="dash-sig-row">
+          <span class="dsr-name">TATAMOTORS</span>
+          <span class="dsr-type sell">SELL</span>
+          <span class="dsr-price">₹924</span>
+          <span class="dsr-status active">Active</span>
+        </div>
+        <div class="dash-sig-row">
+          <span class="dsr-name">HDFCBANK</span>
+          <span class="dsr-type buy">BUY</span>
+          <span class="dsr-price">₹1,710</span>
+          <span class="dsr-status closed">Closed ✓</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Membership Plans -->
 <section class="plans-section" id="plans">
   <div class="section-title fade-up">
@@ -573,6 +1792,93 @@
       {% endif %}
     </div>
     {% endfor %}
+  </div>
+</section>
+
+<!-- ══ Section 4: Testimonials ══ -->
+<section class="sec testi-section fade-up" id="testimonials">
+  <div class="sec-title">
+    <span class="sec-label">
+      <svg width="5" height="5" viewBox="0 0 5 5"><circle cx="2.5" cy="2.5" r="2.5" fill="var(--gold)"/></svg>
+      Member Stories
+    </span>
+    <h2>Traders Who Trust Stockboy</h2>
+    <p>Real results from verified members across India</p>
+  </div>
+  <div class="testi-slider-wrap">
+    <div class="testi-track" id="testiTrack">
+      <!-- Card 1 -->
+      <div class="testi-card-v2">
+        <div class="testi-card-top">
+          <div class="testi-author-row">
+            <div class="testi-av gold">AK</div>
+            <div>
+              <div class="testi-name">Arjun Kumar</div>
+              <div class="testi-city">Mumbai, Maharashtra</div>
+            </div>
+          </div>
+          <div class="verified-badge">
+            <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M5 0.5L6.2 3.6H9.5L6.9 5.5L7.9 8.6L5 6.7L2.1 8.6L3.1 5.5L0.5 3.6H3.8Z" fill="var(--success)"/></svg>
+            Verified
+          </div>
+        </div>
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote">&ldquo;Been using Stockboy for 4 months. The signals are precise — Entry, SL, and 3 targets every time. Target 1 hits almost always. Finally consistently profitable.&rdquo;</div>
+        <div class="testi-footer-row">
+          <span class="profit-badge">↑ +₹38,000 profit</span>
+          <span class="exp-label">3 yrs experience</span>
+        </div>
+      </div>
+      <!-- Card 2 -->
+      <div class="testi-card-v2">
+        <div class="testi-card-top">
+          <div class="testi-author-row">
+            <div class="testi-av blue">PS</div>
+            <div>
+              <div class="testi-name">Priya Sharma</div>
+              <div class="testi-city">Pune, Maharashtra</div>
+            </div>
+          </div>
+          <div class="verified-badge">
+            <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M5 0.5L6.2 3.6H9.5L6.9 5.5L7.9 8.6L5 6.7L2.1 8.6L3.1 5.5L0.5 3.6H3.8Z" fill="var(--success)"/></svg>
+            Verified
+          </div>
+        </div>
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote">&ldquo;As a beginner I was always confused about entry and exit. Stockboy's dashboard shows everything clearly. The stop loss discipline has saved me from big losses.&rdquo;</div>
+        <div class="testi-footer-row">
+          <span class="profit-badge">↑ +₹22,500 profit</span>
+          <span class="exp-label">1 yr experience</span>
+        </div>
+      </div>
+      <!-- Card 3 -->
+      <div class="testi-card-v2">
+        <div class="testi-card-top">
+          <div class="testi-author-row">
+            <div class="testi-av pink">RV</div>
+            <div>
+              <div class="testi-name">Rohan Verma</div>
+              <div class="testi-city">Bengaluru, Karnataka</div>
+            </div>
+          </div>
+          <div class="verified-badge">
+            <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M5 0.5L6.2 3.6H9.5L6.9 5.5L7.9 8.6L5 6.7L2.1 8.6L3.1 5.5L0.5 3.6H3.8Z" fill="var(--success)"/></svg>
+            Verified
+          </div>
+        </div>
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote">&ldquo;The 1:3 risk-reward on every signal is what sold me. Telegram groups give noise. Stockboy gives structure. Worth every rupee of the subscription.&rdquo;</div>
+        <div class="testi-footer-row">
+          <span class="profit-badge">↑ +₹61,000 profit</span>
+          <span class="exp-label">5 yrs experience</span>
+        </div>
+      </div>
+    </div><!-- /testi-track -->
+    <div class="testi-dots" id="testiDots">
+      <button class="testi-dot active" onclick="goToSlide(0)" aria-label="Slide 1"></button>
+      <button class="testi-dot" onclick="goToSlide(1)" aria-label="Slide 2"></button>
+      <button class="testi-dot" onclick="goToSlide(2)" aria-label="Slide 3"></button>
+    </div>
   </div>
 </section>
 
@@ -616,6 +1922,60 @@
   </div>
 </section>
 
+<!-- ══ Section 5: Why Stockboy ══ -->
+<section class="sec compare-section fade-up" id="why-stockboy">
+  <div class="sec-title">
+    <span class="sec-label">
+      <svg width="5" height="5" viewBox="0 0 5 5"><circle cx="2.5" cy="2.5" r="2.5" fill="var(--gold)"/></svg>
+      Why Stockboy
+    </span>
+    <h2>Stockboy vs Random Telegram Groups</h2>
+    <p>See why professional signals beat the noise every time</p>
+  </div>
+  <div class="compare-table-v2">
+    <div class="compare-head">
+      <div class="ch-feature">Feature</div>
+      <div class="ch-sb">⚡ Stockboy</div>
+      <div class="ch-tg">Telegram Groups</div>
+    </div>
+    <div class="compare-body-row">
+      <div class="cbr-feature">Precise Entry Price</div>
+      <div class="cbr-sb"><div class="check-icon">✓</div></div>
+      <div class="cbr-tg"><div class="cross-icon">✗</div></div>
+    </div>
+    <div class="compare-body-row">
+      <div class="cbr-feature">3 Target Levels</div>
+      <div class="cbr-sb"><div class="check-icon">✓</div></div>
+      <div class="cbr-tg"><div class="cross-icon">✗</div></div>
+    </div>
+    <div class="compare-body-row">
+      <div class="cbr-feature">Defined Stop Loss</div>
+      <div class="cbr-sb"><div class="check-icon">✓</div></div>
+      <div class="cbr-tg"><div class="cross-icon">✗</div></div>
+    </div>
+    <div class="compare-body-row">
+      <div class="cbr-feature">Risk Management</div>
+      <div class="cbr-sb"><div class="check-icon">✓</div></div>
+      <div class="cbr-tg"><div class="cross-icon">✗</div></div>
+    </div>
+    <div class="compare-body-row">
+      <div class="cbr-feature">Member Dashboard</div>
+      <div class="cbr-sb"><div class="check-icon">✓</div></div>
+      <div class="cbr-tg"><div class="cross-icon">✗</div></div>
+    </div>
+    <div class="compare-body-row">
+      <div class="cbr-feature">Professional Support</div>
+      <div class="cbr-sb"><div class="check-icon">✓</div></div>
+      <div class="cbr-tg"><div class="cross-icon">✗</div></div>
+    </div>
+    <div class="compare-body-row">
+      <div class="cbr-feature">Signal Status Tracking</div>
+      <div class="cbr-sb"><div class="check-icon">✓</div></div>
+      <div class="cbr-tg"><div class="cross-icon">✗</div></div>
+    </div>
+  </div>
+</section>
+
 <!-- How it works -->
 <section class="steps-section">
   <div class="section-title fade-up">
@@ -654,14 +2014,79 @@
   </div>
 </section>
 
-<!-- Trust Bar -->
-<div class="trust-bar fade-up">
-  <div class="trust-item">🔒 SSL Encrypted</div>
-  <div class="trust-item">✓ Razorpay Verified</div>
-  <div class="trust-item">⚡ Instant Access</div>
-  <div class="trust-item">💬 24/7 Support</div>
-  <div class="trust-item">🛡️ Secure Payments</div>
+<!-- ══ Section 6: Trust Section V2 ══ -->
+<div class="trust-section-v2 fade-up" id="trust">
+  <div class="trust-cards-grid">
+    <div class="trust-card-v2">
+      <div class="trust-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="trust-title-v2">Secure Payments</div>
+      <div class="trust-desc-v2">Powered by Razorpay. Bank-grade SSL encryption on every transaction.</div>
+    </div>
+    <div class="trust-card-v2">
+      <div class="trust-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="trust-title-v2">Instant Access</div>
+      <div class="trust-desc-v2">Dashboard unlocks immediately after payment. No delays, no manual approval.</div>
+    </div>
+    <div class="trust-card-v2">
+      <div class="trust-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <div class="trust-title-v2">Subscription Protection</div>
+      <div class="trust-desc-v2">Your plan is tracked and protected. Full access for the entire duration.</div>
+    </div>
+    <div class="trust-card-v2">
+      <div class="trust-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div class="trust-title-v2">Member Support</div>
+      <div class="trust-desc-v2">WhatsApp &amp; Telegram support. Average response under 5 minutes.</div>
+    </div>
+  </div>
 </div>
+
+<!-- ══ Section 7: Premium CTA ══ -->
+<section class="premium-cta-section fade-up" id="cta">
+  <div class="cta-inner-wrap">
+    <div class="cta-eyebrow-row">
+      <span class="cer-line"></span>
+      Ready to Start
+      <span class="cer-line"></span>
+    </div>
+    <h2 class="premium-cta-h">
+      Trade With <span class="cta-gold">Confidence.</span><br>
+      Not Guesswork.
+    </h2>
+    <p class="premium-cta-sub">
+      Join hundreds of traders using professional stock signals every day.
+      Entry price, targets, stop loss — all in one place.
+    </p>
+    <div class="premium-cta-btns">
+      {% if logged_in %}
+        {% if has_subscription %}
+        <a href="/dashboard" class="cta-main">
+          Open Dashboard
+          <svg viewBox="0 0 16 16" fill="currentColor" width="15" height="15"><path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z"/></svg>
+        </a>
+        {% else %}
+        <a href="#plans" class="cta-main">
+          Start Membership
+          <svg viewBox="0 0 16 16" fill="currentColor" width="15" height="15"><path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z"/></svg>
+        </a>
+        {% endif %}
+      {% else %}
+      <a href="/auth" class="cta-main">
+        Start Membership
+        <svg viewBox="0 0 16 16" fill="currentColor" width="15" height="15"><path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z"/></svg>
+      </a>
+      {% endif %}
+      <a href="#plans" class="cta-ghost">View Plans</a>
+    </div>
+  </div>
+</section>
 
 <!-- Disclaimer -->
 <div class="disclaimer fade-up">
@@ -691,16 +2116,16 @@
 <!-- Razorpay -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-/* Scroll reveal for sections below hero */
+/* ── Scroll reveal ── */
 const obs = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.style.animationPlayState = 'running'; });
-}, { threshold: 0.1 });
+}, { threshold: 0.08 });
 document.querySelectorAll('.fade-up').forEach(el => {
   el.style.animationPlayState = 'paused';
   obs.observe(el);
 });
 
-/* Smooth scroll for anchor links */
+/* ── Smooth scroll ── */
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
     e.preventDefault();
@@ -709,7 +2134,67 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 });
 
-/* Payment */
+/* ── Count-up animation (fires once on scroll-into-view) ── */
+function animateCount(el) {
+  const target = parseInt(el.dataset.count, 10);
+  const prefix = el.dataset.prefix || '';
+  const suffix = el.dataset.suffix || '';
+  if (!target || el.dataset.static) return;
+  const duration = 1800;
+  const t0 = performance.now();
+  (function step(now) {
+    const p = Math.min((now - t0) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = prefix + Math.floor(ease * target) + suffix;
+    if (p < 1) requestAnimationFrame(step);
+    else el.textContent = prefix + target + suffix;
+  })(performance.now());
+}
+const countObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !e.target.dataset.animated) {
+      e.target.dataset.animated = '1';
+      animateCount(e.target);
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('[data-count]').forEach(el => {
+  if (!el.dataset.static) el.textContent = (el.dataset.prefix || '') + '0' + (el.dataset.suffix || '');
+  countObs.observe(el);
+});
+
+/* ── Testimonial slider ── */
+let curSlide = 0;
+const track = document.getElementById('testiTrack');
+const dots  = document.querySelectorAll('.testi-dot');
+
+function goToSlide(i) {
+  curSlide = i;
+  if (track) {
+    track.style.transform = window.innerWidth <= 768
+      ? 'translateX(calc(-' + i * 100 + '% - ' + i + 'rem))'
+      : 'none';
+  }
+  dots.forEach((d, idx) => d.classList.toggle('active', idx === i));
+}
+
+let autoSl;
+function startAuto() {
+  if (window.innerWidth <= 768)
+    autoSl = setInterval(() => { curSlide = (curSlide + 1) % 3; goToSlide(curSlide); }, 4200);
+}
+function stopAuto() { clearInterval(autoSl); }
+
+startAuto();
+window.addEventListener('resize', () => { stopAuto(); goToSlide(0); startAuto(); });
+if (track) {
+  track.addEventListener('touchstart', stopAuto, { passive: true });
+  track.addEventListener('touchend',   startAuto, { passive: true });
+  track.addEventListener('mouseenter', stopAuto);
+  track.addEventListener('mouseleave', startAuto);
+}
+
+/* ── Payment ── */
 async function initiatePlanPayment(planSlug) {
   try {
     const res = await fetch('/create-payment-order', {

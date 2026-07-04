@@ -134,34 +134,46 @@
   <div id="tab-dashboard" class="tab-panel active">
     <div class="stats">
       <div class="stat">
-        <div class="label">Active Subscribers</div>
-        <div class="val green">{{ active_subs }}</div>
-      </div>
-      <div class="stat">
-        <div class="label">Total Revenue</div>
-        <div class="val gold">₹{{ "{:,.0f}".format(total_revenue) }}</div>
+        <div class="label">Today's Signals</div>
+        <div class="val gold">{{ todays_signals }}</div>
       </div>
       <div class="stat">
         <div class="label">Active Signals</div>
-        <div class="val gold">{{ active_signals_count }}</div>
+        <div class="val green">{{ active_signals_count }}</div>
       </div>
       <div class="stat">
-        <div class="label">Total Payments</div>
-        <div class="val gold">{{ payments|length }}</div>
+        <div class="label">Expired Signals</div>
+        <div class="val" style="color:var(--danger)">{{ expired_signals }}</div>
+      </div>
+      <div class="stat">
+        <div class="label">Subscribers</div>
+        <div class="val gold">{{ active_subs }}</div>
+      </div>
+      <div class="stat">
+        <div class="label">Monthly Revenue</div>
+        <div class="val gold">₹{{ "{:,.0f}".format(monthly_revenue) }}</div>
+      </div>
+      <div class="stat">
+        <div class="label">Pending Payments</div>
+        <div class="val" style="color:var(--warning)">{{ pending_payments }}</div>
+      </div>
+      <div class="stat">
+        <div class="label">Target Hits</div>
+        <div class="val green">{{ target_hits }}</div>
       </div>
     </div>
 
-    <!-- Recent Signals -->
-    <h3 style="font-size:1rem;color:var(--gold);margin-bottom:1rem;">Recent Signals</h3>
+    <!-- Latest Signals -->
+    <h3 style="font-size:1rem;color:var(--gold);margin-bottom:1rem;">Latest Signals</h3>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Stock</th><th>Type</th><th>Entry</th><th>Status</th><th>Date</th></tr></thead>
+        <thead><tr><th>Stock</th><th>Entry</th><th>SL</th><th>Status</th><th>Date</th></tr></thead>
         <tbody>
           {% for sig in signals[:5] %}
           <tr>
-            <td><strong>{{ sig.stockName }}</strong><br><span style="font-size:0.7rem;color:var(--muted)">{{ sig.exchange }}</span></td>
-            <td><span class="badge {{ 'badge-buy' if sig.signalType == 'BUY' else 'badge-sell' }}">{{ sig.signalType }}</span></td>
+            <td><strong>{{ sig.stockName }}</strong><br><span style="font-size:0.7rem;color:var(--muted)">{{ sig.duration|replace('_',' ') }}</span></td>
             <td>₹{{ "%.2f"|format(sig.entryPrice) }}</td>
+            <td style="color:var(--danger)">₹{{ "%.2f"|format(sig.stopLoss) }}</td>
             <td><span class="badge {% if sig.status == 'ACTIVE' %}badge-active{% elif 'HIT' in sig.status %}badge-gold{% else %}badge-closed{% endif %}">{{ sig.status|replace('_',' ') }}</span></td>
             <td style="font-size:0.75rem;color:var(--muted)">{{ sig.createdAt[:10] if sig.createdAt else '-' }}</td>
           </tr>
@@ -182,12 +194,11 @@
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Stock</th><th>Type</th><th>Entry</th><th>T1</th><th>T2</th><th>T3</th><th>SL</th><th>Status</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Stock</th><th>Entry</th><th>T1</th><th>T2</th><th>T3</th><th>SL</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody>
           {% for sig in signals %}
           <tr>
-            <td><strong>{{ sig.stockName }}</strong><br><span style="font-size:0.65rem;color:var(--muted)">{{ sig.stockSymbol }} · {{ sig.exchange }}</span></td>
-            <td><span class="badge {{ 'badge-buy' if sig.signalType == 'BUY' else 'badge-sell' }}">{{ sig.signalType }}</span></td>
+            <td><strong>{{ sig.stockName }}</strong><br><span style="font-size:0.65rem;color:var(--muted)">{{ sig.duration|replace('_',' ') }}</span></td>
             <td style="color:var(--gold)">₹{{ "%.0f"|format(sig.entryPrice) }}</td>
             <td style="color:var(--success)">₹{{ "%.0f"|format(sig.target1) }}</td>
             <td style="color:var(--success)">₹{{ "%.0f"|format(sig.target2) }}</td>
@@ -196,7 +207,7 @@
             <td>
               <form method="POST" action="/admin/signal/status/{{ sig.id }}" style="display:inline">
                 <select name="status" class="status-select" onchange="this.form.submit()">
-                  {% for st in ['ACTIVE','T1_HIT','T2_HIT','T3_HIT','SL_HIT','CLOSED'] %}
+                  {% for st in ['ACTIVE','T1_HIT','T2_HIT','T3_HIT','SL_HIT','EXPIRED','CLOSED'] %}
                   <option value="{{ st }}" {{ 'selected' if sig.status == st }}>{{ st|replace('_',' ') }}</option>
                   {% endfor %}
                 </select>
@@ -258,7 +269,7 @@
 
   <!-- Payments Tab -->
   <div id="tab-payments" class="tab-panel">
-    <h3 style="font-size:1rem;margin-bottom:1rem;">Payment History</h3>
+    <h3 style="font-size:1rem;margin-bottom:1rem;">Latest Payments</h3>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Payment ID</th><th>User</th><th>Plan</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
