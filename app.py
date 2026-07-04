@@ -189,6 +189,8 @@ try:
     import razorpay
     print("📦 Razorpay package imported successfully")
 except Exception as e:
+    import traceback
+    traceback.print_exc()
     print(f"❌ Razorpay import failed: {e}")
     razorpay = None
     razorpay_init_error = f"Razorpay package import failed: {str(e)}. Please ensure requirements.txt is up to date."
@@ -206,6 +208,8 @@ if razorpay:
             razorpay_client = razorpay.Client(auth=(key_id, key_secret))
             print("✅ Razorpay client initialized successfully")
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         razorpay_init_error = str(e)
         print(f"❌ Razorpay client init failed: {e}")
         razorpay_client = None
@@ -830,6 +834,7 @@ def create_payment_order():
     if not razorpay_client:
         if razorpay_init_error:
             print(f"⚠️ Payment error: {razorpay_init_error}")
+        print("❌ Razorpay client is not initialized. Cannot create payment order.")
         return jsonify({"error": "Payment system is temporarily unavailable. Please try again later."}), 500
 
     try:
@@ -875,6 +880,8 @@ def create_payment_order():
         })
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"❌ Error creating Razorpay order: {e}")
         return jsonify({"error": "Unable to initialize checkout. Please contact support if the issue persists."}), 500
 
@@ -950,6 +957,8 @@ def verify_payment():
             "redirect": url_for("dashboard")
         })
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"❌ Payment verification error: {e}")
         return jsonify({"error": "Payment verification failed. If your account was charged, please contact support."}), 500
 

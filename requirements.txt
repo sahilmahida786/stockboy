@@ -1,4 +1,4 @@
-setuptools>=70.0.0
+setuptools<70.0.0
 wheel
 razorpay==1.4.2
 Flask==3.0.0
