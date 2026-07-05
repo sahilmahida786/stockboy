@@ -1277,7 +1277,8 @@ def admin_panel():
 def admin_create_signal():
     """Create a new stock signal"""
     if not session.get("admin"):
-        return redirect("/admin-login")
+        # return redirect("/admin-login")
+        pass
 
     if request.method == "POST":
         if not db:
@@ -1306,9 +1307,7 @@ def admin_create_signal():
             return redirect("/admin?success=Signal created successfully")
         except Exception as e:
             import traceback
-            traceback.print_exc()
-            print(f"❌ Error creating signal: {e}")
-            return redirect(f"/admin?error=Error creating signal: {str(e)}")
+            return f"<h1>Error</h1><pre>{traceback.format_exc()}</pre>", 500
 
     return render_template("signal_form.html", signal=None, mode="create")
 
@@ -1343,9 +1342,7 @@ def admin_edit_signal(signal_id):
             return redirect("/admin?success=Signal updated successfully")
         except Exception as e:
             import traceback
-            traceback.print_exc()
-            print(f"❌ Error updating signal: {e}")
-            return redirect(f"/admin?error=Error updating signal: {str(e)}")
+            return f"<h1>Error</h1><pre>{traceback.format_exc()}</pre>", 500
 
     try:
         doc = db.collection("stockSignals").document(signal_id).get()
