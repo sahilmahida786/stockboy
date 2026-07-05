@@ -767,6 +767,7 @@ def dashboard():
     if not check_subscription_active(uid):
         return redirect(url_for("plans_page"))
         
+    plan = user.get("plan", "none")
     all_signals = get_active_signals()
     active_signals = [s for s in all_signals if s.get("status") not in ["Expired", "EXPIRED", "Closed", "CLOSED", "Cancelled", "CANCELLED"]]
     
