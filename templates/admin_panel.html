@@ -165,11 +165,11 @@
         <tbody>
           {% for sig in signals %}
           <tr>
-            <td><span class="badge {{ 'badge-intraday' if sig.category == 'Intraday' else 'badge-fno' }}">{{ sig.category }}</span></td>
-            <td><strong>{{ sig.stockName }}</strong><br><span style="font-size:0.65rem;color:var(--muted)">{{ sig.duration|replace('_',' ') }}</span></td>
-            <td><span class="badge {{ 'badge-buy' if sig.recommendation == 'BUY' else 'badge-sell' }}">{{ sig.recommendation }}</span></td>
-            <td>₹{{ "%.2f"|format(sig.currentPrice) }}</td>
-            <td style="color:var(--success)">₹{{ "%.2f"|format(sig.targetPrice) }}</td>
+            <td><span class="badge {{ 'badge-intraday' if sig.category == 'Intraday' else 'badge-fno' }}">{{ sig.get("category", "Intraday") }}</span></td>
+            <td><strong>{{ sig.stockName }}</strong><br><span style="font-size:0.65rem;color:var(--muted)">{{ sig.get("duration", "")|replace("_"," ") }}</span></td>
+            <td><span class="badge {{ 'badge-buy' if sig.recommendation == 'BUY' else 'badge-sell' }}">{{ sig.get("recommendation", "BUY") }}</span></td>
+            <td>₹{{ "%.2f"|format(sig.get("currentPrice", sig.get("entryPrice", 0))|float) }}</td>
+            <td style="color:var(--success)">₹{{ "%.2f"|format(sig.get("targetPrice", sig.get("target1", 0))|float) }}</td>
             <td>
               <form method="POST" action="/admin/signal/status/{{ sig.id }}" style="display:inline">
                 <select name="status" class="status-select" onchange="this.form.submit()">

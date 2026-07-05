@@ -165,13 +165,13 @@
         <div class="card-top">
           <div>
             <div class="stock-name">{{ sig.stockName }}</div>
-            <div class="stock-price">CMP ₹{{ "%.2f"|format(sig.currentPrice|float) }}</div>
+            <div class="stock-price">CMP ₹{{ "%.2f"|format(sig.get("currentPrice", sig.get("entryPrice", 0))|float) }}</div>
           </div>
-          <span class="rec-badge {{ 'buy' if sig.recommendation == 'BUY' else 'sell' }}">{{ sig.recommendation }}</span>
+          <span class="rec-badge {{ 'buy' if sig.recommendation == 'BUY' else 'sell' }}">{{ sig.get("recommendation", "BUY") }}</span>
         </div>
         <div class="target-box">
           <span class="target-lbl">Target Price</span>
-          <span class="target-val">₹{{ "%.2f"|format(sig.targetPrice|float) }}</span>
+          <span class="target-val">₹{{ "%.2f"|format(sig.get("targetPrice", sig.get("target1", 0))|float) }}</span>
         </div>
         <div class="card-tags">
           <span class="tag active-status">● {{ sig.status }}</span>
@@ -202,13 +202,13 @@
         <div class="card-top">
           <div>
             <div class="stock-name">{{ sig.stockName }}</div>
-            <div class="stock-price">CMP ₹{{ "%.2f"|format(sig.currentPrice|float) }}</div>
+            <div class="stock-price">CMP ₹{{ "%.2f"|format(sig.get("currentPrice", sig.get("entryPrice", 0))|float) }}</div>
           </div>
-          <span class="rec-badge {{ 'buy' if sig.recommendation == 'BUY' else 'sell' }}">{{ sig.recommendation }}</span>
+          <span class="rec-badge {{ 'buy' if sig.recommendation == 'BUY' else 'sell' }}">{{ sig.get("recommendation", "BUY") }}</span>
         </div>
         <div class="target-box">
           <span class="target-lbl">Target Price</span>
-          <span class="target-val">₹{{ "%.2f"|format(sig.targetPrice|float) }}</span>
+          <span class="target-val">₹{{ "%.2f"|format(sig.get("targetPrice", sig.get("target1", 0))|float) }}</span>
         </div>
         <div class="card-tags">
           <span class="tag active-status">● {{ sig.status }}</span>
@@ -239,13 +239,13 @@
         <div class="card-top">
           <div>
             <div class="stock-name">{{ sig.stockName }}</div>
-            <div class="stock-price">{{ sig.category }} • {{ sig.recommendation }}</div>
+            <div class="stock-price">{{ sig.category }} • {{ sig.get("recommendation", "BUY") }}</div>
           </div>
           <span class="tag" style="background:var(--border);">{{ sig.status }}</span>
         </div>
         <div class="target-box">
           <span class="target-lbl">Target Price</span>
-          <span class="target-val" style="color:var(--text)">₹{{ "%.2f"|format(sig.targetPrice|float) }}</span>
+          <span class="target-val" style="color:var(--text)">₹{{ "%.2f"|format(sig.get("targetPrice", sig.get("target1", 0))|float) }}</span>
         </div>
         <div class="card-tags">
           <span class="tag">{{ sig.createdAt[:10] if sig.createdAt else '-' }}</span>
@@ -308,13 +308,13 @@ function switchTab(name) {
 
 function openModal(sig) {
   document.getElementById('mStock').innerText = sig.stockName;
-  document.getElementById('mCurrent').innerText = 'CMP: ₹' + parseFloat(sig.currentPrice).toFixed(2);
+  document.getElementById('mCurrent').innerText = 'CMP: ₹' + parseFloat(sig.currentPrice || sig.entryPrice || 0).toFixed(2);
   
   const mAction = document.getElementById('mAction');
   mAction.innerText = sig.recommendation;
-  mAction.style.color = sig.recommendation === 'BUY' ? 'var(--success)' : 'var(--danger)';
+  mAction.style.color = (sig.recommendation || "BUY") === "BUY" ? 'var(--success)' : 'var(--danger)';
   
-  document.getElementById('mTarget').innerText = '₹' + parseFloat(sig.targetPrice).toFixed(2);
+  document.getElementById('mTarget').innerText = '₹' + parseFloat(sig.targetPrice || sig.target1 || 0).toFixed(2);
   
   let timeStr = 'N/A';
   if(sig.createdAt) {
