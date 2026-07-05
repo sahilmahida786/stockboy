@@ -4,30 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Premium Dashboard – Stockboy</title>
-<meta name="description" content="Access your premium stock signals dashboard. View active signals, targets, stop-loss levels, and real-time status updates." />
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #081821; --card: #102530; --card-hover: #153040;
-    --gold: #FFD54A; --gold-dim: rgba(255,213,74,0.15);
-    --text: #FFFFFF; --muted: #8a9bb0;
-    --success: #00C853; --warning: #FFC107; --danger: #FF5252;
-    --border: rgba(255,255,255,0.08);
-    --buy: #00C853; --sell: #FF5252;
+    --bg: #09090b; --card: #18181b; --card-hover: #27272a;
+    --gold: #eab308; --gold-dim: rgba(234, 179, 8, 0.15);
+    --text: #f8fafc; --muted: #94a3b8;
+    --success: #22c55e; --danger: #ef4444;
+    --border: #27272a;
   }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--bg); color:var(--text); font-family:'Poppins',sans-serif; min-height:100vh; }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+  body { background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
 
   @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-  .fade-in { animation: fadeUp 0.5s ease forwards; opacity:0; }
+  .fade-in { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity:0; }
 
   /* Navbar */
-  .nav { position:sticky; top:0; z-index:50; background:rgba(8,24,33,0.9); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); padding:0.75rem 1.5rem; display:flex; align-items:center; justify-content:space-between; }
+  .nav { position:sticky; top:0; z-index:50; background:rgba(9, 9, 11, 0.85); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; }
   .nav-left { display:flex; align-items:center; gap:0.75rem; }
-  .nav-left img { width:40px; height:40px; border-radius:50%; border:2px solid var(--gold); }
-  .nav-left h1 { font-size:1.15rem; font-weight:700; color:var(--gold); }
-  .nav-right { display:flex; align-items:center; gap:1rem; }
+  .nav-left img { width:36px; height:36px; border-radius:50%; }
+  .nav-left h1 { font-size:1.25rem; font-weight:700; background:linear-gradient(90deg, #fff, #a1a1aa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
   .nav-right .user { text-align:right; }
   .nav-right .user .name { font-size:0.85rem; color:var(--muted); }
   .nav-right .user .name span { color:var(--gold); font-weight:600; }
@@ -35,91 +32,97 @@
   .nav-right .user a:hover { color:var(--danger); }
 
   /* Subscription Bar */
-  .sub-bar { background:var(--card); border-bottom:1px solid var(--border); padding:0.75rem 1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; }
-  .sub-badge { display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.9rem; border-radius:2rem; font-size:0.75rem; font-weight:600; }
-  .sub-active { background:rgba(0,200,83,0.15); color:var(--success); border:1px solid rgba(0,200,83,0.3); }
+  .sub-bar { background:rgba(234, 179, 8, 0.05); border-bottom:1px solid var(--border); padding:0.75rem 1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; }
+  .sub-badge { display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.9rem; border-radius:2rem; font-size:0.75rem; font-weight:600; background:rgba(34,197,94,0.15); color:var(--success); border:1px solid rgba(34,197,94,0.3); }
   .sub-plan { color:var(--gold); font-size:0.85rem; font-weight:600; }
   .sub-expiry { color:var(--muted); font-size:0.8rem; }
 
-  /* Main content */
   .main { max-width:1200px; margin:0 auto; padding:2rem 1.5rem; }
 
-  /* Stats */
-  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin-bottom:2rem; }
-  .stat-card { background:var(--card); border:1px solid var(--border); border-radius:1rem; padding:1.25rem; }
-  .stat-card .label { font-size:0.75rem; color:var(--muted); margin-bottom:0.25rem; text-transform:uppercase; letter-spacing:0.05em; }
-  .stat-card .value { font-size:1.75rem; font-weight:800; }
-  .stat-card .value.gold { color:var(--gold); }
-  .stat-card .value.green { color:var(--success); }
+  /* Premium Tabs */
+  .tabs-wrapper { display:flex; justify-content:center; margin-bottom:3rem; }
+  .tabs { display:flex; background:var(--card); padding:0.4rem; border-radius:3rem; border:1px solid var(--border); box-shadow:0 10px 30px rgba(0,0,0,0.5); }
+  .tab { padding:0.75rem 2.5rem; font-size:0.9rem; font-weight:600; color:var(--muted); cursor:pointer; border-radius:2.5rem; transition:all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+  .tab:hover { color:var(--text); }
+  .tab.active { background:var(--border); color:var(--text); box-shadow:0 4px 15px rgba(0,0,0,0.3); }
 
-  /* Section header */
-  .sec-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; }
-  .sec-header h2 { font-size:1.25rem; font-weight:700; display:flex; align-items:center; gap:0.5rem; }
-  .sec-header .count { font-size:0.8rem; color:var(--muted); background:var(--card); padding:0.2rem 0.6rem; border-radius:1rem; border:1px solid var(--border); }
+  .tab-panel { display:none; animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .tab-panel.active { display:block; }
 
-  /* Signal cards */
-  .signals-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:1rem; margin-bottom:3rem; }
+  /* Signal Cards */
+  .signals-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:1.5rem; }
   .signal-card {
-    background:var(--card); border:1px solid var(--border); border-radius:1rem; padding:1.5rem;
-    transition:all 0.3s; position:relative; overflow:hidden;
+    background:rgba(24,24,27,0.6); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.05); border-radius:20px; padding:1.75rem;
+    cursor:pointer; transition:all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position:relative; overflow:hidden;
   }
-  .signal-card:hover { border-color:rgba(255,255,255,0.15); transform:translateY(-3px); box-shadow:0 10px 40px rgba(0,0,0,0.2); }
-  .signal-card.buy { border-left:3px solid var(--buy); }
-  .signal-card.sell { border-left:3px solid var(--sell); }
+  .signal-card::before {
+    content:''; position:absolute; inset:0; border-radius:20px; padding:1px;
+    background:linear-gradient(45deg, rgba(255,255,255,0.1), transparent, rgba(255,255,255,0.02));
+    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask-composite:exclude;
+    opacity:0; transition:opacity 0.4s;
+  }
+  .signal-card:hover { transform:translateY(-5px) scale(1.02); box-shadow:0 20px 40px rgba(0,0,0,0.4); background:var(--card); }
+  .signal-card:hover::before { opacity:1; }
 
-  .signal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
-  .signal-type { display:inline-flex; align-items:center; gap:0.3rem; padding:0.25rem 0.7rem; border-radius:0.4rem; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; }
-  .signal-type.buy { background:rgba(0,200,83,0.15); color:var(--buy); }
-  .signal-type.sell { background:rgba(255,82,82,0.15); color:var(--sell); }
-  .signal-exchange { font-size:0.7rem; color:var(--muted); background:rgba(255,255,255,0.05); padding:0.2rem 0.5rem; border-radius:0.3rem; }
+  /* Glow Borders based on Buy/Sell */
+  .signal-card.buy:hover { box-shadow:0 20px 40px rgba(34,197,94,0.1); border-color:rgba(34,197,94,0.3); }
+  .signal-card.sell:hover { box-shadow:0 20px 40px rgba(239,68,68,0.1); border-color:rgba(239,68,68,0.3); }
 
-  .signal-name { font-size:1.35rem; font-weight:700; margin-bottom:0.15rem; }
-  .signal-symbol { font-size:0.8rem; color:var(--muted); margin-bottom:1rem; }
+  .card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; }
+  .stock-name { font-size:1.75rem; font-weight:800; letter-spacing:-0.03em; line-height:1; }
+  .stock-price { font-size:1rem; color:var(--muted); margin-top:0.3rem; font-weight:500; }
+  
+  .rec-badge { display:inline-flex; align-items:center; gap:0.4rem; padding:0.4rem 1rem; border-radius:2rem; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; }
+  .rec-badge.buy { background:rgba(34,197,94,0.15); color:var(--success); border:1px solid rgba(34,197,94,0.3); }
+  .rec-badge.sell { background:rgba(239,68,68,0.15); color:var(--danger); border:1px solid rgba(239,68,68,0.3); }
+  
+  .target-box { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:1rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; }
+  .target-lbl { font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; }
+  .target-val { font-size:1.25rem; font-weight:700; color:var(--gold); }
+  
+  .card-tags { display:flex; gap:0.5rem; flex-wrap:wrap; }
+  .tag { padding:0.3rem 0.8rem; background:rgba(255,255,255,0.05); border-radius:2rem; font-size:0.7rem; color:var(--muted); font-weight:600; display:flex; align-items:center; gap:0.3rem; }
+  .tag.active-status { background:rgba(34,197,94,0.1); color:var(--success); }
 
-  .signal-prices { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:1rem; }
-  .price-row { display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.75rem; background:rgba(255,255,255,0.03); border-radius:0.5rem; border:1px solid rgba(255,255,255,0.04); }
-  .price-row.entry { grid-column:1/-1; background:rgba(255,213,74,0.06); border-color:rgba(255,213,74,0.1); }
-  .price-row .lbl { font-size:0.7rem; color:var(--muted); }
-  .price-row .val { font-size:0.9rem; font-weight:600; }
-  .price-row .val.gold { color:var(--gold); }
-  .price-row .val.green { color:var(--success); }
-  .price-row .val.red { color:var(--danger); }
-
-  .signal-meta { display:flex; justify-content:space-between; align-items:center; padding-top:0.75rem; border-top:1px solid var(--border); }
-  .meta-item { font-size:0.7rem; color:var(--muted); }
-  .status-badge { display:inline-flex; align-items:center; gap:0.3rem; padding:0.2rem 0.6rem; border-radius:1rem; font-size:0.65rem; font-weight:600; }
-  .status-active { background:rgba(0,200,83,0.15); color:var(--success); }
-  .status-active::before { content:''; width:6px; height:6px; background:var(--success); border-radius:50%; animation:pulse 2s infinite; }
-  .status-t1 { background:rgba(255,213,74,0.15); color:var(--gold); }
-  .status-t2 { background:rgba(255,193,7,0.15); color:var(--warning); }
-  .status-t3 { background:rgba(0,200,83,0.2); color:var(--success); }
-  .status-sl { background:rgba(255,82,82,0.15); color:var(--danger); }
-  .status-closed { background:rgba(138,155,176,0.15); color:var(--muted); }
+  /* Sparkline mockup */
+  .sparkline { height:30px; width:100%; margin-top:1rem; opacity:0.5; transition:opacity 0.3s; }
+  .signal-card:hover .sparkline { opacity:1; }
 
   /* Empty state */
-  .empty { text-align:center; padding:4rem 1rem; }
-  .empty svg { width:64px; height:64px; color:rgba(138,155,176,0.3); margin-bottom:1rem; }
-  .empty h3 { font-size:1.1rem; color:var(--muted); margin-bottom:0.5rem; }
-  .empty p { font-size:0.85rem; color:rgba(138,155,176,0.6); }
+  .empty { text-align:center; padding:5rem 1rem; }
+  .empty svg { width:80px; height:80px; color:rgba(255,255,255,0.05); margin-bottom:1.5rem; }
+  .empty h3 { font-size:1.25rem; font-weight:600; margin-bottom:0.5rem; color:var(--muted); }
 
-  /* Closed signals */
-  .closed-section { opacity:0.7; }
-  .closed-section:hover { opacity:1; }
-
-  /* Footer */
-  .dash-footer { text-align:center; padding:2rem; font-size:0.75rem; color:rgba(138,155,176,0.4); border-top:1px solid var(--border); margin-top:2rem; }
+  /* Modal */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); z-index:100; display:none; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s; }
+  .modal-overlay.show { display:flex; opacity:1; }
+  .modal-content { background:var(--card); border:1px solid var(--border); border-radius:24px; width:100%; max-width:500px; padding:2rem; transform:scale(0.95) translateY(20px); transition:all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); }
+  .modal-overlay.show .modal-content { transform:scale(1) translateY(0); }
+  .modal-close { float:right; background:none; border:none; color:var(--muted); font-size:1.5rem; cursor:pointer; line-height:1; }
+  .modal-close:hover { color:var(--text); }
+  
+  .m-title { font-size:2rem; font-weight:800; margin-bottom:0.25rem; letter-spacing:-0.03em; }
+  .m-price { font-size:1.1rem; color:var(--muted); margin-bottom:2rem; }
+  
+  .m-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem; }
+  .m-box { background:var(--bg); border:1px solid var(--border); border-radius:16px; padding:1.25rem; text-align:center; }
+  .m-box .lbl { font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem; }
+  .m-box .val { font-size:1.35rem; font-weight:700; }
+  
+  .m-timeline { border-left:2px solid var(--border); margin-left:1rem; padding-left:1.5rem; position:relative; margin-bottom:2rem; }
+  .m-event { margin-bottom:1rem; position:relative; }
+  .m-event::before { content:''; position:absolute; left:-1.8rem; top:0.25rem; width:10px; height:10px; background:var(--gold); border-radius:50%; box-shadow:0 0 10px var(--gold); }
+  .m-event .e-time { font-size:0.75rem; color:var(--muted); }
+  .m-event .e-text { font-size:0.9rem; font-weight:600; margin-top:0.2rem; }
 
   @media (max-width:768px) {
     .signals-grid { grid-template-columns:1fr; }
-    .stats { grid-template-columns:repeat(2,1fr); }
-    .signal-prices { grid-template-columns:1fr; }
-    .sub-bar { flex-direction:column; align-items:flex-start; }
+    .tab { padding:0.75rem 1.5rem; }
   }
 </style>
 </head>
 <body>
 
-<!-- Navbar -->
 <nav class="nav">
   <div class="nav-left">
     <img src="{{ url_for('static', filename='logo.png') }}" alt="logo">
@@ -133,184 +136,204 @@
   </div>
 </nav>
 
-<!-- Subscription Bar -->
 <div class="sub-bar fade-in">
   <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
-    <span class="sub-badge sub-active">● Active Subscription</span>
+    <span class="sub-badge">● Active Subscription</span>
     <span class="sub-plan">{{ plans.get(plan, {}).get('name', plan|title) if plans else plan|title }}</span>
   </div>
   <span class="sub-expiry">
-    {% if plan == 'lifetime' %}
-    Never expires — Lifetime access
-    {% elif expiry %}
-    Expires: {{ expiry[:10] if expiry is string else expiry }}
-    {% endif %}
+    {% if plan == 'lifetime' %}Lifetime Access{% elif expiry %}Expires: {{ expiry[:10] if expiry is string else expiry }}{% endif %}
   </span>
 </div>
 
-<!-- Main -->
 <div class="main">
 
-  <!-- Stats -->
-  <div class="stats fade-in" style="animation-delay:0.1s">
-    <div class="stat-card">
-      <div class="label">Total Signals</div>
-      <div class="value gold">{{ total_signals }}</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Active Signals</div>
-      <div class="value green">{{ active_signals|length }}</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Targets Hit</div>
-      <div class="value gold">{{ closed_signals|selectattr('status','equalto','T3_HIT')|list|length + closed_signals|selectattr('status','equalto','T2_HIT')|list|length + closed_signals|selectattr('status','equalto','T1_HIT')|list|length }}</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Your Plan</div>
-      <div class="value gold" style="font-size:1.1rem;">{{ plans.get(plan, {}).get('name', plan|title) if plans else plan|title }}</div>
+  <div class="tabs-wrapper fade-in" style="animation-delay:0.1s">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('intraday')">Today's Intraday</div>
+      <div class="tab" onclick="switchTab('fno')">Active F&O</div>
+      <div class="tab" onclick="switchTab('history')">History</div>
     </div>
   </div>
 
-  <!-- Notifications -->
-  {% if notifications %}
-  <div class="fade-in" style="animation-delay:0.15s; margin-bottom: 2rem;">
-    <div style="background:var(--card); border:1px solid var(--border); border-radius:1rem; padding:1rem 1.25rem;">
-      <h3 style="font-size:0.9rem; color:var(--gold); margin-bottom:0.75rem; display:flex; align-items:center; gap:0.5rem;">
-        🔔 Recent Notifications
-      </h3>
-      <div style="display:flex; flex-direction:column; gap:0.5rem;">
-        {% for notif in notifications %}
-        <div style="font-size:0.8rem; background:rgba(255,255,255,0.03); padding:0.6rem 1rem; border-radius:0.5rem; border-left:2px solid var(--gold);">
-          {{ notif.message }}
-          <span style="display:block; font-size:0.65rem; color:var(--muted); margin-top:0.2rem;">{{ notif.createdAt[:10] }}</span>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-  {% endif %}
-
-  <!-- Active Signals -->
-  <div class="sec-header fade-in" style="animation-delay:0.2s">
-    <h2>📡 Active Signals</h2>
-    <span class="count">{{ active_signals|length }} signals</span>
-  </div>
-
-  {% if active_signals %}
-  <div class="signals-grid">
-    {% for signal in active_signals %}
-    <div class="signal-card {{ 'buy' if signal.signalType == 'BUY' else 'sell' }} fade-in" style="animation-delay:{{ loop.index * 0.08 }}s">
-      <div class="signal-header">
-        <div style="display:flex;gap:0.5rem;align-items:center;">
-          <span class="signal-type buy">
-            ▲ BUY
-          </span>
-        </div>
-        <span class="status-badge
-          {% if signal.status == 'ACTIVE' %}status-active
-          {% elif signal.status == 'T1_HIT' %}status-t1
-          {% elif signal.status == 'T2_HIT' %}status-t2
-          {% elif signal.status == 'T3_HIT' %}status-t3
-          {% elif signal.status == 'SL_HIT' %}status-sl
-          {% else %}status-closed{% endif %}">
-          {{ signal.status|replace('_',' ') }}
-        </span>
-      </div>
-
-      <div class="signal-name">{{ signal.stockName }}</div>
-      <div class="signal-symbol">{{ signal.stockSymbol }}</div>
-
-      <div class="signal-prices">
-        <div class="price-row entry">
-          <span class="lbl">Entry Price</span>
-          <span class="val gold">₹{{ "%.2f"|format(signal.entryPrice) }}</span>
-        </div>
-        {% if signal.target1 and signal.target1 > 0 %}
-        <div class="price-row">
-          <span class="lbl">Target 1</span>
-          <span class="val green">₹{{ "%.2f"|format(signal.target1) }}</span>
-        </div>
-        {% endif %}
-        {% if signal.target2 and signal.target2 > 0 %}
-        <div class="price-row">
-          <span class="lbl">Target 2</span>
-          <span class="val green">₹{{ "%.2f"|format(signal.target2) }}</span>
-        </div>
-        {% endif %}
-        {% if signal.target3 and signal.target3 > 0 %}
-        <div class="price-row">
-          <span class="lbl">Target 3</span>
-          <span class="val green">₹{{ "%.2f"|format(signal.target3) }}</span>
-        </div>
-        {% endif %}
-        <div class="price-row">
-          <span class="lbl">Stop Loss</span>
-          <span class="val red">₹{{ "%.2f"|format(signal.stopLoss) }}</span>
-        </div>
-      </div>
-
-      <div class="signal-meta">
-        <span class="meta-item">⏱ {{ signal.duration|replace('_',' ') if signal.duration else 'N/A' }}</span>
-        <span class="meta-item">{{ signal.createdAt[:10] if signal.createdAt else '' }}</span>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="empty fade-in">
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-    <h3>No Active Signals</h3>
-    <p>New signals will appear here when our team identifies market opportunities.</p>
-  </div>
-  {% endif %}
-
-  <!-- Closed Signals -->
-  {% if closed_signals %}
-  <div class="closed-section">
-    <div class="sec-header fade-in">
-      <h2>📋 Closed Signals</h2>
-      <span class="count">{{ closed_signals|length }} signals</span>
-    </div>
+  <!-- Intraday Panel -->
+  <div id="panel-intraday" class="tab-panel active">
+    {% if intraday_signals %}
     <div class="signals-grid">
-      {% for signal in closed_signals[:6] %}
-      <div class="signal-card {{ 'buy' if signal.signalType == 'BUY' else 'sell' }} fade-in" style="opacity:0.7">
-        <div class="signal-header">
-          <div style="display:flex;gap:0.5rem;align-items:center;">
-            <span class="signal-type buy">
-              ▲ BUY
-            </span>
+      {% for sig in intraday_signals %}
+      <div class="signal-card {{ 'buy' if sig.recommendation == 'BUY' else 'sell' }} fade-in" style="animation-delay:{{ loop.index * 0.1 }}s" onclick='openModal({{ sig|tojson|safe }})'>
+        <div class="card-top">
+          <div>
+            <div class="stock-name">{{ sig.stockName }}</div>
+            <div class="stock-price">CMP ₹{{ "%.2f"|format(sig.currentPrice|float) }}</div>
           </div>
-          <span class="status-badge
-            {% if signal.status == 'T3_HIT' %}status-t3
-            {% elif signal.status == 'SL_HIT' %}status-sl
-            {% else %}status-closed{% endif %}">
-            {{ signal.status|replace('_',' ') }}
-          </span>
+          <span class="rec-badge {{ 'buy' if sig.recommendation == 'BUY' else 'sell' }}">{{ sig.recommendation }}</span>
         </div>
-        <div class="signal-name">{{ signal.stockName }}</div>
-        <div class="signal-prices" style="grid-template-columns:1fr 1fr 1fr;">
-          <div class="price-row"><span class="lbl">Entry</span><span class="val gold">₹{{ "%.2f"|format(signal.entryPrice) }}</span></div>
-          {% if signal.target1 and signal.target1 > 0 %}
-          <div class="price-row"><span class="lbl">Target 1</span><span class="val green">₹{{ "%.2f"|format(signal.target1) }}</span></div>
-          {% endif %}
-          <div class="price-row"><span class="lbl">SL</span><span class="val red">₹{{ "%.2f"|format(signal.stopLoss) }}</span></div>
+        <div class="target-box">
+          <span class="target-lbl">Target Price</span>
+          <span class="target-val">₹{{ "%.2f"|format(sig.targetPrice|float) }}</span>
         </div>
-        <div class="signal-meta">
-          <span class="meta-item">{{ signal.createdAt[:10] if signal.createdAt else '' }}</span>
+        <div class="card-tags">
+          <span class="tag active-status">● {{ sig.status }}</span>
+          <span class="tag">⏱ {{ sig.duration }}</span>
+          <span class="tag">🔥 {{ sig.confidence }}</span>
+        </div>
+        <svg class="sparkline" preserveAspectRatio="none" viewBox="0 0 100 20">
+          <path d="M0,20 L20,15 L40,18 L60,5 L80,10 L100,2" fill="none" stroke="{% if sig.recommendation == 'BUY' %}#22c55e{% else %}#ef4444{% endif %}" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty fade-in">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <h3>No Intraday Signals Today</h3>
+      <p>Market is quiet. We only push signals with high confidence setups.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- F&O Panel -->
+  <div id="panel-fno" class="tab-panel">
+    {% if fno_signals %}
+    <div class="signals-grid">
+      {% for sig in fno_signals %}
+      <div class="signal-card {{ 'buy' if sig.recommendation == 'BUY' else 'sell' }} fade-in" style="animation-delay:{{ loop.index * 0.1 }}s" onclick='openModal({{ sig|tojson|safe }})'>
+        <div class="card-top">
+          <div>
+            <div class="stock-name">{{ sig.stockName }}</div>
+            <div class="stock-price">CMP ₹{{ "%.2f"|format(sig.currentPrice|float) }}</div>
+          </div>
+          <span class="rec-badge {{ 'buy' if sig.recommendation == 'BUY' else 'sell' }}">{{ sig.recommendation }}</span>
+        </div>
+        <div class="target-box">
+          <span class="target-lbl">Target Price</span>
+          <span class="target-val">₹{{ "%.2f"|format(sig.targetPrice|float) }}</span>
+        </div>
+        <div class="card-tags">
+          <span class="tag active-status">● {{ sig.status }}</span>
+          <span class="tag">⏱ {{ sig.duration }}</span>
+          <span class="tag">⚡ F&O</span>
+        </div>
+        <svg class="sparkline" preserveAspectRatio="none" viewBox="0 0 100 20">
+          <path d="M0,20 L20,15 L40,18 L60,5 L80,10 L100,2" fill="none" stroke="{% if sig.recommendation == 'BUY' %}#22c55e{% else %}#ef4444{% endif %}" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty fade-in">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+      <h3>No Active F&O Signals</h3>
+      <p>Waiting for the perfect swing or positional opportunity.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- History Panel -->
+  <div id="panel-history" class="tab-panel">
+    {% if closed_signals %}
+    <div class="signals-grid">
+      {% for sig in closed_signals[:6] %}
+      <div class="signal-card fade-in" style="opacity:0.7" onclick='openModal({{ sig|tojson|safe }})'>
+        <div class="card-top">
+          <div>
+            <div class="stock-name">{{ sig.stockName }}</div>
+            <div class="stock-price">{{ sig.category }} • {{ sig.recommendation }}</div>
+          </div>
+          <span class="tag" style="background:var(--border);">{{ sig.status }}</span>
+        </div>
+        <div class="target-box">
+          <span class="target-lbl">Target Price</span>
+          <span class="target-val" style="color:var(--text)">₹{{ "%.2f"|format(sig.targetPrice|float) }}</span>
+        </div>
+        <div class="card-tags">
+          <span class="tag">{{ sig.createdAt[:10] if sig.createdAt else '-' }}</span>
         </div>
       </div>
       {% endfor %}
     </div>
+    {% else %}
+    <div class="empty fade-in">
+      <h3>No History</h3>
+    </div>
+    {% endif %}
   </div>
-  {% endif %}
 
 </div>
 
-<!-- Footer -->
-<footer class="dash-footer">
-  <p><strong>Disclaimer:</strong> Stock market investments are subject to market risks. Signals are for educational and informational purposes only. Not SEBI registered.</p>
-  <p style="margin-top:0.5rem;">© 2025 Stockboy Premium • All Rights Reserved</p>
+<!-- Details Modal -->
+<div class="modal-overlay" id="detailModal" onclick="closeModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal(event)">&times;</button>
+    <div class="m-title" id="mStock">RELIANCE</div>
+    <div class="m-price" id="mCurrent">CMP: ₹1524.30</div>
+    
+    <div class="m-grid">
+      <div class="m-box">
+        <div class="lbl">Action</div>
+        <div class="val" id="mAction" style="color:var(--success)">BUY</div>
+      </div>
+      <div class="m-box">
+        <div class="lbl">Target</div>
+        <div class="val" id="mTarget" style="color:var(--gold)">₹1548.00</div>
+      </div>
+    </div>
+
+    <div class="m-timeline">
+      <div class="m-event">
+        <div class="e-time" id="mTime">Published Today</div>
+        <div class="e-text" id="mStatus">Signal Active</div>
+      </div>
+      <div class="m-event">
+        <div class="e-time" id="mDuration">Duration: Intraday</div>
+        <div class="e-text" id="mConfidence">Confidence: High</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer style="text-align:center;padding:2rem;font-size:0.75rem;color:rgba(148,163,184,0.4);border-top:1px solid var(--border);margin-top:2rem;">
+  <p><strong>Disclaimer:</strong> Trading involves risk. Signals are for educational purposes. Not SEBI registered.</p>
+  <p style="margin-top:0.5rem;">© 2025 Stockboy Premium</p>
 </footer>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function openModal(sig) {
+  document.getElementById('mStock').innerText = sig.stockName;
+  document.getElementById('mCurrent').innerText = 'CMP: ₹' + parseFloat(sig.currentPrice).toFixed(2);
+  
+  const mAction = document.getElementById('mAction');
+  mAction.innerText = sig.recommendation;
+  mAction.style.color = sig.recommendation === 'BUY' ? 'var(--success)' : 'var(--danger)';
+  
+  document.getElementById('mTarget').innerText = '₹' + parseFloat(sig.targetPrice).toFixed(2);
+  
+  let timeStr = 'N/A';
+  if(sig.createdAt) {
+    const d = new Date(sig.createdAt);
+    timeStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  }
+  document.getElementById('mTime').innerText = 'Published: ' + timeStr;
+  document.getElementById('mStatus').innerText = 'Status: ' + sig.status;
+  document.getElementById('mDuration').innerText = 'Duration: ' + sig.duration;
+  document.getElementById('mConfidence').innerText = 'Confidence: ' + (sig.confidence || 'N/A');
+
+  document.getElementById('detailModal').classList.add('show');
+}
+
+function closeModal(e) {
+  if(e) e.stopPropagation();
+  document.getElementById('detailModal').classList.remove('show');
+}
+</script>
 
 </body>
 </html>

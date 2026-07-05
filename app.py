@@ -510,54 +510,24 @@ def check_expired_signals():
         return
         
     try:
+        from datetime import datetime, timezone, timedelta
         ist = timezone(timedelta(hours=5, minutes=30))
         now_ist = datetime.now(ist)
         now_naive = datetime.now()
         
-        active_signals = db.collection("stockSignals").where("status", "in", ["ACTIVE", "T1_HIT", "T2_HIT"]).stream()
+        active_signals = db.collection("stockSignals").where("status", "in", ["Active", "ACTIVE"]).stream()
         
         for doc in active_signals:
             signal = doc.to_dict()
-            duration = signal.get("duration")
-            created_at_str = signal.get("createdAt")
-            if not created_at_str:
-                continue
-                
-            try:
-                # createdAt is usually naive local time (UTC on server)
-                created_at = datetime.fromisoformat(created_at_str.replace("Z", "+00:00")).replace(tzinfo=None)
-            except ValueError:
-                continue
-                
-            is_expired = False
+            category = signal.get("category")
             
-            if duration == "INTRADAY":
-                # Check if current time in IST is > 15:30
+            if category == "Intraday":
                 if now_ist.hour > 15 or (now_ist.hour == 15 and now_ist.minute >= 30):
-                    is_expired = True
-                # Also expire if the signal is older than 12 hours as a fallback
-                elif now_naive > created_at + timedelta(hours=12):
-                    is_expired = True
-            elif duration == "24_HOURS":
-                if now_naive > created_at + timedelta(hours=24):
-                    is_expired = True
-            elif duration == "2_DAYS":
-                if now_naive > created_at + timedelta(days=2):
-                    is_expired = True
-            elif duration == "3_DAYS":
-                if now_naive > created_at + timedelta(days=3):
-                    is_expired = True
-            elif duration == "1_WEEK":
-                if now_naive > created_at + timedelta(days=7):
-                    is_expired = True
-                    
-            if is_expired:
-                db.collection("stockSignals").document(doc.id).update({
-                    "status": "EXPIRED",
-                    "updatedAt": now_naive.isoformat()
-                })
-                print(f"⏰ Auto-expired signal: {signal.get('stockName')} ({duration})")
-                create_notification("global", f"Signal for {signal.get('stockName')} has expired.")
+                    db.collection("stockSignals").document(doc.id).update({
+                        "status": "Expired",
+                        "updatedAt": now_naive.isoformat()
+                    })
+                    print(f"⏰ Auto-expired Intraday signal: {signal.get('stockName')}")
     except Exception as e:
         print(f"⚠️ Error checking signal expirations: {e}")
 
@@ -782,37 +752,65 @@ def logout():
 # -------------------------------------------------
 @app.route("/dashboard")
 def dashboard():
-    """Premium stock signals dashboard — requires active subscription"""
-    uid = session.get("user_id")
-    if not uid:
-        return redirect(url_for("auth_page"))
-
-    if not check_subscription_active(uid):
+    if "user" not in session:
+        return redirect(url_for("login_user"))
+    
+    uid = session["user"]
+    user = get_user_doc(uid)
+    if not user:
+        session.pop("user", None)
+        return redirect(url_for("login_user"))
+        
+    plan = user.get("plan", "none")
+    if plan == "none":
         return redirect(url_for("plans_page"))
-
-    user_doc = get_user_doc(uid) or {}
-    signals = get_active_signals()
-
-    # Separate active and closed signals
-    active_signals = [s for s in signals if s.get("status") in ["ACTIVE", "T1_HIT", "T2_HIT"]]
-    closed_signals = [s for s in signals if s.get("status") in ["T3_HIT", "SL_HIT", "CLOSED"]]
-
-    user_name = session.get("username") or user_doc.get("name", "User")
-    plan = user_doc.get("plan", "none")
-    expiry = user_doc.get("subscriptionExpiry", "")
+        
+    if not check_subscription_active(user):
+        return redirect(url_for("plans_page"))
+        
+    all_signals = get_active_signals()
+    active_signals = [s for s in all_signals if s.get("status") not in ["Expired", "EXPIRED", "Closed", "CLOSED", "Cancelled", "CANCELLED"]]
+    
+    from datetime import datetime, timezone, timedelta
+    ist = timezone(timedelta(hours=5, minutes=30))
+    now_ist = datetime.now(ist)
+    today_str = now_ist.date().isoformat()
+    
+    intraday_signals = []
+    fno_signals = []
+    
+    for s in active_signals:
+        cat = s.get("category", "")
+        if cat == "Intraday":
+            created = s.get("createdAt", "")
+            if created:
+                try:
+                    sig_date = datetime.fromisoformat(created.replace("Z", "+00:00")).replace(tzinfo=None).date().isoformat()
+                    if sig_date == today_str:
+                        intraday_signals.append(s)
+                except:
+                    pass
+        elif cat == "F&O":
+            fno_signals.append(s)
+            
+    intraday_signals = intraday_signals[:5]
+    fno_signals = fno_signals[:3]
+    
+    closed_signals = [s for s in all_signals if s.get("status") in ["Expired", "EXPIRED", "Closed", "CLOSED", "Target Hit", "TARGET HIT"]]
     
     notifications = get_recent_notifications(uid)
-
-    return render_template("dashboard.html",
-        name=user_name,
-        plan=plan,
-        expiry=expiry,
-        active_signals=active_signals,
-        closed_signals=closed_signals,
-        total_signals=len(signals),
-        notifications=notifications,
-        plans=MEMBERSHIP_PLANS)
-
+    
+    return render_template("dashboard.html", 
+                          user=user, 
+                          name=user.get("name", "Trader"),
+                          plan=plan,
+                          expiry=user.get("subscriptionExpiry"),
+                          intraday_signals=intraday_signals,
+                          fno_signals=fno_signals,
+                          closed_signals=closed_signals,
+                          total_signals=len(all_signals),
+                          notifications=notifications,
+                          plans=MEMBERSHIP_PLANS)
 
 @app.route("/check-subscription")
 def check_subscription():
@@ -1220,28 +1218,29 @@ def admin_panel():
 
         # Additional Stats
         today = datetime.now().date()
-        todays_signals = 0
-        expired_signals = 0
+        todays_intraday = 0
+        todays_fno = 0
         target_hits = 0
         
         for s in signals:
             created = s.get("createdAt", "")
+            cat = s.get("category", "")
+            status = s.get("status", "")
+            
+            if status in ["Target Hit", "TARGET HIT"]:
+                target_hits += 1
+                
             if created:
                 try:
                     sig_date = datetime.fromisoformat(created.replace("Z", "+00:00")).replace(tzinfo=None).date()
                     if sig_date == today:
-                        todays_signals += 1
+                        if cat == "Intraday":
+                            todays_intraday += 1
+                        elif cat == "F&O":
+                            todays_fno += 1
                 except ValueError:
                     pass
-            
-            status = s.get("status", "")
-            if status == "EXPIRED":
-                expired_signals += 1
-            elif status in ["T1_HIT", "T2_HIT", "T3_HIT"]:
-                target_hits += 1
 
-        pending_payments = len([p for p in payments if p.get("status") not in ["captured", "refunded"]])
-        
         current_month = datetime.now().strftime("%Y-%m")
         monthly_revenue = 0
         total_revenue = 0
@@ -1253,7 +1252,6 @@ def admin_panel():
                 if p_date and p_date.startswith(current_month):
                     monthly_revenue += amt
 
-        active_signals_count = len([s for s in signals if s.get("status") == "ACTIVE"])
         active_subs = len([s for s in subscribers if s.get("subscriptionStatus") == "active"])
 
         return render_template("admin_panel.html",
@@ -1262,18 +1260,15 @@ def admin_panel():
             payments=payments,
             active_subs=active_subs,
             total_revenue=total_revenue,
-            active_signals_count=active_signals_count,
-            todays_signals=todays_signals,
-            expired_signals=expired_signals,
+            todays_intraday=todays_intraday,
+            todays_fno=todays_fno,
             monthly_revenue=monthly_revenue,
-            pending_payments=pending_payments,
             target_hits=target_hits,
             plans=MEMBERSHIP_PLANS)
     except Exception as e:
         import traceback
         traceback.print_exc()
         return f"<h1>Internal Server Error</h1><pre>{traceback.format_exc()}</pre>", 500
-
 
 # -------------------------------------------------
 # ADMIN API — SIGNAL MANAGEMENT
@@ -1291,23 +1286,22 @@ def admin_create_signal():
         try:
             now = datetime.now().isoformat()
             signal_data = {
+                "category": request.form.get("category", "Intraday"),
                 "stockName": sanitize_input(request.form.get("stockName", "")).upper(),
-                "entryPrice": float(request.form.get("entryPrice", 0)),
-                "target1": 0.0,
-                "target2": 0.0,
-                "target3": 0.0,
-                "stopLoss": float(request.form.get("stopLoss", 0)),
-                "duration": request.form.get("duration", "1_WEEK"),
-                "status": request.form.get("status", "ACTIVE") if request.form.get("status") in ("ACTIVE", "T1_HIT", "T2_HIT", "T3_HIT", "SL_HIT", "CLOSED") else "ACTIVE",
-                "notes": sanitize_input(request.form.get("notes", "")),
+                "recommendation": request.form.get("recommendation", "BUY"),
+                "currentPrice": float(request.form.get("currentPrice", 0)),
+                "targetPrice": float(request.form.get("targetPrice", 0)),
+                "duration": request.form.get("duration", "Intraday"),
+                "confidence": request.form.get("confidence", "High"),
+                "status": request.form.get("status", "Active"),
                 "createdAt": now,
                 "updatedAt": now,
                 "createdBy": "admin"
             }
 
             db.collection("stockSignals").add(signal_data)
-            log_admin_action("admin", "CREATE_SIGNAL", "", f"Created signal for {signal_data['stockName']}")
-            create_notification("global", f"New Signal: {signal_data['stockName']} is now active!")
+            log_admin_action("admin", "CREATE_SIGNAL", "", f"Created {signal_data['category']} signal for {signal_data['stockName']}")
+            create_notification("global", f"New {signal_data['category']} Signal: {signal_data['stockName']} is now active!")
             print(f"✅ Signal created: {signal_data['stockName']}")
             return redirect("/admin?success=Signal created successfully")
         except Exception as e:
@@ -1317,7 +1311,6 @@ def admin_create_signal():
             return redirect(f"/admin?error=Error creating signal: {str(e)}")
 
     return render_template("signal_form.html", signal=None, mode="create")
-
 
 @app.route("/admin/signal/edit/<signal_id>", methods=["GET", "POST"])
 def admin_edit_signal(signal_id):
@@ -1332,22 +1325,19 @@ def admin_edit_signal(signal_id):
         try:
             now = datetime.now().isoformat()
             update_data = {
+                "category": request.form.get("category", "Intraday"),
                 "stockName": request.form.get("stockName", "").strip().upper(),
-                "entryPrice": float(request.form.get("entryPrice", 0)),
-                "target1": float(request.form.get("target1") or 0),
-                "target2": float(request.form.get("target2") or 0),
-                "target3": float(request.form.get("target3") or 0),
-                "stopLoss": float(request.form.get("stopLoss", 0)),
-                "duration": request.form.get("duration", "1_WEEK"),
-                "status": request.form.get("status", "ACTIVE"),
-                "notes": request.form.get("notes", "").strip(),
+                "recommendation": request.form.get("recommendation", "BUY"),
+                "currentPrice": float(request.form.get("currentPrice", 0)),
+                "targetPrice": float(request.form.get("targetPrice", 0)),
+                "duration": request.form.get("duration", "Intraday"),
+                "confidence": request.form.get("confidence", "High"),
+                "status": request.form.get("status", "Active"),
                 "updatedAt": now
             }
 
             db.collection("stockSignals").document(signal_id).update(update_data)
             
-            # Create notifications for targets if they are newly added (but we don't have old state here easily unless we fetch first, 
-            # let's just fetch it to see if targets changed from 0 to > 0)
             log_admin_action("admin", "UPDATE_SIGNAL", signal_id, f"Updated signal for {update_data['stockName']}")
             print(f"✅ Signal updated: {signal_id}")
             return redirect("/admin?success=Signal updated successfully")
@@ -1357,7 +1347,6 @@ def admin_edit_signal(signal_id):
             print(f"❌ Error updating signal: {e}")
             return redirect(f"/admin?error=Error updating signal: {str(e)}")
 
-    # GET — load signal data for editing
     try:
         doc = db.collection("stockSignals").document(signal_id).get()
         if not doc.exists:
@@ -1370,7 +1359,6 @@ def admin_edit_signal(signal_id):
         return redirect(f"/admin?error=Error loading signal: {str(e)}")
 
     return render_template("signal_form.html", signal=signal, mode="edit")
-
 
 @app.route("/admin/signal/delete/<signal_id>", methods=["POST"])
 def admin_delete_signal(signal_id):
