@@ -755,20 +755,16 @@ def logout():
 # -------------------------------------------------
 @app.route("/dashboard")
 def dashboard():
-    if "user" not in session:
-        return redirect(url_for("login_user"))
+    if not session.get("user_id"):
+        return redirect(url_for("auth_page"))
     
-    uid = session["user"]
+    uid = session.get("user_id")
     user = get_user_doc(uid)
     if not user:
-        session.pop("user", None)
-        return redirect(url_for("login_user"))
+        session.clear()
+        return redirect(url_for("auth_page"))
         
-    plan = user.get("plan", "none")
-    if plan == "none":
-        return redirect(url_for("plans_page"))
-        
-    if not check_subscription_active(user):
+    if not check_subscription_active(uid):
         return redirect(url_for("plans_page"))
         
     all_signals = get_active_signals()
