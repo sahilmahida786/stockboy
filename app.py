@@ -323,6 +323,9 @@ def check_subscription_active(uid):
     expiry = user_doc.get("subscriptionExpiry")
     if not expiry:
         return False
+    
+    if expiry == "lifetime" or expiry == "Lifetime":
+        return True
 
     # Handle Firestore timestamp
     if hasattr(expiry, 'timestamp'):
