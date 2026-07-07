@@ -1,25 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
-    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+{% extends 'base.html' %}
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Membership Plans – Premium Stock Signals | Stockboy</title>
-<meta name="description" content="Choose your Stockboy membership plan. Get premium stock signals, entry alerts, target updates, and stop loss levels. Monthly, quarterly, yearly, and lifetime plans available." />
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+{% block title %}Products | Stockboy Premium{% endblock %}
+{% block description %}Enterprise-grade stock signals and premium memberships.{% endblock %}
+
+{% block extra_css %}
 <style>
-  :root {
-    --bg:#081821; --card:#102530; --gold:#FFD54A; --gold-dim:rgba(255,213,74,0.15);
-    --gold-glow:rgba(255,213,74,0.35);
-    --text:#fff; --muted:#8a9bb0; --success:#00C853; --border:rgba(255,255,255,0.08);
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{background:var(--bg);color:var(--text);font-family:'Poppins',sans-serif;min-height:100vh}
+
+  
+  
 
   @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
   .fade-in{animation:fadeUp 0.5s ease forwards;opacity:0}
@@ -84,9 +72,9 @@
     .security-grid{grid-template-columns:1fr}
   }
 </style>
-</head>
-<body>
+{% endblock %}
 
+{% block content %}
 <nav class="nav">
   <div class="nav-left">
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
@@ -148,15 +136,7 @@
   </div>
 </div>
 
-<footer class="footer">
-  <div class="footer-links">
-    <a href="/privacy-policy">Privacy Policy</a>
-    <a href="/terms">Terms & Conditions</a>
-    <a href="/refund">Refund Policy</a>
-    <a href="/contact">Contact</a>
-  </div>
-  <p class="copy">© 2025 Stockboy Premium. All rights reserved.</p>
-</footer>
+
 
 <!-- Razorpay -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -204,6 +184,4 @@ async function initiatePlanPayment(planSlug) {
   }
 }
 </script>
-
-</body>
-</html>
+{% endblock %}

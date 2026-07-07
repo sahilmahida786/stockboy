@@ -17,6 +17,15 @@ app.secret_key = os.getenv("SECRET_KEY", "change_this_secret_key")
 app.permanent_session_lifetime = timedelta(days=7)
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['GA_TRACKING_ID'] = os.getenv("GA_TRACKING_ID", "")
+
+@app.context_processor
+def inject_config():
+    return dict(
+        config=app.config,
+        logged_in=session.get("logged_in") or session.get("user_id"),
+        username=session.get("username", "")
+    )
 
 # -------------------------------------------------
 # MAINTENANCE MODE
@@ -46,7 +55,8 @@ def require_login():
         "home", "auth_page", "login", "login_user", "register", "register_user",
         "admin_login", "maintenance", "privacy_policy", "terms", "refund", "contact",
         "create_payment_order", "verify_payment", "plans_page", "razorpay_webhook",
-        "about_page", "products_page", "payment_page"
+        "about_page", "products_page", "payment_page", "blog_index", "blog_post",
+        "sitemap_xml", "robots_txt"
     ]
 
     # Admin routes — bypass user login check if admin session exists
@@ -1489,9 +1499,63 @@ def contact():
 
 @app.route("/about")
 def about_page():
-    logged_in = session.get("logged_in") or session.get("user_id")
-    username = session.get("username", "")
-    return render_template("about.html", username=username, logged_in=logged_in)
+    return render_template("about.html")
+
+# -------------------------------------------------
+# BLOG & SEO ROUTES
+# -------------------------------------------------
+@app.route("/blog")
+def blog_index():
+    try:
+        with open(os.path.join(BASE_DIR, "data", "blogs.json"), "r", encoding="utf-8") as f:
+            posts = json.load(f)
+    except Exception:
+        posts = []
+    return render_template("blog_index.html", posts=posts)
+
+@app.route("/blog/<slug>")
+def blog_post(slug):
+    try:
+        with open(os.path.join(BASE_DIR, "data", "blogs.json"), "r", encoding="utf-8") as f:
+            posts = json.load(f)
+            post = next((p for p in posts if p["slug"] == slug), None)
+            if not post:
+                return "Blog not found", 404
+    except Exception:
+        return "Blog not found", 404
+    return render_template("blog_post.html", post=post)
+
+@app.route("/sitemap.xml")
+def sitemap_xml():
+    from flask import make_response
+    pages = [
+        "/", "/auth", "/plans", "/about", "/contact", 
+        "/privacy-policy", "/terms", "/refund", "/blog"
+    ]
+    try:
+        with open(os.path.join(BASE_DIR, "data", "blogs.json"), "r", encoding="utf-8") as f:
+            posts = json.load(f)
+            for p in posts:
+                pages.append("/blog/" + p["slug"])
+    except:
+        pass
+
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for page in pages:
+        xml.append(f'  <url>\n    <loc>https://stockboy.works{page}</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.8</priority>\n  </url>')
+    xml.append('</urlset>')
+    
+    response = make_response("\\n".join(xml))
+    response.headers["Content-Type"] = "application/xml"
+    return response
+
+@app.route("/robots.txt")
+def robots_txt():
+    from flask import make_response
+    txt = "User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /dashboard\n\nSitemap: https://stockboy.works/sitemap.xml"
+    response = make_response(txt)
+    response.headers["Content-Type"] = "text/plain"
+    return response
 
 # Legacy routes — redirect to new pages
 @app.route("/products")

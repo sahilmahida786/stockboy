@@ -1,31 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
-    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+{% extends 'base.html' %}
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login | Stockboy – Premium Stock Signals Platform</title>
-    <meta name="description" content="Login or register on Stockboy to access premium stock signals, entry alerts, target updates, and stop-loss levels. India's trusted stock signal platform." />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #081821; --card: #102530; --gold: #FFD54A; --gold-dim: rgba(255,213,74,0.15);
-            --text: #fff; --muted: #8a9bb0; --success: #00C853; --danger: #FF5252;
-            --border: rgba(255,255,255,0.08);
-        }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: radial-gradient(circle at top, var(--gold-dim), transparent 40%), 
-                        linear-gradient(160deg, #081821, #0d2a38, #102530);
-            min-height: 100vh;
-            color: var(--text);
-        }
+{% block title %}Login to Stockboy Premium | Secure Access{% endblock %}
+{% block description %}Login to your Stockboy Premium dashboard to access live intraday and F&O stock signals.{% endblock %}
+
+{% block extra_css %}
+<style>
+
+        
+        
         .glass {
             background: rgba(16,37,48,0.6);
             border: 1px solid var(--border);
@@ -123,10 +105,11 @@
         .footer-links a { font-size:0.75rem; color:var(--muted); text-decoration:none; transition:color 0.3s; }
         .footer-links a:hover { color:var(--gold); }
         .footer .copy { font-size:0.65rem; color:rgba(138,155,176,0.4); }
-    </style>
-</head>
-<body>
-    <nav class="nav glass">
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="nav glass">
         <div class="nav-left">
             <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
             <div>
@@ -320,14 +303,5 @@
     </script>
     </div>
     
-    <footer class="footer">
-        <div class="footer-links">
-            <a href="/privacy-policy">Privacy Policy</a>
-            <a href="/terms">Terms & Conditions</a>
-            <a href="/refund">Refund Policy</a>
-            <a href="/contact">Contact</a>
-        </div>
-        <p class="copy">© 2025 Stockboy Premium. All rights reserved.</p>
-    </footer>
-</body>
-</html>
+    
+{% endblock %}

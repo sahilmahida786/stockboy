@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <!-- ── Dynamic SEO ── -->
+  <title>{% block title %}Stockboy – Premium Stock Signals & Membership Platform | India{% endblock %}</title>
+  <meta name="description" content="{% block description %}Get expert stock signals with precise entry, targets & stop-loss levels. Join 500+ traders using Stockboy's premium signal platform. NSE & BSE covered. Subscribe now.{% endblock %}" />
+  <meta name="keywords" content="{% block keywords %}premium stock signals, intraday stock tips, indian stock market signals, f&o trading signals, swing trading signals, nse trading, bse trading, bank nifty signals, nifty trading, technical analysis{% endblock %}" />
+  <meta name="robots" content="index, follow" />
+  
+  <!-- Canonical URL -->
+  {% set current_url = request.url if request else "https://stockboy.works/" %}
+  <link rel="canonical" href="{{ current_url }}" />
+
+  <!-- Preconnects & DNS Prefetch (Core Web Vitals) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+
+  <!-- Preload Critical Fonts -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" as="style" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- ── Favicons ── -->
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+  <link rel="icon" type="image/png" sizes="48x48" href="{{ url_for('static', filename='favicon-48x48.png') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+  <!-- ── Open Graph ── -->
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
+  <meta property="og:site_name" content="Stockboy" />
+  <meta property="og:title" content="{{ self.title() }}" />
+  <meta property="og:description" content="{{ self.description() }}" />
+  <meta property="og:url" content="{{ current_url }}" />
+  <meta property="og:image" content="https://stockboy.works/static/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_IN" />
+
+  <!-- ── Twitter Card ── -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{ self.title() }}" />
+  <meta name="twitter:description" content="{{ self.description() }}" />
+  <meta name="twitter:image" content="https://stockboy.works/static/og-image.png" />
+
+  <!-- JSON-LD Base Schemas -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Stockboy Premium",
+    "url": "https://stockboy.works",
+    "logo": "https://stockboy.works/static/logo.png",
+    "description": "Enterprise-grade stock signal platform providing expert NSE & BSE alerts for Indian traders.",
+    "sameAs": [
+      "https://www.instagram.com/stocks_boy1?igsh=MTg4M3owamoxZHNzeg==",
+      "https://t.me/pennystocksboy",
+      "https://wa.me/918604156679"
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+91-8604156679",
+      "contactType": "customer service",
+      "availableLanguage": ["English", "Hindi"]
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Stockboy",
+    "url": "https://stockboy.works",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://stockboy.works/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+  
+  {% block extra_schema %}{% endblock %}
+  {% block extra_head %}{% endblock %}
+
+  <style>
+    /* ── BASE STYLES ── */
+    :root {
+      --bg-primary: #081821;
+      --bg-card: #102530;
+      --bg-card-hover: #153040;
+      --gold: #FFD54A;
+      --gold-dim: rgba(255,213,74,0.15);
+      --text: #FFFFFF;
+      --text-muted: #8a9bb0;
+      --success: #00C853;
+      --warning: #FFC107;
+      --danger: #FF5252;
+      --border: rgba(255,255,255,0.08);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg-primary);
+      color: var(--text);
+      font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    /* ── NAVBAR ── */
+    .navbar {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(8,24,33,0.88);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.7rem 1.25rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .nav-brand img { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid rgba(255,213,74,0.4); }
+    .nav-brand h1 { font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, #FFD54A, #FFC107); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-links { display: flex; align-items: center; gap: 0.6rem; }
+    .nav-links a { font-size: 0.8rem; padding: 0.45rem 1.1rem; border-radius: 2rem; text-decoration: none; color: var(--text-muted); border: 1px solid var(--border); transition: all 0.25s; }
+    .nav-links a:hover, .nav-links a:focus-visible { border-color: rgba(255,213,74,0.3); color: var(--gold); outline: none; }
+    .nav-links .btn-gold { background: linear-gradient(135deg, #FFD54A, #FFC107); color: var(--bg-primary); font-weight: 600; border: none; }
+    .nav-links .btn-gold:hover { box-shadow: 0 4px 16px rgba(255,213,74,0.3); transform: translateY(-1px); }
+    .user-info { text-align: right; }
+    .user-info .name { font-size: 0.8rem; color: var(--text-muted); }
+    .user-info .name span { color: var(--gold); font-weight: 600; }
+    .user-info .logout { font-size: 0.7rem; color: var(--text-muted); text-decoration: none; transition: color 0.25s; }
+    .user-info .logout:hover, .user-info .logout:focus-visible { color: var(--danger); outline: none; }
+    @media (max-width: 768px) {
+      .navbar { padding: 0.5rem 0.85rem; }
+      .nav-brand h1 { font-size: 1rem; }
+      .nav-brand img { width: 32px; height: 32px; }
+      .nav-links a { font-size: 0.75rem; padding: 0.35rem 0.8rem; }
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- Global Header -->
+  <header>
+    <nav class="navbar" role="navigation" aria-label="Main Navigation">
+      <a href="/" class="nav-brand" aria-label="Stockboy Home">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Stockboy Logo" width="38" height="38">
+        <h1>Stockboy Premium</h1>
+      </a>
+      <div class="nav-links">
+        <a href="/blog">Blog</a>
+        {% if logged_in or session.get('user_id') %}
+          <div class="user-info">
+            <div class="name">Hi, <span>{{ username or 'Trader' }}</span></div>
+            <a href="/dashboard" style="color:var(--gold); border:none; padding:0 0.5rem;" aria-label="Go to Dashboard">Dashboard</a> | 
+            <a href="/auth?logout=1" class="logout" aria-label="Log Out">Logout</a>
+          </div>
+        {% else %}
+          <a href="/auth" class="btn-gold" aria-label="Log In or Register">Login / Register</a>
+        {% endif %}
+      </div>
+    </nav>
+  </header>
+
+  <main role="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="footer" style="text-align:center; padding:2rem 1.5rem 3rem; border-top:1px solid var(--border); margin-top:2rem;">
+    <nav class="footer-links" style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;" aria-label="Footer Navigation">
+      <a href="/about" style="color:var(--text-muted); text-decoration:none; font-size:0.8rem; transition:color 0.3s;">About</a>
+      <a href="/privacy-policy" style="color:var(--text-muted); text-decoration:none; font-size:0.8rem; transition:color 0.3s;">Privacy Policy</a>
+      <a href="/terms" style="color:var(--text-muted); text-decoration:none; font-size:0.8rem; transition:color 0.3s;">Terms & Conditions</a>
+      <a href="/refund" style="color:var(--text-muted); text-decoration:none; font-size:0.8rem; transition:color 0.3s;">Refund Policy</a>
+      <a href="/contact" style="color:var(--text-muted); text-decoration:none; font-size:0.8rem; transition:color 0.3s;">Contact</a>
+      <a href="/blog" style="color:var(--text-muted); text-decoration:none; font-size:0.8rem; transition:color 0.3s;">Blog</a>
+    </nav>
+    <p class="copy" style="font-size:0.75rem; color:rgba(138,155,176,0.5);">© 2025 Stockboy Premium • All Rights Reserved</p>
+  </footer>
+
+  <!-- Google Analytics / Search Console (Env variables) -->
+  {% if config.GA_TRACKING_ID %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ config.GA_TRACKING_ID }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ config.GA_TRACKING_ID }}');
+  </script>
+  {% endif %}
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,21 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
-    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+{% extends 'base.html' %}
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>About Stockboy – Premium Stock Signals & Market Intelligence Platform</title>
-    <meta name="description" content="Learn about Stockboy's premium stock signals platform. We provide expert-curated buy/sell signals with precise entry, targets, and stop-loss levels for Indian stock markets." />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --bg:#081821; --card:#102530; --gold:#FFD54A; --gold-dim:rgba(255,213,74,0.15); --text:#fff; --muted:#8a9bb0; --success:#00C853; --border:rgba(255,255,255,0.08); }
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Poppins',sans-serif;background:radial-gradient(circle at top,var(--gold-dim),transparent 40%),linear-gradient(160deg,#081821,#0d2a38,#102530);min-height:100vh;color:var(--text)}
+{% block title %}About | Stockboy Premium{% endblock %}
+{% block description %}Enterprise-grade stock signals and premium memberships.{% endblock %}
+
+{% block extra_css %}
+<style>
+
+        
+        
         .glass{background:rgba(16,37,48,0.6);border:1px solid var(--border);backdrop-filter:blur(14px)}
         .nav{position:sticky;top:0;z-index:40;padding:0.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
         .nav-left{display:flex;align-items:center;gap:0.75rem}
@@ -54,10 +46,11 @@
         footer a{color:var(--muted);text-decoration:none;margin:0 0.5rem}
         footer a:hover{color:var(--gold)}
         @media(max-width:768px){.hero h1{font-size:1.75rem}.grid-2{grid-template-columns:1fr}}
-    </style>
-</head>
-<body>
-    <nav class="nav glass">
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="nav glass">
         <div class="nav-left">
             <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
             <div><p>Stockboy Premium</p><p>Stock Signals Platform</p></div>
@@ -117,5 +110,4 @@
         <p>© 2025 Stockboy Premium • All Rights Reserved</p>
         <div style="margin-top:0.5rem"><a href="/">Home</a> • <a href="/plans">Plans</a> • <a href="/about">About</a></div>
     </footer>
-</body>
-</html>
+{% endblock %}

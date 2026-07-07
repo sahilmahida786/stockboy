@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Stockboy Premium Blog | Stock Market Strategies & Tips{% endblock %}
+{% block description %}Read the latest strategies on intraday trading, F&O signals, and trading psychology from Stockboy Premium experts.{% endblock %}
+
+{% block extra_schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "url": "https://stockboy.works/blog",
+  "name": "Stockboy Premium Blog",
+  "description": "Expert trading strategies for NSE and BSE markets."
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section style="padding: 4rem 1.5rem; max-width: 900px; margin: 0 auto;">
+  <h1 style="font-size: 2.5rem; color: var(--gold); margin-bottom: 1rem;">Trading Insights & Strategies</h1>
+  <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 3rem;">Learn how to navigate the Indian stock market with our premium guides.</p>
+
+  <div style="display: flex; flex-direction: column; gap: 2rem;">
+    {% for post in posts %}
+    <article style="background: var(--bg-card); padding: 2rem; border-radius: 1rem; border: 1px solid var(--border); transition: transform 0.3s, border-color 0.3s;">
+      <div style="font-size: 0.8rem; color: var(--gold); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">{{ post.category }} • {{ post.reading_time }} min read</div>
+      <h2 style="font-size: 1.5rem; margin-bottom: 1rem;"><a href="/blog/{{ post.slug }}" style="color: white; text-decoration: none;">{{ post.title }}</a></h2>
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6;">{{ post.description }}</p>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.85rem; color: rgba(255,255,255,0.5);">{{ post.published_date[:10] }} • By {{ post.author }}</span>
+        <a href="/blog/{{ post.slug }}" style="color: var(--gold); text-decoration: none; font-weight: 600; font-size: 0.9rem;">Read More →</a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,85 +1,68 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
-    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+{% extends 'base.html' %}
 
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+{% block title %}Stockboy Premium – Intraday & F&O Stock Signals | Join Today{% endblock %}
+{% block description %}Get verified stock market signals with exact entry, stop-loss, and 3 targets. Best premium stock tips for NSE & BSE traders.{% endblock %}
 
-<!-- ── Primary SEO ── -->
-<title>Stockboy – Premium Stock Signals & Membership Platform | India</title>
-<meta name="description" content="Get expert stock signals with precise entry, targets & stop-loss levels. Join 500+ traders using Stockboy's premium signal platform. NSE & BSE covered. Subscribe now."/>
-<meta name="keywords" content="stock signals india, buy sell signals, NSE signals, intraday signals, stock market alerts, premium stock tips"/>
-<meta name="robots" content="index, follow"/>
-<link rel="canonical" href="https://stockboy.works/"/>
-
-<!-- ── Open Graph ── -->
-<meta property="og:type" content="website"/>
-<meta property="og:site_name" content="Stockboy"/>
-<meta property="og:title" content="Stockboy – Premium Stock Signals Platform India"/>
-<meta property="og:description" content="Expert stock signals with entry, 3 targets & stop loss. 85% historical accuracy. 500+ active members. Join Stockboy today."/>
-<meta property="og:url" content="https://stockboy.works/"/>
-<meta property="og:image" content="https://stockboy.works/static/og-image.png"/>
-<meta property="og:image:width" content="1200"/>
-<meta property="og:image:height" content="630"/>
-<meta property="og:locale" content="en_IN"/>
-
-<!-- ── Twitter Card ── -->
-<meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="Stockboy – Premium Stock Signals Platform"/>
-<meta name="twitter:description" content="Expert NSE & BSE stock signals with precise entry, targets & stop-loss. Join 500+ traders."/>
-<meta name="twitter:image" content="https://stockboy.works/static/og-image.png"/>
-
-<!-- ── JSON-LD Structured Data ── -->
+{% block extra_schema %}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "Stockboy",
-  "url": "https://stockboy.works",
-  "description": "Premium stock signal platform providing expert NSE & BSE buy/sell signals with entry price, targets, and stop loss levels.",
+  "@type": "SoftwareApplication",
+  "name": "Stockboy Premium Dashboard",
+  "operatingSystem": "Web",
+  "applicationCategory": "FinanceApplication",
   "offers": {
     "@type": "AggregateOffer",
-    "priceCurrency": "INR",
-    "lowPrice": "499",
-    "highPrice": "9999"
+    "lowPrice": "999",
+    "highPrice": "6999",
+    "priceCurrency": "INR"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "ratingCount": "1250"
   }
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is Stockboy Premium?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Stockboy Premium provides live Intraday and F&O stock signals with exact entry, stop-loss, and target levels for the Indian Stock Market."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many signals do I get daily?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Premium members receive 2-5 highly curated, high-accuracy signals daily depending on market conditions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the accuracy rate?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We maintain an 85%+ accuracy rate by enforcing strict 1:3 Risk-Reward ratios and robust risk management."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
 
-<!-- ── Fonts ── -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+{% block extra_css %}
 <style>
-  :root {
-    --bg-primary: #081821;
-    --bg-card: #102530;
-    --bg-card-hover: #153040;
-    --gold: #FFD54A;
-    --gold-dim: rgba(255,213,74,0.15);
-    --gold-glow: rgba(255,213,74,0.35);
-    --text: #FFFFFF;
-    --text-muted: #8a9bb0;
-    --success: #00C853;
-    --warning: #FFC107;
-    --danger: #FF5252;
-    --border: rgba(255,255,255,0.08);
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--bg-primary);
-    color: var(--text);
-    font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+
+  
+  
 
   /* ─── ANIMATIONS ─── */
   @keyframes heroFadeUp {
@@ -108,22 +91,15 @@
   .hf-5 { animation-delay: 0.56s; }
 
   /* ─── NAVBAR ─── */
-  .navbar {
-    position: sticky; top: 0; z-index: 50;
-    background: rgba(8,24,33,0.88);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    padding: 0.7rem 1.25rem;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .nav-brand { display: flex; align-items: center; gap: 0.6rem; }
-  .nav-brand img { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid rgba(255,213,74,0.4); }
-  .nav-brand h1 { font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, #FFD54A, #FFC107); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .nav-links { display: flex; align-items: center; gap: 0.6rem; }
-  .nav-links a { font-size: 0.8rem; padding: 0.45rem 1.1rem; border-radius: 2rem; text-decoration: none; color: var(--text-muted); border: 1px solid var(--border); transition: all 0.25s; }
-  .nav-links a:hover { border-color: rgba(255,213,74,0.3); color: var(--gold); }
-  .nav-links .btn-gold { background: linear-gradient(135deg, #FFD54A, #FFC107); color: var(--bg-primary); font-weight: 600; border: none; }
-  .nav-links .btn-gold:hover { box-shadow: 0 4px 16px rgba(255,213,74,0.3); transform: translateY(-1px); }
+  
+  
+  
+  
+  
+  
+  
+  
+  
   .user-info { text-align: right; }
   .user-info .name { font-size: 0.8rem; color: var(--text-muted); }
   .user-info .name span { color: var(--gold); font-weight: 600; }
@@ -401,7 +377,7 @@
   .type-badge.sell { background: rgba(255,82,82,0.15); color: var(--danger); }
   .signal-header .time { font-size: 0.65rem; color: var(--text-muted); }
   .signal-header .exchange { font-size: 0.55rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 0.15rem 0.4rem; border-radius: 0.25rem; }
-  .signal-body { padding: 1rem 1.25rem; }
+  .signal-
   .signal-grid {
     display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem;
   }
@@ -465,7 +441,7 @@
   .dash-topbar .dots span:nth-child(2) { background: #FFBD2E; }
   .dash-topbar .dots span:nth-child(3) { background: #27C93F; }
   .dash-topbar .url { font-size: 0.6rem; color: var(--text-muted); background: rgba(255,255,255,0.04); padding: 0.2rem 0.6rem; border-radius: 0.3rem; }
-  .dash-body { padding: 1rem; }
+  .dash-
   .dash-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
   .dash-stat-card { padding: 0.75rem; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.04); border-radius: 0.5rem; }
   .dash-stat-card .ds-label { font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
@@ -947,7 +923,7 @@
     .cbr-feature { font-size: 0.72rem; }
     .trust-cards-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
     .premium-cta-btns { flex-direction: column; align-items: center; }
-    .premium-cta-btns > * { width: 100%; max-width: 300px; justify-content: center; display: flex; }
+    .premium-cta-btns > 
   }
   @media (max-width: 374px) {
     .signal-data-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1036,9 +1012,9 @@
   @media (max-width: 768px) {
     .plans-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
     .features-grid { grid-template-columns: 1fr; }
-    .navbar { padding: 0.5rem 0.85rem; }
-    .nav-brand h1 { font-size: 1rem; }
-    .nav-brand img { width: 32px; height: 32px; }
+    
+    
+    
     .footer-links { gap: 0.5rem; }
     .footer-links a { font-size: 0.7rem; }
     .trust-bar { gap: 0.5rem; }
@@ -1060,9 +1036,7 @@
   }
 
   /* ── Navbar scroll state ── */
-  .navbar {
-    transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
-  }
+  
   .navbar.scrolled {
     background: rgba(8,24,33,0.97);
     backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
@@ -1071,23 +1045,10 @@
   }
 
   /* ── Nav link animated underline ── */
-  .nav-links a:not(.btn-gold) {
-    position: relative;
-    overflow: hidden;
-  }
-  .nav-links a:not(.btn-gold)::after {
-    content: '';
-    position: absolute; bottom: 4px; left: 50%; right: 50%;
-    height: 1.5px; background: var(--gold);
-    transition: left 0.25s ease, right 0.25s ease;
-    border-radius: 1px;
-  }
-  .nav-links a:not(.btn-gold):hover::after { left: 12%; right: 12%; }
-  .nav-links a:not(.btn-gold):focus-visible {
-    outline: 2px solid var(--gold);
-    outline-offset: 3px;
-    border-radius: 4px;
-  }
+  
+  
+  
+  
 
   /* ── Hamburger button ── */
   .hamburger {
@@ -1217,7 +1178,7 @@
   .notif-icon.green { background: rgba(0,200,83,0.12); }
   .notif-icon.gold  { background: rgba(255,213,74,0.12); }
   .notif-icon.red   { background: rgba(255,82,82,0.12); }
-  .notif-body { flex: 1; min-width: 0; }
+  .notif-
   .notif-msg { font-size: 0.76rem; color: rgba(255,255,255,0.82); line-height: 1.45; margin-bottom: 0.2rem; }
   .notif-time { font-size: 0.6rem; color: var(--text-muted); }
   .notif-empty { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 0.8rem; }
@@ -1379,81 +1340,15 @@
   /* ── Min touch target 44px ── */
   .hamburger, .nav-notif-btn, .testi-dot { min-height: 44px; min-width: 44px; }
   .testi-dot { display: flex; align-items: center; justify-content: center; }
-
 </style>
-</head>
-<body>
+{% endblock %}
 
+{% block content %}
 <!-- Scroll Progress Bar -->
 <div id="navProgress" aria-hidden="true"></div>
 
 <!-- Navbar -->
-<nav class="navbar" id="mainNav" role="navigation" aria-label="Main navigation">
-  <div class="nav-brand">
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Stockboy Logo" width="38" height="38">
-    <h1>Stockboy</h1>
-  </div>
 
-  <!-- Desktop: right side controls -->
-  <div style="display:flex;align-items:center;gap:0.6rem;">
-
-    <!-- Search hint (desktop only) -->
-    <button class="nav-search-hint" id="navSearchBtn" onclick="openSearch()" aria-label="Open search (Ctrl+K)">
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5l3 3"/></svg>
-      Search
-      <span class="search-kbd"><kbd>Ctrl</kbd><kbd>K</kbd></span>
-    </button>
-
-    {% if logged_in and username %}
-    <!-- Notification Bell -->
-    <div style="position:relative;">
-      <button class="nav-notif-btn" id="notifBtn" onclick="toggleNotif()" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span class="notif-badge" id="notifBadge" style="display:none;" aria-live="polite"></span>
-      </button>
-      <!-- Notification Dropdown -->
-      <div class="notif-dropdown" id="notifDropdown" role="region" aria-label="Notifications">
-        <div class="notif-header">
-          <span class="notif-title">Notifications</span>
-          <button class="notif-mark-all" onclick="markAllRead()" aria-label="Mark all as read">Mark all read</button>
-        </div>
-        <div class="notif-list" id="notifList">
-          <div class="notif-empty">No new notifications</div>
-        </div>
-        <div class="notif-footer">
-          {% if has_subscription %}
-          <a href="/dashboard">View Dashboard →</a>
-          {% else %}
-          <a href="#plans">View Plans →</a>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <!-- User info -->
-    <div class="user-info">
-      <div class="name">Hi, <span>{{ username }}</span></div>
-      {% if has_subscription %}
-      <a href="/dashboard" class="logout" style="color:var(--success);">Dashboard →</a>
-      {% endif %}
-      <a href="/logout" class="logout">Logout</a>
-    </div>
-
-    {% else %}
-    <!-- Guest nav links -->
-    <div class="nav-links">
-      <a href="/about">About</a>
-      <a href="#plans">Plans</a>
-      <a href="/auth" class="btn-gold">Login / Register</a>
-    </div>
-    {% endif %}
-
-    <!-- Hamburger (mobile) -->
-    <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileDrawer" onclick="toggleDrawer()">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-</nav>
 
 <!-- Mobile Drawer -->
 <div class="mobile-drawer" id="mobileDrawer" role="dialog" aria-modal="true" aria-label="Navigation menu">
@@ -2125,16 +2020,7 @@
 </div>
 
 <!-- Footer -->
-<footer class="footer">
-  <div class="footer-links">
-    <a href="/privacy-policy">Privacy Policy</a>
-    <a href="/terms">Terms & Conditions</a>
-    <a href="/refund">Refund Policy</a>
-    <a href="/contact">Contact</a>
-    <a href="/about">About</a>
-  </div>
-  <p class="copy">© 2025 Stockboy Premium • All Rights Reserved</p>
-</footer>
+
 
 <!-- Floating Buttons -->
 <a href="https://wa.me/918604156679?text=Hello%20I%20need%20premium%20stock%20signals" target="_blank" class="float-btn float-wa" aria-label="WhatsApp">
@@ -2149,7 +2035,7 @@
 
 
 <!-- Razorpay -->
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 <script>
 /* ── Scroll reveal ── */
 const obs = new IntersectionObserver(entries => {
@@ -2270,6 +2156,4 @@ async function initiatePlanPayment(planSlug) {
   }
 }
 </script>
-
-</body>
-</html>
+{% endblock %}

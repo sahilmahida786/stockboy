@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} | Stockboy Premium{% endblock %}
+{% block description %}{{ post.description }}{% endblock %}
+
+{% block extra_schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ post.title }}",
+  "description": "{{ post.description }}",
+  "author": {
+    "@type": "Organization",
+    "name": "{{ post.author }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Stockboy",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://stockboy.works/static/logo.png"
+    }
+  },
+  "datePublished": "{{ post.published_date }}",
+  "dateModified": "{{ post.updated_date }}"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Home",
+    "item": "https://stockboy.works"
+  },{
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Blog",
+    "item": "https://stockboy.works/blog"
+  },{
+    "@type": "ListItem",
+    "position": 3,
+    "name": "{{ post.title }}"
+  }]
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .blog-content h2 { font-size: 1.8rem; margin: 2rem 0 1rem; color: var(--gold); }
+  .blog-content p { font-size: 1.1rem; line-height: 1.8; margin-bottom: 1.5rem; color: rgba(255,255,255,0.85); }
+  .blog-content ul { padding-left: 1.5rem; margin-bottom: 1.5rem; }
+  .blog-content li { font-size: 1.1rem; line-height: 1.8; margin-bottom: 0.5rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<article style="max-width: 800px; margin: 0 auto; padding: 4rem 1.5rem;">
+  <nav aria-label="breadcrumb" style="margin-bottom: 2rem; font-size: 0.9rem;">
+    <a href="/" style="color: var(--text-muted); text-decoration: none;">Home</a> <span style="color: var(--border); margin: 0 0.5rem;">/</span>
+    <a href="/blog" style="color: var(--text-muted); text-decoration: none;">Blog</a> <span style="color: var(--border); margin: 0 0.5rem;">/</span>
+    <span style="color: var(--gold);" aria-current="page">{{ post.category }}</span>
+  </nav>
+
+  <h1 style="font-size: 2.8rem; line-height: 1.2; margin-bottom: 1.5rem; font-weight: 800;">{{ post.title }}</h1>
+  
+  <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border);">
+    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), #FFC107); display: flex; align-items: center; justify-content: center; color: var(--bg-primary); font-weight: bold; font-size: 1.2rem;">SB</div>
+    <div>
+      <div style="font-weight: 600;">{{ post.author }}</div>
+      <div style="font-size: 0.85rem; color: var(--text-muted);">{{ post.published_date[:10] }} • {{ post.reading_time }} min read</div>
+    </div>
+  </div>
+
+  <div class="blog-content">
+    {{ post.content | safe }}
+  </div>
+
+  <div style="margin-top: 4rem; padding: 2rem; background: var(--bg-card); border-radius: 1rem; text-align: center; border: 1px solid var(--border);">
+    <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--gold);">Ready to trade like a pro?</h3>
+    <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Get exact entry, stop-loss, and target levels with our premium signals.</p>
+    <a href="/auth" class="btn-gold" style="display: inline-block; padding: 0.8rem 2rem; border-radius: 2rem; background: var(--gold); color: var(--bg-primary); font-weight: 700; text-decoration: none;">View Premium Plans</a>
+  </div>
+</article>
+{% endblock %}
