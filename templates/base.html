@@ -217,7 +217,7 @@
             <div class="name">Hi, <span>{{ username or 'Trader' }}</span></div>
             <a href="/dashboard" style="color:var(--gold); border:none; padding:0 0.5rem;" aria-label="Go to Dashboard">Dashboard</a> | 
             <a href="/profile" style="color:var(--text); border:none; padding:0 0.5rem;" aria-label="Go to Profile">Profile</a> | 
-            <a href="/auth?logout=1" class="logout" aria-label="Log Out">Logout</a>
+            <a href="/logout" class="logout" aria-label="Log Out">Logout</a>
           </div>
         {% else %}
           <a href="/auth" class="btn-gold" aria-label="Log In or Register">Login / Register</a>
