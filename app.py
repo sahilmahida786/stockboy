@@ -778,7 +778,7 @@ def profile():
         session.clear()
         return redirect(url_for("auth_page"))
         
-    plan = user.get("plan", "none")
+    plan = user.get("plan") or "none"
     
     return render_template("profile.html", 
                           user=user, 
@@ -800,7 +800,7 @@ def dashboard():
     if not check_subscription_active(uid):
         return redirect(url_for("plans_page"))
         
-    plan = user.get("plan", "none")
+    plan = user.get("plan") or "none"
     all_signals = get_active_signals()
     active_signals = [s for s in all_signals if s.get("status") not in ["Expired", "EXPIRED", "Closed", "CLOSED", "Cancelled", "CANCELLED"]]
     
@@ -845,7 +845,7 @@ def dashboard():
                           notifications=notifications,
                           plans=MEMBERSHIP_PLANS,
                           current_risk_version=1,
-                          user_risk_version=user.get("riskNoticeVersion", 0))
+                          user_risk_version=user.get("riskNoticeVersion") or 0)
 
 @app.route("/check-subscription")
 def check_subscription():
