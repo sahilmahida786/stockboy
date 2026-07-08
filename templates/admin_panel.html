@@ -95,16 +95,7 @@
 {% endblock %}
 
 {% block content %}
-<nav class="nav">
-  <div class="nav-left">
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="logo">
-    <h1>Admin Panel</h1>
-  </div>
-  <div class="nav-right" style="display:flex;gap:0.5rem">
-    <button onclick="document.getElementById('announcementModal').classList.add('show')" class="btn-sm" style="background:var(--card);color:var(--text);border:1px solid var(--border);">📢 Announcement</button>
-    <a href="/admin/signal/create" class="btn-create">+ Create Signal</a>
-  </div>
-</nav>
+
 
 <div class="tabs">
   <div class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</div>
