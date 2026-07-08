@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  
+  <meta name="theme-color" content="#08090D" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <!-- ── Dynamic SEO ── -->
-  <title>{% block title %}Stockboy – Premium Stock Signals & Membership Platform | India{% endblock %}</title>
-  <meta name="description" content="{% block description %}Get expert stock signals with precise entry, targets & stop-loss levels. Join 500+ traders using Stockboy's premium signal platform. NSE & BSE covered. Subscribe now.{% endblock %}" />
-  <meta name="keywords" content="{% block keywords %}premium stock signals, intraday stock tips, indian stock market signals, f&o trading signals, swing trading signals, nse trading, bse trading, bank nifty signals, nifty trading, technical analysis{% endblock %}" />
+  <title>{% block title %}Stockboy – Premium Trading Intelligence Platform | India{% endblock %}</title>
+  <meta name="description" content="{% block description %}Access professional market research, actionable trading intelligence, and real-time market insights. Join 500+ traders using Stockboy to make smart trading decisions.{% endblock %}" />
+  <meta name="keywords" content="{% block keywords %}premium trading intelligence, market research, indian stock market analysis, nse trading, bse trading, market insights, trading platform, financial research{% endblock %}" />
   <meta name="robots" content="index, follow" />
   
   <!-- Canonical URL -->
@@ -58,7 +60,7 @@
     "name": "Stockboy Premium",
     "url": "https://stockboy.works",
     "logo": "https://stockboy.works/static/logo.png",
-    "description": "Enterprise-grade stock signal platform providing expert NSE & BSE alerts for Indian traders.",
+    "description": "Enterprise-grade trading intelligence platform providing professional market research and insights for Indian traders.",
     "sameAs": [
       "https://www.instagram.com/stocks_boy1?igsh=MTg4M3owamoxZHNzeg==",
       "https://t.me/pennystocksboy",
@@ -92,17 +94,50 @@
   <style>
     /* ── BASE STYLES ── */
     :root {
-      --bg-primary: #081821;
-      --bg-card: #102530;
-      --bg-card-hover: #153040;
+      /* Base Colors */
+      --bg-primary: #08090D;
+      --bg-surface: rgba(20,25,35,0.8);
+      --bg-surface-elevated: rgba(25,30,45,0.9);
+      
+      /* Accents */
       --gold: #FFD54A;
-      --gold-dim: rgba(255,213,74,0.15);
-      --text: #FFFFFF;
-      --text-muted: #8a9bb0;
+      --gold-dim: rgba(255,213,74,0.1);
+      --blue-accent: #4facfe;
       --success: #00C853;
       --warning: #FFC107;
       --danger: #FF5252;
-      --border: rgba(255,255,255,0.08);
+      
+      /* Text */
+      --text: #FFFFFF;
+      --text-muted: #8a9bb0;
+      
+      /* Borders & Shadows */
+      --border: rgba(255,255,255,0.05);
+      --border-light: rgba(255,255,255,0.1);
+      --shadow-sm: 0 4px 15px rgba(0,0,0,0.3);
+      --shadow-md: 0 10px 30px rgba(0,0,0,0.5);
+      --shadow-glow: 0 10px 30px rgba(255,213,74,0.1);
+      
+      /* Glassmorphism */
+      --glass-blur: blur(16px);
+      --glass-bg: linear-gradient(180deg, rgba(20,25,35,0.6) 0%, rgba(12,15,20,0.8) 100%);
+      
+      /* Spacing */
+      --space-1: 0.5rem;   /* 8px */
+      --space-2: 1rem;     /* 16px */
+      --space-3: 1.5rem;   /* 24px */
+      --space-4: 2rem;     /* 32px */
+      --space-6: 3rem;     /* 48px */
+      
+      /* Radii */
+      --radius-sm: 0.5rem; /* 8px */
+      --radius-md: 0.75rem; /* 12px */
+      --radius-lg: 1rem;    /* 16px */
+      --radius-xl: 1.5rem;  /* 24px */
+      
+      /* Transitions */
+      --easing: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      --easing-smooth: cubic-bezier(0.4, 0, 0.2, 1);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -143,11 +178,31 @@
       .nav-brand img { width: 32px; height: 32px; }
       .nav-links a { font-size: 0.75rem; padding: 0.35rem 0.8rem; }
     }
+  
+    /* Global Focus State */
+    a:focus-visible, button:focus-visible, input:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+      transition: outline-offset 0.2s ease;
+    }
+    
   </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/loading.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}" />
   {% block extra_css %}{% endblock %}
 </head>
 <body>
 
+  <!-- Enterprise Page Loader -->
+  <div id="sbGlobalLoader" class="sb-page-loader">
+    <div id="sbLoaderProgress" class="sb-loader-progress"></div>
+    <div class="sb-loader-ring-wrapper">
+      <img src="{{ url_for('static', filename='logo.png') }}" class="sb-loader-logo" alt="Loading...">
+      <div class="sb-loader-ring"></div>
+    </div>
+    <div class="sb-loader-text">Loading Workspace</div>
+  </div>
   <!-- Global Header -->
   <header>
     <nav class="navbar" role="navigation" aria-label="Main Navigation">
@@ -161,6 +216,7 @@
           <div class="user-info">
             <div class="name">Hi, <span>{{ username or 'Trader' }}</span></div>
             <a href="/dashboard" style="color:var(--gold); border:none; padding:0 0.5rem;" aria-label="Go to Dashboard">Dashboard</a> | 
+            <a href="/profile" style="color:var(--text); border:none; padding:0 0.5rem;" aria-label="Go to Profile">Profile</a> | 
             <a href="/auth?logout=1" class="logout" aria-label="Log Out">Logout</a>
           </div>
         {% else %}
@@ -197,6 +253,52 @@
     gtag('config', '{{ config.GA_TRACKING_ID }}');
   </script>
   {% endif %}
+
+  <!-- Scroll Progress Bar -->
+  <div class="sb-scroll-progress" aria-hidden="true"></div>
+
+  <!-- Premium Animation Engine -->
+  <script src="{{ url_for('static', filename='js/animations.js') }}" defer></script>
+  <!-- Enterprise Loading Engine -->
+  <script src="{{ url_for('static', filename='js/loading.js') }}" defer></script>
+  <!-- Notification System Engine -->
+  <script src="{{ url_for('static', filename='js/notification-sound.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/toast.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/notification-center.js') }}" defer></script>
+  <script type="module" src="{{ url_for('static', filename='js/notifications.js') }}" defer></script>
+  
+  <!-- Progressive Web App Engine -->
+  <script src="{{ url_for('static', filename='js/pwa.js') }}" defer></script>
+
+  <!-- PWA Install Bottom Sheet -->
+  <div id="sbInstallSheet" style="
+    position: fixed; bottom: -100%; left: 0; right: 0;
+    background: rgba(12,24,32,0.95); backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(255,213,74,0.3); border-top-left-radius: 1.5rem; border-top-right-radius: 1.5rem;
+    padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    z-index: 9999; display: flex; flex-direction: column; align-items: center; text-align: center;
+    transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+  ">
+    <img src="{{ url_for('static', filename='logo.png') }}" style="width:56px; height:56px; margin-bottom:1rem; border-radius:1rem;" alt="Stockboy">
+    <h3 style="font-size:1.25rem; font-weight:800; color:#fff; margin-bottom:0.25rem;">Install Stockboy Premium</h3>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem; max-width: 300px;">Get instant signal alerts and a native trading experience on your home screen.</p>
+    <div style="display:flex; gap:1rem; width:100%; max-width:350px;">
+      <button id="sbBtnLater" style="flex:1; padding:0.8rem; background:rgba(255,255,255,0.05); color:#fff; border-radius:0.75rem; border:1px solid rgba(255,255,255,0.1); font-weight:600;">Later</button>
+      <button id="sbBtnInstall" style="flex:1; padding:0.8rem; background:linear-gradient(135deg, #FFD54A, #FFC107); color:#0B1220; border-radius:0.75rem; border:none; font-weight:800;">Install App</button>
+    </div>
+  </div>
+  <style>
+    #sbInstallSheet.visible { bottom: 0 !important; }
+  
+    /* Global Focus State */
+    a:focus-visible, button:focus-visible, input:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+      transition: outline-offset 0.2s ease;
+    }
+    
+  </style>
 
   {% block extra_js %}{% endblock %}
 </body>

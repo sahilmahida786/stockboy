@@ -1,0 +1,283 @@
+/* Luxury Dashboard Hero - Enterprise Fintech Aesthetic */
+
+.sb-hero-wrapper {
+  margin: var(--space-3) auto var(--space-4) auto;
+  max-width: 1400px;
+  padding: 0 var(--space-3);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--space-4);
+  align-items: center;
+  background: var(--glass-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle background glow effect */
+.sb-hero-wrapper::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: -50px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255,213,74,0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* LEFT: Avatar */
+.sb-hero-avatar-container {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sb-hero-avatar-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0%, transparent 60%, var(--gold) 100%);
+  animation: sbSpin 4s linear infinite;
+}
+
+.sb-hero-avatar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-primary);
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--gold);
+  box-shadow: 0 0 20px rgba(255,213,74,0.3);
+  z-index: 2;
+  overflow: hidden;
+}
+
+.sb-hero-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* CENTER: Identity */
+.sb-hero-identity {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.sb-hero-username {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.25rem;
+  line-height: 1.2;
+}
+
+.sb-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(90deg, rgba(255,213,74,0.15) 0%, rgba(255,213,74,0.05) 100%);
+  border: 1px solid rgba(255,213,74,0.3);
+  padding: 0.35rem 0.85rem;
+  border-radius: 2rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+  position: relative;
+  overflow: hidden;
+  width: fit-content;
+}
+
+.sb-hero-badge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-20deg);
+  animation: sbShimmer 3s infinite ease-in-out;
+}
+
+.sb-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.sb-hero-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* RIGHT: Status & Actions */
+.sb-hero-actions-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.sb-hero-status-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,213,74,0.2);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.sb-hero-status-pulse {
+  position: relative;
+  width: 10px;
+  height: 10px;
+}
+.sb-hero-status-pulse::before,
+.sb-hero-status-pulse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--success);
+}
+.sb-hero-status-pulse::after {
+  animation: sbPulseGlow 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sb-hero-status-text {
+  display: flex;
+  flex-direction: column;
+}
+.sb-hero-status-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--success);
+}
+.sb-hero-status-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.sb-hero-quick-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.sb-hero-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s var(--easing);
+  cursor: pointer;
+}
+
+.sb-hero-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  border-color: rgba(255,255,255,0.2);
+}
+.sb-hero-btn.danger:hover {
+  color: var(--danger);
+  border-color: rgba(255,82,82,0.3);
+  background: rgba(255,82,82,0.1);
+}
+
+/* Animations */
+@keyframes sbSpin {
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes sbShimmer {
+  0% { left: -100%; }
+  20% { left: 200%; }
+  100% { left: 200%; }
+}
+
+@keyframes sbPulseGlow {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(2.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .sb-hero-wrapper {
+    grid-template-columns: auto 1fr;
+    grid-template-areas: 
+      "avatar identity"
+      "actions actions";
+  }
+  .sb-hero-avatar-container { grid-area: avatar; }
+  .sb-hero-identity { grid-area: identity; }
+  .sb-hero-actions-wrapper { grid-area: actions; align-items: flex-start; width: 100%; }
+  .sb-hero-status-card { width: 100%; justify-content: flex-start; }
+}
+
+@media (max-width: 576px) {
+  .sb-hero-wrapper {
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+      "avatar"
+      "identity"
+      "actions";
+    text-align: center;
+    gap: var(--space-3);
+  }
+  .sb-hero-avatar-container {
+    margin: 0 auto;
+    width: 64px;
+    height: 64px;
+  }
+  .sb-hero-meta {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .sb-hero-badge { margin: 0 auto 0.75rem auto; }
+  .sb-hero-quick-actions { 
+    width: 100%; 
+    justify-content: center; 
+  }
+  .sb-hero-btn {
+    width: 44px;
+    height: 44px; /* Touch friendly minimums */
+  }
+}

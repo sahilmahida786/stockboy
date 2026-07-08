@@ -56,7 +56,7 @@ def require_login():
         "admin_login", "maintenance", "privacy_policy", "terms", "refund", "contact",
         "create_payment_order", "verify_payment", "plans_page", "razorpay_webhook",
         "about_page", "products_page", "payment_page", "blog_index", "blog_post",
-        "sitemap_xml", "robots_txt"
+        "sitemap_xml", "robots_txt", "serve_manifest", "serve_sw", "offline_page"
     ]
 
     # Admin routes — bypass user login check if admin session exists
@@ -763,6 +763,29 @@ def logout():
 # -------------------------------------------------
 # USER DASHBOARD
 # -------------------------------------------------
+
+# -------------------------------------------------
+# PROFILE PAGE
+# -------------------------------------------------
+@app.route("/profile")
+def profile():
+    if not session.get("user_id"):
+        return redirect(url_for("auth_page"))
+    
+    uid = session.get("user_id")
+    user = get_user_doc(uid)
+    if not user:
+        session.clear()
+        return redirect(url_for("auth_page"))
+        
+    plan = user.get("plan", "none")
+    
+    return render_template("profile.html", 
+                          user=user, 
+                          name=user.get("name", "Trader"),
+                          plan=plan,
+                          expiry=user.get("subscriptionExpiry"))
+
 @app.route("/dashboard")
 def dashboard():
     if not session.get("user_id"):
@@ -820,7 +843,9 @@ def dashboard():
                           closed_signals=closed_signals,
                           total_signals=len(all_signals),
                           notifications=notifications,
-                          plans=MEMBERSHIP_PLANS)
+                          plans=MEMBERSHIP_PLANS,
+                          current_risk_version=1,
+                          user_risk_version=user.get("riskNoticeVersion", 0))
 
 @app.route("/check-subscription")
 def check_subscription():
@@ -1569,6 +1594,46 @@ def payment_page():
 # -------------------------------------------------
 # RUN SERVER
 # -------------------------------------------------
+# -------------------------------------------------
+# PROGRESSIVE WEB APP (PWA) ROUTES
+# -------------------------------------------------
+@app.route('/manifest.webmanifest')
+def serve_manifest():
+    return app.send_static_file('manifest.webmanifest')
+
+@app.route('/sw.js')
+def serve_sw():
+    response = app.send_static_file('js/sw.js')
+    response.headers['Content-Type'] = 'application/javascript'
+    response.headers['Service-Worker-Allowed'] = '/'
+    return response
+
+@app.route('/offline')
+def offline_page():
+    return render_template('offline.html')
+
+
+# -------------------------------------------------
+# ONBOARDING / RISK ACCEPTANCE
+# -------------------------------------------------
+@app.route('/api/accept-risk', methods=['POST'])
+def accept_risk():
+    if not session.get("user_id"):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+    
+    uid = session.get("user_id")
+    try:
+        if db:
+            db.collection("users").document(uid).update({
+                "riskNoticeAccepted": True,
+                "riskNoticeVersion": 1,
+                "riskNoticeAcceptedAt": firestore.SERVER_TIMESTAMP
+            })
+        return jsonify({"success": True})
+    except Exception as e:
+        print(f"Error accepting risk notice: {e}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
 if __name__ == "__main__":
     start_scheduler()
     port = int(os.getenv("PORT", 5000))

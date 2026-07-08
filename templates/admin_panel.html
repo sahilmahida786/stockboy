@@ -100,7 +100,8 @@
     <img src="{{ url_for('static', filename='logo.png') }}" alt="logo">
     <h1>Admin Panel</h1>
   </div>
-  <div class="nav-right">
+  <div class="nav-right" style="display:flex;gap:0.5rem">
+    <button onclick="document.getElementById('announcementModal').classList.add('show')" class="btn-sm" style="background:var(--card);color:var(--text);border:1px solid var(--border);">📢 Announcement</button>
     <a href="/admin/signal/create" class="btn-create">+ Create Signal</a>
   </div>
 </nav>
@@ -252,6 +253,52 @@
   </div>
 
 </div>
+
+<!-- Announcement Modal -->
+<div class="modal-bg" id="announcementModal">
+  <div class="modal">
+    <h3>Publish Announcement</h3>
+    <input type="text" id="announceTitle" placeholder="Title (e.g. Market Holiday)" />
+    <input type="text" id="announceMsg" placeholder="Message" />
+    <select id="announceType" class="status-select" style="width:100%; margin-bottom:1rem; padding:0.6rem;">
+      <option value="info">Info (Blue)</option>
+      <option value="warning">Warning (Orange)</option>
+      <option value="error">Emergency (Red)</option>
+      <option value="success">Success (Green)</option>
+    </select>
+    <div class="modal-btns">
+      <button class="confirm" onclick="publishAdminAnnouncement()">Publish</button>
+      <button class="cancel" onclick="document.getElementById('announcementModal').classList.remove('show')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function publishAdminAnnouncement() {
+    const title = document.getElementById('announceTitle').value;
+    const msg = document.getElementById('announceMsg').value;
+    const type = document.getElementById('announceType').value;
+    
+    if (!title || !msg) return alert('Fill all fields');
+    
+    if (window.StockboyNotifications && window.StockboyNotifications.publishAnnouncement) {
+      const btn = document.querySelector('#announcementModal .confirm');
+      btn.innerText = "Publishing...";
+      const success = await window.StockboyNotifications.publishAnnouncement(title, msg, type);
+      if (success) {
+        document.getElementById('announcementModal').classList.remove('show');
+        document.getElementById('announceTitle').value = '';
+        document.getElementById('announceMsg').value = '';
+        window.StockboyToast.show({ title: 'Success', message: 'Announcement published to all users.', type: 'success' });
+      } else {
+        alert("Failed to publish. Check console.");
+      }
+      btn.innerText = "Publish";
+    } else {
+      alert('Notification engine not loaded yet.');
+    }
+  }
+</script>
 
 <div id="extendModal" class="modal-bg">
   <div class="modal">

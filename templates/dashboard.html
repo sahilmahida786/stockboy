@@ -4,1901 +4,413 @@
 {% block description %}Live premium stock signals dashboard. View active trades, track hits, and monitor market movements.{% endblock %}
 
 {% block extra_css %}
-<style>
-/* ============================================
-   ENTERPRISE DESIGN SYSTEM
-   ============================================ */
-
-
-/* ============================================
-   RESET & BASE
-   ============================================ */
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-
-@media (min-width: 769px) {
-  
-}
-a { color: inherit; text-decoration: none; }
-button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
-img { max-width: 100%; display: block; }
-
-/* ============================================
-   ANIMATIONS
-   ============================================ */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-@keyframes slideDown {
-  from { transform: translateY(0); }
-  to { transform: translateY(100%); }
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-@keyframes livePulse {
-  0% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.5); }
-  70% { box-shadow: 0 0 0 8px rgba(0, 230, 118, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
-}
-@keyframes livePulseRed {
-  0% { box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.5); }
-  70% { box-shadow: 0 0 0 8px rgba(255, 77, 79, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 77, 79, 0); }
-}
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.92); }
-  to { opacity: 1; transform: scale(1); }
-}
-@keyframes pricePulse {
-  0% { background: transparent; }
-  50% { background: var(--accent-dim); }
-  100% { background: transparent; }
-}
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-@keyframes particleFloat {
-  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
-  10% { opacity: 0.6; }
-  90% { opacity: 0.6; }
-  100% { transform: translateY(-120vh) translateX(40px) scale(0); opacity: 0; }
-}
-
-.anim-fade-up {
-  animation: fadeUp 0.6s var(--ease-out) both;
-}
-.anim-scale-in {
-  animation: scaleIn 0.5s var(--ease-out) both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* ============================================
-   HEADER
-   ============================================ */
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 80;
-  background: var(--bg-glass-heavy);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid var(--border);
-  height: var(--header-height);
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-}
-.header-inner {
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-}
-.header-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-full);
-  background: linear-gradient(135deg, var(--accent), #00B8D4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 14px;
-  color: #08090D;
-  flex-shrink: 0;
-  letter-spacing: -0.02em;
-}
-.header-user {
-  min-width: 0;
-}
-.header-name {
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  letter-spacing: -0.02em;
-}
-.header-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  background: var(--accent-dim);
-  color: var(--accent);
-  border: 1px solid rgba(0, 230, 118, 0.15);
-  margin-top: 2px;
-}
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-.header-market-status {
-  display: none;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: var(--radius-full);
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-  font-size: 11px;
-  font-weight: 600;
-}
-@media (min-width: 480px) {
-  .header-market-status { display: flex; }
-}
-.market-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.market-dot.open {
-  background: var(--accent);
-  animation: livePulse 2s infinite;
-}
-.market-dot.closed {
-  background: var(--loss);
-  animation: livePulseRed 3s infinite;
-}
-.header-clock {
-  font-variant-numeric: tabular-nums;
-  color: var(--text-secondary);
-  font-size: 11px;
-  font-weight: 500;
-}
-.header-icon-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-  transition: all 0.2s;
-  position: relative;
-}
-.header-icon-btn:hover {
-  background: rgba(255,255,255,0.06);
-  color: var(--text-primary);
-}
-.header-icon-btn svg {
-  width: 20px;
-  height: 20px;
-}
-.notif-dot {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 7px;
-  height: 7px;
-  background: var(--loss);
-  border-radius: 50%;
-  border: 2px solid var(--bg-primary);
-}
-
-/* ============================================
-   MARKET TICKER
-   ============================================ */
-.ticker {
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
-  height: var(--ticker-height);
-  display: flex;
-  align-items: center;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  gap: 0;
-  padding: 0 8px;
-}
-.ticker::-webkit-scrollbar { display: none; }
-.ticker-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 16px;
-  white-space: nowrap;
-  border-right: 1px solid var(--border);
-  height: 100%;
-  flex-shrink: 0;
-}
-.ticker-item:last-child { border-right: none; }
-.ticker-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-secondary);
-  letter-spacing: 0.03em;
-}
-.ticker-value {
-  font-size: 12px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary);
-}
-.ticker-change {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-}
-.ticker-change.up { background: var(--accent-dim); color: var(--accent); }
-.ticker-change.down { background: var(--loss-dim); color: var(--loss); }
-.ticker-live {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 12px;
-  flex-shrink: 0;
-}
-.ticker-live-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  animation: livePulse 2s infinite;
-}
-.ticker-live-text {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-}
-
-/* ============================================
-   MAIN CONTENT
-   ============================================ */
-.main-content {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 20px 16px;
-}
-@media (min-width: 769px) {
-  .main-content { padding: 24px 24px; }
-}
-
-/* ============================================
-   HERO STATS
-   ============================================ */
-.hero-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 24px;
-}
-@media (min-width: 769px) {
-  .hero-stats { gap: 16px; margin-bottom: 32px; }
-}
-.stat-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  position: relative;
-  overflow: hidden;
-}
-.stat-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-}
-.stat-card.accent-green::after { background: linear-gradient(90deg, var(--accent), transparent); }
-.stat-card.accent-blue::after { background: linear-gradient(90deg, var(--info), transparent); }
-.stat-card.accent-warn::after { background: linear-gradient(90deg, var(--warning), transparent); }
-.stat-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 6px;
-}
-.stat-value {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-@media (max-width: 400px) {
-  .stat-value { font-size: 18px; }
-  .stat-label { font-size: 10px; }
-  .stat-card { padding: 12px; }
-}
-.stat-sub {
-  font-size: 11px;
-  color: var(--text-tertiary);
-  margin-top: 4px;
-  font-weight: 500;
-}
-.sentiment-bullish { color: var(--accent); }
-.sentiment-bearish { color: var(--loss); }
-.sentiment-neutral { color: var(--warning); }
-
-/* ============================================
-   TAB SYSTEM
-   ============================================ */
-.tabs-container {
-  margin-bottom: 24px;
-  position: sticky;
-  top: var(--header-height);
-  z-index: 40;
-  background: var(--bg-primary);
-  padding: 12px 0;
-  /* Give a subtle fade at edges */
-}
-@media (min-width: 769px) {
-  .tabs-container {
-    position: relative;
-    top: auto;
-    z-index: auto;
-  }
-}
-.tabs-row {
-  display: flex;
-  gap: 6px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-  padding: 4px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.tabs-row::-webkit-scrollbar { display: none; }
-.tab-btn {
-  flex: 1;
-  min-width: 0;
-  padding: 10px 16px;
-  border-radius: var(--radius-full);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-align: center;
-  white-space: nowrap;
-  transition: all 0.3s var(--ease-out);
-  -webkit-tap-highlight-color: transparent;
-}
-.tab-btn:hover {
-  color: var(--text-secondary);
-}
-.tab-btn.active {
-  background: var(--bg-elevated);
-  color: var(--text-primary);
-  box-shadow: var(--shadow-sm);
-}
-.tab-btn .tab-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: var(--radius-full);
-  font-size: 10px;
-  font-weight: 700;
-  margin-left: 6px;
-  background: var(--accent-dim);
-  color: var(--accent);
-}
-.tab-btn.active .tab-count {
-  background: var(--accent);
-  color: var(--bg-primary);
-}
-
-/* Tab panels */
-.tab-panel {
-  display: none;
-  animation: fadeUp 0.4s var(--ease-out) both;
-}
-.tab-panel.active { display: block; }
-
-/* ============================================
-   SIGNAL CARDS
-   ============================================ */
-.signals-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-@media (min-width: 600px) {
-  .signals-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (min-width: 1024px) {
-  .signals-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
-}
-
-.signal-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  padding: 20px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.4s var(--ease-out);
-  -webkit-tap-highlight-color: transparent;
-}
-.signal-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-xl);
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 40%, transparent 60%, rgba(255,255,255,0.04));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.4s;
-  pointer-events: none;
-}
-.signal-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  background: var(--bg-card-hover);
-}
-.signal-card:hover::before { opacity: 1; }
-.signal-card:active { transform: translateY(-2px) scale(0.99); }
-
-.signal-card.buy-glow:hover {
-  border-color: rgba(0, 230, 118, 0.2);
-  box-shadow: var(--shadow-glow-green);
-}
-.signal-card.sell-glow:hover {
-  border-color: rgba(255, 77, 79, 0.2);
-  box-shadow: var(--shadow-glow-red);
-}
-
-/* Card Header */
-.card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-.card-stock-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-}
-.stock-logo {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 16px;
-  flex-shrink: 0;
-  color: #fff;
-}
-.stock-logo.bg-1 { background: linear-gradient(135deg, #6366F1, #4F46E5); }
-.stock-logo.bg-2 { background: linear-gradient(135deg, #EC4899, #DB2777); }
-.stock-logo.bg-3 { background: linear-gradient(135deg, #F59E0B, #D97706); }
-.stock-logo.bg-4 { background: linear-gradient(135deg, #10B981, #059669); }
-.stock-logo.bg-5 { background: linear-gradient(135deg, #3B82F6, #2563EB); }
-.stock-logo.bg-6 { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
-.stock-logo.bg-7 { background: linear-gradient(135deg, #EF4444, #DC2626); }
-.stock-logo.bg-8 { background: linear-gradient(135deg, #14B8A6, #0D9488); }
-
-.stock-name-group { min-width: 0; }
-.stock-name {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.stock-exchange {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  margin-top: 2px;
-}
-
-/* Action Badge */
-.action-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 14px;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  flex-shrink: 0;
-}
-.action-badge.buy {
-  background: var(--accent-dim);
-  color: var(--accent);
-  border: 1px solid rgba(0, 230, 118, 0.2);
-}
-.action-badge.sell {
-  background: var(--loss-dim);
-  color: var(--loss);
-  border: 1px solid rgba(255, 77, 79, 0.2);
-}
-.action-badge svg { width: 14px; height: 14px; }
-
-/* CMP Row */
-.card-cmp-row {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-.cmp-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.cmp-value {
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Card Meta Grid */
-.card-meta {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-.meta-item {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 8px 10px;
-  text-align: center;
-}
-.meta-label {
-  font-size: 9px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 3px;
-}
-.meta-value {
-  font-size: 12px;
-  font-weight: 700;
-}
-.meta-value.high { color: var(--accent); }
-.meta-value.medium { color: var(--warning); }
-.meta-value.low { color: var(--info); }
-
-/* Card Footer */
-.card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-subtle);
-}
-.card-time {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  color: var(--text-tertiary);
-  font-weight: 500;
-}
-.card-time svg { width: 13px; height: 13px; opacity: 0.6; }
-.card-sector {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: var(--radius-full);
-  background: rgba(255,255,255,0.04);
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Sparkline */
-.card-sparkline {
-  height: 32px;
-  width: 100%;
-  margin-top: 12px;
-  opacity: 0.4;
-  transition: opacity 0.3s;
-}
-.signal-card:hover .card-sparkline { opacity: 0.8; }
-
-/* ============================================
-   DETAIL DRAWER
-   ============================================ */
-.drawer-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s;
-}
-.drawer-overlay.open {
-  opacity: 1;
-  visibility: visible;
-}
-.drawer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 210;
-  background: var(--bg-card);
-  border-top-left-radius: var(--radius-2xl);
-  border-top-right-radius: var(--radius-2xl);
-  max-height: 85vh;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  transform: translateY(100%);
-  transition: transform 0.4s var(--ease-out);
-  box-shadow: 0 -10px 50px rgba(0,0,0,0.5);
-}
-.drawer.open { transform: translateY(0); }
-@media (min-width: 769px) {
-  .drawer {
-    left: 50%;
-    right: auto;
-    width: 520px;
-    transform: translateX(-50%) translateY(100%);
-    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
-  }
-  .drawer.open { transform: translateX(-50%) translateY(0); }
-}
-.drawer-handle {
-  display: flex;
-  justify-content: center;
-  padding: 12px 0 8px;
-  position: sticky;
-  top: 0;
-  background: var(--bg-card);
-  z-index: 1;
-}
-.drawer-handle-bar {
-  width: 36px;
-  height: 4px;
-  border-radius: var(--radius-full);
-  background: var(--text-muted);
-}
-.drawer-
-.drawer-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-.drawer-stock-info {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.drawer-stock-logo {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 20px;
-  color: #fff;
-}
-.drawer-stock-name {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-.drawer-stock-sector {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  font-weight: 500;
-  margin-top: 2px;
-}
-.drawer-close {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-full);
-  background: rgba(255,255,255,0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-.drawer-close:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
-.drawer-close svg { width: 18px; height: 18px; }
-
-/* Drawer Action Row */
-.drawer-action-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 24px;
-}
-.drawer-action-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
-  border-radius: var(--radius-full);
-  font-size: 14px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.drawer-action-badge.buy {
-  background: var(--accent-dim);
-  color: var(--accent);
-  border: 1px solid rgba(0, 230, 118, 0.2);
-}
-.drawer-action-badge.sell {
-  background: var(--loss-dim);
-  color: var(--loss);
-  border: 1px solid rgba(255, 77, 79, 0.2);
-}
-.drawer-cmp {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
-  border-radius: var(--radius-full);
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border);
-  font-size: 14px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Drawer Sections */
-.drawer-section {
-  margin-bottom: 20px;
-}
-.drawer-section-title {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-/* Technical Summary Grid */
-.tech-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-.tech-item {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 12px;
-}
-.tech-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 4px;
-}
-.tech-value {
-  font-size: 13px;
-  font-weight: 700;
-}
-
-/* Risk Meter */
-.risk-meter {
-  margin-bottom: 20px;
-}
-.risk-bar-bg {
-  height: 6px;
-  background: var(--bg-elevated);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  margin-top: 8px;
-}
-.risk-bar-fill {
-  height: 100%;
-  border-radius: var(--radius-full);
-  transition: width 0.6s var(--ease-out);
-}
-.risk-bar-fill.low { width: 30%; background: var(--accent); }
-.risk-bar-fill.medium { width: 60%; background: var(--warning); }
-.risk-bar-fill.high { width: 90%; background: var(--loss); }
-
-/* Probability Meter */
-.prob-meter {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-}
-.prob-circle {
-  width: 48px;
-  height: 48px;
-  position: relative;
-  flex-shrink: 0;
-}
-.prob-circle svg { width: 48px; height: 48px; transform: rotate(-90deg); }
-.prob-circle-bg { fill: none; stroke: var(--bg-elevated); stroke-width: 4; }
-.prob-circle-fill { fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 1s var(--ease-out); }
-.prob-circle-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 800;
-  font-family: var(--font-display);
-}
-.prob-info { min-width: 0; }
-.prob-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
-.prob-desc { font-size: 11px; color: var(--text-tertiary); }
-
-/* Drawer Disclaimer */
-.drawer-disclaimer {
-  font-size: 10px;
-  color: var(--text-muted);
-  line-height: 1.5;
-  padding: 12px;
-  background: rgba(255,255,255,0.02);
-  border-radius: var(--radius-sm);
-  margin-top: 20px;
-  border-left: 2px solid var(--warning);
-}
-
-/* ============================================
-   EMPTY STATE
-   ============================================ */
-.empty-state {
-  text-align: center;
-  padding: 60px 24px;
-  position: relative;
-}
-.empty-icon {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 20px;
-  border-radius: var(--radius-xl);
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: float 4s ease-in-out infinite;
-}
-.empty-icon svg { width: 36px; height: 36px; color: var(--text-muted); }
-.empty-title {
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  margin-bottom: 8px;
-}
-.empty-desc {
-  font-size: 14px;
-  color: var(--text-tertiary);
-  max-width: 360px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
-.empty-particles {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-.particle {
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  background: var(--accent);
-  border-radius: 50%;
-  opacity: 0;
-  animation: particleFloat linear infinite;
-}
-
-/* ============================================
-   SKELETON LOADING
-   ============================================ */
-.skeleton-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-@media (min-width: 600px) {
-  .skeleton-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (min-width: 1024px) {
-  .skeleton-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
-}
-.skeleton-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  padding: 20px;
-}
-.skeleton-line {
-  height: 12px;
-  border-radius: var(--radius-sm);
-  background: linear-gradient(90deg, var(--bg-elevated) 25%, rgba(255,255,255,0.06) 50%, var(--bg-elevated) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.8s infinite;
-}
-.skeleton-line.w-40 { width: 40%; }
-.skeleton-line.w-60 { width: 60%; }
-.skeleton-line.w-80 { width: 80%; }
-.skeleton-line.w-100 { width: 100%; }
-.skeleton-line.h-20 { height: 20px; }
-.skeleton-line.h-8 { height: 8px; }
-.skeleton-line + .skeleton-line { margin-top: 10px; }
-.skeleton-circle {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(90deg, var(--bg-elevated) 25%, rgba(255,255,255,0.06) 50%, var(--bg-elevated) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.8s infinite;
-  flex-shrink: 0;
-}
-.skeleton-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* ============================================
-   HISTORY TAB
-   ============================================ */
-.history-filters {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 16px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 4px;
-}
-.history-filters::-webkit-scrollbar { display: none; }
-.filter-pill {
-  padding: 7px 16px;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-  white-space: nowrap;
-  transition: all 0.2s;
-  -webkit-tap-highlight-color: transparent;
-}
-.filter-pill:hover { color: var(--text-secondary); border-color: rgba(255,255,255,0.1); }
-.filter-pill.active {
-  background: var(--accent-dim);
-  color: var(--accent);
-  border-color: rgba(0, 230, 118, 0.2);
-}
-
-.history-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 8px;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-.history-card:hover { background: var(--bg-card-hover); }
-.history-logo {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 14px;
-  color: #fff;
-  flex-shrink: 0;
-}
-.history-info { flex: 1; min-width: 0; }
-.history-name {
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-.history-meta {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  margin-top: 2px;
-}
-.history-status {
-  padding: 5px 12px;
-  border-radius: var(--radius-full);
-  font-size: 11px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-.status-target-hit { background: var(--accent-dim); color: var(--accent); }
-.status-expired { background: rgba(255,255,255,0.05); color: var(--text-tertiary); }
-.status-closed { background: var(--info-dim); color: var(--info); }
-.status-cancelled { background: var(--loss-dim); color: var(--loss); }
-
-/* ============================================
-   BOTTOM NAVIGATION
-   ============================================ */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 90;
-  height: var(--bottom-nav-height);
-  background: var(--bg-glass-heavy);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 0 8px;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-@media (min-width: 769px) {
-  .bottom-nav { display: none; }
-}
-.bnav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
-  border-radius: var(--radius-md);
-  color: var(--text-muted);
-  font-size: 10px;
-  font-weight: 600;
-  transition: all 0.2s;
-  -webkit-tap-highlight-color: transparent;
-  min-width: 56px;
-}
-.bnav-item svg { width: 22px; height: 22px; }
-.bnav-item.active {
-  color: var(--accent);
-}
-.bnav-item.active svg { stroke-width: 2.5; }
-
-/* ============================================
-   FOOTER
-   ============================================ */
-.dashboard-footer {
-  text-align: center;
-  padding: 32px 16px;
-  font-size: 11px;
-  color: var(--text-muted);
-  border-top: 1px solid var(--border);
-  margin-top: 40px;
-  line-height: 1.6;
-}
-.dashboard-footer strong { color: var(--warning); }
-
-/* ============================================
-   LIVE UPDATE BADGE
-   ============================================ */
-.live-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  background: rgba(255,255,255,0.03);
-  margin-bottom: 16px;
-}
-.live-badge-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--accent);
-  animation: pulse 2s infinite;
-}
-
-/* F&O specific badges */
-.fno-type-badge {
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.fno-call { background: var(--accent-dim); color: var(--accent); }
-.fno-put { background: var(--loss-dim); color: var(--loss); }
-
-/* Scrollbar styling */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: var(--radius-full); }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard-hero.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
 {% endblock %}
 
+
 {% block content %}
-<!-- ============================================
-     HEADER
-     ============================================ -->
-<header class="header" role="banner">
-  <div class="header-inner">
-    <div class="header-left">
-      <div class="header-avatar" aria-hidden="true" id="headerAvatar">{{ name[:2]|upper if name else 'SB' }}</div>
-      <div class="header-user">
-        <div class="header-name">{{ name|title }}</div>
-        <div class="header-badge">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          PREMIUM
-        </div>
+<!-- Enterprise Onboarding & Risk System -->
+{% if user_risk_version != current_risk_version %}
+<div id="sbRiskOnboarding" style="position:fixed; inset:0; z-index:99999; display:flex; flex-direction:column; background:#08090D; color:#fff; transition:opacity 0.6s ease-in-out;">
+  
+  <!-- Welcome Screen (Step 1) -->
+  <div id="sbWelcomeStep" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem; text-align:center; transition:opacity 0.4s; background:linear-gradient(180deg, rgba(8,9,13,1) 0%, rgba(12,15,20,1) 100%);">
+    <div style="width:80px; height:80px; margin-bottom:2rem; background:rgba(255,213,74,0.1); border-radius:1.5rem; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,213,74,0.3);">
+      <img src="{{ url_for('static', filename='logo.png') }}" style="width:48px;" alt="Stockboy">
+    </div>
+    <h1 style="font-size:2rem; font-weight:800; margin-bottom:1rem; letter-spacing:-0.03em;">Welcome to Stockboy Premium</h1>
+    <p style="color:var(--text-muted); font-size:1rem; max-width:400px; line-height:1.6; margin-bottom:3rem;">Thank you for joining. You now have access to our Premium Trading Intelligence Platform.</p>
+    <button id="sbBtnNext" style="padding:1rem 3rem; background:linear-gradient(135deg, #FFD54A, #FFC107); color:#0B1220; font-weight:800; font-size:1.1rem; border-radius:1rem; border:none; cursor:pointer; box-shadow:0 10px 30px rgba(255,213,74,0.2); transition:transform 0.2s;">Continue</button>
+  </div>
+
+  <!-- Risk Disclaimer (Step 2) -->
+  <div id="sbRiskStep" style="flex:1; display:none; flex-direction:column; align-items:center; justify-content:center; padding:2rem; text-align:center;">
+    <div style="background:rgba(20,25,35,0.8); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(255,213,74,0.3); border-radius:1.5rem; max-width:600px; width:100%; padding:2.5rem; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+      <div style="width:56px; height:56px; margin:0 auto 1.5rem; background:rgba(255,213,74,0.1); color:var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      </div>
+      <h2 style="font-size:1.5rem; font-weight:800; margin-bottom:1.5rem;">Market Risk Notice</h2>
+      <div style="text-align:left; color:var(--text-muted); font-size:0.9rem; line-height:1.7; margin-bottom:2rem;">
+        <p style="margin-bottom:1rem;">Stock market investments involve market risk. All trading and investment decisions are solely your responsibility.</p>
+        <p style="margin-bottom:1rem;">Stockboy provides professional market research, educational insights, and trading ideas. Nothing on this platform should be interpreted as guaranteed profit or financial advice.</p>
+        <p style="margin-bottom:1rem;">Past performance does not guarantee future performance. Only trade with capital you can afford to risk. Always use proper position sizing and risk management.</p>
+        <p>Please read and understand this notice before accessing Premium content.</p>
+      </div>
+      <label style="display:flex; align-items:flex-start; gap:0.75rem; text-align:left; cursor:pointer; margin-bottom:2rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:0.75rem; border:1px solid rgba(255,255,255,0.05);">
+        <input type="checkbox" id="sbCheckRisk" style="margin-top:0.2rem; width:18px; height:18px; accent-color:var(--gold);">
+        <span style="font-size:0.85rem; color:#fff; font-weight:500;">I have read and understood the Market Risk Notice.</span>
+      </label>
+      <div style="display:flex; gap:1rem;">
+        <a href="/auth?logout=1" style="flex:1; padding:1rem; background:rgba(255,255,255,0.05); color:#fff; border-radius:0.75rem; text-decoration:none; font-weight:600; border:1px solid rgba(255,255,255,0.1);">Logout</a>
+        <button id="sbBtnAcceptRisk" disabled style="flex:2; padding:1rem; background:linear-gradient(135deg, #FFD54A, #FFC107); color:#0B1220; font-weight:800; border-radius:0.75rem; border:none; cursor:not-allowed; opacity:0.5; transition:all 0.3s;">Continue to Dashboard</button>
       </div>
     </div>
-    <div class="header-right">
-      <div class="header-market-status" id="marketStatusHeader">
-        <span class="market-dot" id="marketDot"></span>
-        <span id="marketStatusText">MARKET</span>
-        <span class="header-clock" id="headerClock">--:--</span>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btnNext = document.getElementById('sbBtnNext');
+    const btnAccept = document.getElementById('sbBtnAcceptRisk');
+    const checkRisk = document.getElementById('sbCheckRisk');
+    const step1 = document.getElementById('sbWelcomeStep');
+    const step2 = document.getElementById('sbRiskStep');
+    const overlay = document.getElementById('sbRiskOnboarding');
+
+    if(btnNext) {
+      btnNext.addEventListener('click', () => {
+        step1.style.opacity = '0';
+        setTimeout(() => {
+          step1.style.display = 'none';
+          step2.style.display = 'flex';
+          // Trigger a reflow
+          void step2.offsetWidth;
+          step2.style.opacity = '1';
+        }, 400);
+      });
+    }
+
+    if(checkRisk && btnAccept) {
+      checkRisk.addEventListener('change', (e) => {
+        if(e.target.checked) {
+          btnAccept.disabled = false;
+          btnAccept.style.opacity = '1';
+          btnAccept.style.cursor = 'pointer';
+        } else {
+          btnAccept.disabled = true;
+          btnAccept.style.opacity = '0.5';
+          btnAccept.style.cursor = 'not-allowed';
+        }
+      });
+
+      btnAccept.addEventListener('click', async () => {
+        const originalText = btnAccept.textContent;
+        btnAccept.textContent = 'Saving...';
+        try {
+          const res = await fetch('/api/accept-risk', { method: 'POST' });
+          if(res.ok) {
+            overlay.style.opacity = '0';
+            setTimeout(() => { overlay.style.display = 'none'; }, 600);
+            
+            // Optional: Request Push Notification Permission
+            if (window.StockboyPWA && typeof window.StockboyPWA.requestNotificationPermission === 'function') {
+              window.StockboyPWA.requestNotificationPermission();
+            }
+          }
+        } catch (e) {
+          console.error(e);
+          btnAccept.textContent = 'Error. Try Again.';
+        }
+      });
+    }
+  });
+</script>
+{% endif %}
+
+
+<!-- Luxury Profile Hero -->
+<div class="sb-hero-wrapper reveal-slide-up">
+  
+  <!-- Avatar -->
+  <div class="sb-hero-avatar-container">
+    <div class="sb-hero-avatar-ring"></div>
+    <div class="sb-hero-avatar">
+      {{ name[:1]|upper if name else 'T' }}
+    </div>
+  </div>
+
+  <!-- Identity -->
+  <div class="sb-hero-identity">
+    <div class="sb-hero-username">{{ name }}</div>
+    
+    <div class="sb-hero-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      {{ '★★★★★ Premium Elite' if plan != 'none' else 'Member' }}
+    </div>
+    
+    <div class="sb-hero-meta">
+      <div class="sb-hero-meta-item">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Joined Member
       </div>
-      <button class="header-icon-btn" aria-label="Notifications" onclick="alert('Notifications coming soon!')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        {% if notifications %}<span class="notif-dot"></span>{% endif %}
-      </button>
-      <a href="/logout" class="header-icon-btn" aria-label="Logout">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <div class="sb-hero-meta-item">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        {{ plan|capitalize if plan != 'none' else 'Free' }} Plan
+      </div>
+    </div>
+  </div>
+
+  <!-- Status & Actions -->
+  <div class="sb-hero-actions-wrapper">
+    <div class="sb-hero-status-card">
+      <div class="sb-hero-status-pulse"></div>
+      <div class="sb-hero-status-text">
+        <span class="sb-hero-status-title">Membership Active</span>
+        <span class="sb-hero-status-sub">Protected Account</span>
+      </div>
+    </div>
+    
+    <div class="sb-hero-quick-actions">
+      <a href="/profile" class="sb-hero-btn" aria-label="Profile">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </a>
+      <a href="/profile" class="sb-hero-btn" aria-label="Settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </a>
+      <a href="/logout" class="sb-hero-btn danger" aria-label="Logout">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </a>
     </div>
   </div>
-</header>
-
-<!-- ============================================
-     MARKET TICKER
-     ============================================ -->
-<div class="ticker" role="marquee" aria-label="Market Indices">
-  <div class="ticker-item">
-    <span class="ticker-label">NIFTY 50</span>
-    <span class="ticker-value" id="niftyVal">24,850</span>
-    <span class="ticker-change up" id="niftyChg">+0.42%</span>
-  </div>
-  <div class="ticker-item">
-    <span class="ticker-label">BANK NIFTY</span>
-    <span class="ticker-value" id="bankVal">53,120</span>
-    <span class="ticker-change up" id="bankChg">+0.28%</span>
-  </div>
-  <div class="ticker-item">
-    <span class="ticker-label">SENSEX</span>
-    <span class="ticker-value" id="sensexVal">81,640</span>
-    <span class="ticker-change down" id="sensexChg">-0.15%</span>
-  </div>
-  <div class="ticker-live">
-    <span class="ticker-live-dot" id="tickerLiveDot"></span>
-    <span class="ticker-live-text" id="tickerLiveText">Updated just now</span>
-  </div>
 </div>
 
-<h1 class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Stockboy Premium – Live Stock Signals Dashboard</h1>
+<div class="sb-dash-wrapper">
+  <div class="sb-dash-container">
+    
+    <!-- LEFT COLUMN -->
+    <div class="sb-col-left anim-fade-up" style="animation-delay: 0.1s">
+      
+      <!-- Section 7: Risk Management -->
+      <div class="anim-fade-up" style="animation-delay: 0.15s">
+        <div class="sb-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          Risk Management
+        </div>
+        
+        <!-- Reminder Card -->
+        <div style="background:rgba(255,213,74,0.05); border:1px solid rgba(255,213,74,0.2); border-radius:1rem; padding:1.25rem; margin-bottom:1rem; position:relative; overflow:hidden;">
+          <h4 style="color:var(--gold); font-size:0.9rem; font-weight:700; margin-bottom:0.25rem;">Trade Responsibly</h4>
+          <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.75rem;">Good trading starts with good risk management.</p>
+          <button onclick="document.getElementById('sbRiskOnboarding') ? document.getElementById('sbRiskOnboarding').style.display='flex' : alert('Risk notice already accepted. Please view in profile.')" style="background:none; border:none; color:var(--text); font-size:0.75rem; font-weight:600; cursor:pointer; text-decoration:underline;">Review Risk Notice &rarr;</button>
+        </div>
 
-<main class="main-content" role="main">
-
-  <!-- ============================================
-       HERO STATS
-       ============================================ -->
-  <div class="hero-stats anim-fade-up">
-    <div class="stat-card accent-green">
-      <div class="stat-label">Active Signals</div>
-      <div class="stat-value" id="statActive">{{ total_signals }}</div>
-      <div class="stat-sub">Live opportunities</div>
-    </div>
-    <div class="stat-card accent-blue">
-      <div class="stat-label">Success Rate</div>
-      <div class="stat-value">87%</div>
-      <div class="stat-sub">Last 30 days</div>
-    </div>
-    <div class="stat-card accent-warn">
-      <div class="stat-label">Sentiment</div>
-      <div class="stat-value sentiment-bullish" id="sentimentValue">Bullish</div>
-      <div class="stat-sub" id="sentimentSub">Positive momentum</div>
-    </div>
-  </div>
-
-  <!-- ============================================
-       TABS
-       ============================================ -->
-  <div class="tabs-container anim-fade-up" style="animation-delay:0.1s" role="tablist" aria-label="Signal categories">
-    <div class="tabs-row">
-      <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-intraday" id="tab-intraday" onclick="switchTab('intraday', this)">
-        Intraday
-        <span class="tab-count">{{ intraday_signals|length }}</span>
-      </button>
-      <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-fno" id="tab-fno" onclick="switchTab('fno', this)">
-        F&O
-        <span class="tab-count">{{ fno_signals|length }}</span>
-      </button>
-      <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-history" id="tab-history" onclick="switchTab('history', this)">
-        History
-        <span class="tab-count">{{ closed_signals|length }}</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Live Update Badge -->
-  <div class="live-badge" id="liveUpdateBadge">
-    <span class="live-badge-dot"></span>
-    <span id="liveUpdateText">Updated just now</span>
-  </div>
-
-  <!-- ============================================
-       INTRADAY PANEL
-       ============================================ -->
-  <section id="panel-intraday" class="tab-panel active" role="tabpanel" aria-labelledby="tab-intraday">
-    {% if intraday_signals %}
-    <div class="signals-grid">
-      {% for sig in intraday_signals %}
-      <article class="signal-card {{ 'buy-glow' if sig.recommendation == 'BUY' else 'sell-glow' }} anim-fade-up"
-               style="animation-delay:{{ loop.index * 0.08 }}s"
-               onclick='openDrawer({{ sig|tojson|safe }})'
-               role="button" tabindex="0" aria-label="{{ sig.stockName }} {{ sig.recommendation }} signal"
-               onkeypress="if(event.key==='Enter')openDrawer({{ sig|tojson|safe }})">
-        <div class="card-header">
-          <div class="card-stock-info">
-            <div class="stock-logo bg-{{ (loop.index % 8) + 1 }}" aria-hidden="true">{{ sig.stockName[:2] }}</div>
-            <div class="stock-name-group">
-              <div class="stock-name">{{ sig.stockName }}</div>
-              <div class="stock-exchange">NSE • {{ sig.get('category', 'Intraday') }}</div>
+        <!-- Golden Rules -->
+        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:1rem; padding:1.25rem;">
+          <h4 style="font-size:0.85rem; font-weight:700; color:#fff; margin-bottom:1rem;">5 Golden Rules</h4>
+          <div style="display:flex; flex-direction:column; gap:0.75rem;">
+            <div style="display:flex; gap:0.5rem; align-items:flex-start;">
+              <span style="color:var(--gold); font-weight:800; font-size:0.85rem;">1.</span>
+              <span style="font-size:0.75rem; color:var(--text-muted); line-height:1.4;">Never risk more than your planned position size.</span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:flex-start;">
+              <span style="color:var(--gold); font-weight:800; font-size:0.85rem;">2.</span>
+              <span style="font-size:0.75rem; color:var(--text-muted); line-height:1.4;">Use Stop Loss consistently on every trade.</span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:flex-start;">
+              <span style="color:var(--gold); font-weight:800; font-size:0.85rem;">3.</span>
+              <span style="font-size:0.75rem; color:var(--text-muted); line-height:1.4;">Never trade emotionally or revenge trade.</span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:flex-start;">
+              <span style="color:var(--gold); font-weight:800; font-size:0.85rem;">4.</span>
+              <span style="font-size:0.75rem; color:var(--text-muted); line-height:1.4;">Review and journal every completed trade.</span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:flex-start;">
+              <span style="color:var(--gold); font-weight:800; font-size:0.85rem;">5.</span>
+              <span style="font-size:0.75rem; color:var(--text-muted); line-height:1.4;">Protect capital before chasing profits.</span>
             </div>
           </div>
-          <span class="action-badge {{ 'buy' if sig.recommendation == 'BUY' else 'sell' }}">
-            {% if sig.recommendation == 'BUY' %}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-            {% else %}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
-            {% endif %}
-            {{ sig.recommendation }}
-          </span>
         </div>
-
-        <div class="card-cmp-row">
-          <span class="cmp-label">CMP</span>
-          <span class="cmp-value">₹{{ "%.2f"|format(sig.get("currentPrice", sig.get("entryPrice", 0))|float) }}</span>
-        </div>
-
-        <div class="card-meta">
-          <div class="meta-item">
-            <div class="meta-label">Confidence</div>
-            <div class="meta-value {{ 'high' if sig.get('confidence','High') == 'High' else ('medium' if sig.get('confidence','') == 'Medium' else 'low') }}">
-              {{ sig.get('confidence', 'High') }}
-            </div>
-          </div>
-          <div class="meta-item">
-            <div class="meta-label">Risk</div>
-            <div class="meta-value {{ 'high' if sig.get('confidence','High') == 'Low' else ('low' if sig.get('confidence','') == 'High' else 'medium') }}">
-              {% if sig.get('confidence','High') == 'High' %}Low{% elif sig.get('confidence','') == 'Medium' %}Medium{% else %}High{% endif %}
-            </div>
-          </div>
-          <div class="meta-item">
-            <div class="meta-label">Duration</div>
-            <div class="meta-value" style="color: var(--text-secondary);">{{ sig.get('duration', 'Intraday') }}</div>
-          </div>
-        </div>
-
-        <div class="card-footer">
-          <div class="card-time">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span class="time-ago" data-time="{{ sig.get('createdAt', '') }}">Just now</span>
-          </div>
-          <span class="card-sector">{{ sig.get('category', 'Intraday') }}</span>
-        </div>
-
-        <svg class="card-sparkline" preserveAspectRatio="none" viewBox="0 0 120 24" aria-hidden="true">
-          <defs>
-            <linearGradient id="sparkGrad{{ loop.index }}" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="{% if sig.recommendation == 'BUY' %}#00E676{% else %}#FF4D4F{% endif %}" stop-opacity="0.3"/>
-              <stop offset="100%" stop-color="{% if sig.recommendation == 'BUY' %}#00E676{% else %}#FF4D4F{% endif %}" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <path class="sparkline-area" d="" fill="url(#sparkGrad{{ loop.index }})" opacity="0.5"/>
-          <path class="sparkline-line" d="" fill="none" stroke="{% if sig.recommendation == 'BUY' %}#00E676{% else %}#FF4D4F{% endif %}" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </article>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="empty-state">
-      <div class="empty-particles" aria-hidden="true">
-        <div class="particle" style="left:15%;animation-duration:8s;animation-delay:0s;"></div>
-        <div class="particle" style="left:35%;animation-duration:10s;animation-delay:2s;"></div>
-        <div class="particle" style="left:55%;animation-duration:7s;animation-delay:4s;"></div>
-        <div class="particle" style="left:75%;animation-duration:9s;animation-delay:1s;"></div>
-        <div class="particle" style="left:90%;animation-duration:11s;animation-delay:3s;"></div>
       </div>
-      <div class="empty-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      </div>
-      <h3 class="empty-title" id="emptyIntradayTitle">Market Closed</h3>
-      <p class="empty-desc" id="emptyIntradayDesc">Today's trading session has ended. Tomorrow's premium signals will be published before market opens at 9:15 AM.</p>
-    </div>
-    {% endif %}
-  </section>
 
-  <!-- ============================================
-       F&O PANEL
-       ============================================ -->
-  <section id="panel-fno" class="tab-panel" role="tabpanel" aria-labelledby="tab-fno">
-    {% if fno_signals %}
-    <div class="signals-grid">
-      {% for sig in fno_signals %}
-      <article class="signal-card {{ 'buy-glow' if sig.recommendation == 'BUY' else 'sell-glow' }} anim-fade-up"
-               style="animation-delay:{{ loop.index * 0.08 }}s"
-               onclick='openDrawer({{ sig|tojson|safe }})'
-               role="button" tabindex="0" aria-label="{{ sig.stockName }} F&O {{ sig.recommendation }} signal"
-               onkeypress="if(event.key==='Enter')openDrawer({{ sig|tojson|safe }})">
-        <div class="card-header">
-          <div class="card-stock-info">
-            <div class="stock-logo bg-{{ ((loop.index + 3) % 8) + 1 }}" aria-hidden="true">{{ sig.stockName[:2] }}</div>
-            <div class="stock-name-group">
-              <div class="stock-name">{{ sig.stockName }}</div>
-              <div class="stock-exchange">
-                NSE • F&O
-                <span class="fno-type-badge {{ 'fno-call' if sig.recommendation == 'BUY' else 'fno-put' }}" style="margin-left:6px;">
-                  {{ 'CALL' if sig.recommendation == 'BUY' else 'PUT' }}
-                </span>
+      <!-- Section 4: Market Overview -->
+      <div>
+        <div class="sb-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          Market Overview
+        </div>
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 1rem; padding: 1rem;">
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem;">Sectors</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem; font-size:0.8rem;">
+            <span>IT Index</span><span style="color:var(--success)">+1.2%</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem; font-size:0.8rem;">
+            <span>Bank Index</span><span style="color:var(--danger)">-0.4%</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem; font-size:0.8rem;">
+            <span>Pharma</span><span style="color:var(--success)">+0.8%</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section 5: Watchlist -->
+      <div>
+        <div class="sb-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          Watchlist
+          <button style="margin-left:auto; color:var(--text-muted);">+</button>
+        </div>
+        <div class="sb-watchlist-item">
+          <span class="sb-wl-name">HDFCBANK</span>
+          <span class="sb-wl-price">₹1,680.50</span>
+        </div>
+        <div class="sb-watchlist-item">
+          <span class="sb-wl-name">INFY</span>
+          <span class="sb-wl-price">₹1,540.20</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MAIN COLUMN -->
+    <div class="sb-col-main anim-fade-up" style="animation-delay: 0.2s">
+      
+      <!-- Section 1: Intraday Signals -->
+      <div>
+        <div class="sb-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Today's Intraday Signals
+          <span class="sb-section-badge">Live</span>
+        </div>
+        
+        {% if intraday_signals|length == 0 %}
+        <div class="sb-empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div class="sb-empty-title">No Intraday Signals Yet</div>
+          <div class="sb-empty-desc">Our analysts are scanning the markets. You'll be notified when a setup triggers.</div>
+        </div>
+        {% else %}
+          {% for sig in intraday_signals %}
+          <div class="sb-sig-card active" style="margin-bottom: 1rem;">
+            <div class="sb-sig-head">
+              <div class="sb-sig-stock-row">
+                <div class="sb-stock-logo">{{ sig.stock_name[:2] }}</div>
+                <div>
+                  <div class="sb-stock-name">{{ sig.stock_name }}</div>
+                  <div class="sb-stock-meta">Confidence: {{ sig.get('confidence', '85%') }}</div>
+                </div>
+              </div>
+              <div class="sb-sig-type {{ 'buy' if sig.type|upper == 'BUY' else 'sell' }}">{{ sig.type|upper }}</div>
+            </div>
+            
+            <div class="sb-sig-data">
+              <div class="sb-sig-val">
+                <span class="sb-sv-lbl">Entry</span>
+                <span class="sb-sv-num">₹{{ sig.entry_price }}</span>
+              </div>
+              <div class="sb-sig-val">
+                <span class="sb-sv-lbl">Stop Loss</span>
+                <span class="sb-sv-num red">₹{{ sig.stop_loss }}</span>
+              </div>
+              <div class="sb-sig-val">
+                <span class="sb-sv-lbl">Target 3</span>
+                <span class="sb-sv-num gold">₹{{ sig.target3 }}</span>
+              </div>
+            </div>
+
+            <div class="sb-progress-wrap">
+              <div class="sb-progress-lbl">
+                <span>Current Status</span>
+                <span style="color:var(--success); font-weight:700;">{{ sig.status }}</span>
+              </div>
+              <div class="sb-progress-bg">
+                <div class="sb-progress-fill active" style="width: 33%"></div>
               </div>
             </div>
           </div>
-          <span class="action-badge {{ 'buy' if sig.recommendation == 'BUY' else 'sell' }}">
-            {% if sig.recommendation == 'BUY' %}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-            {% else %}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
-            {% endif %}
-            {{ sig.recommendation }}
-          </span>
-        </div>
+          {% endfor %}
+        {% endif %}
+      </div>
 
-        <div class="card-cmp-row">
-          <span class="cmp-label">CMP</span>
-          <span class="cmp-value">₹{{ "%.2f"|format(sig.get("currentPrice", sig.get("entryPrice", 0))|float) }}</span>
+      <!-- Section 2: F&O Signals -->
+      <div style="margin-top: 1rem;">
+        <div class="sb-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l3-9 5 18 3-9h5"/></svg>
+          F&O Alerts
         </div>
-
-        <div class="card-meta">
-          <div class="meta-item">
-            <div class="meta-label">Confidence</div>
-            <div class="meta-value {{ 'high' if sig.get('confidence','High') == 'High' else ('medium' if sig.get('confidence','') == 'Medium' else 'low') }}">
-              {{ sig.get('confidence', 'High') }}
+        
+        {% if fno_signals|length == 0 %}
+        <div class="sb-empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <div class="sb-empty-title">No F&O Trades Active</div>
+          <div class="sb-empty-desc">Waiting for high-probability setups.</div>
+        </div>
+        {% else %}
+          {% for sig in fno_signals %}
+          <div class="sb-sig-card" style="margin-bottom: 1rem;">
+            <div class="sb-sig-head">
+              <div class="sb-sig-stock-row">
+                <div class="sb-stock-logo" style="color: #4facfe;">{{ sig.stock_name[:2] }}</div>
+                <div>
+                  <div class="sb-stock-name">{{ sig.stock_name }}</div>
+                  <div class="sb-stock-meta">Expiry: {{ sig.get('expiry', 'Current Month') }}</div>
+                </div>
+              </div>
+              <div class="sb-sig-type call">CALL</div>
+            </div>
+            
+            <div class="sb-sig-data">
+              <div class="sb-sig-val">
+                <span class="sb-sv-lbl">Entry</span>
+                <span class="sb-sv-num">₹{{ sig.entry_price }}</span>
+              </div>
+              <div class="sb-sig-val">
+                <span class="sb-sv-lbl">Target</span>
+                <span class="sb-sv-num gold">₹{{ sig.target3 }}</span>
+              </div>
+              <div class="sb-sig-val">
+                <span class="sb-sv-lbl">Status</span>
+                <span class="sb-sv-num">{{ sig.status }}</span>
+              </div>
             </div>
           </div>
-          <div class="meta-item">
-            <div class="meta-label">Risk</div>
-            <div class="meta-value {{ 'high' if sig.get('confidence','High') == 'Low' else ('low' if sig.get('confidence','') == 'High' else 'medium') }}">
-              {% if sig.get('confidence','High') == 'High' %}Low{% elif sig.get('confidence','') == 'Medium' %}Medium{% else %}High{% endif %}
+          {% endfor %}
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="sb-col-right anim-fade-up" style="animation-delay: 0.3s">
+      
+      <!-- Section 3: Target Hits Timeline -->
+      <div>
+        <div class="sb-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Recent Target Hits
+        </div>
+        
+        <div class="sb-timeline">
+          {% if closed_signals|length == 0 %}
+          <div class="sb-empty-state" style="padding: 2rem 1rem;">
+            <div class="sb-empty-title">No Recent History</div>
+          </div>
+          {% else %}
+            {% for sig in closed_signals[:4] %}
+            <div class="sb-tl-item">
+              <div class="sb-tl-icon">✓</div>
+              <div class="sb-tl-content">
+                <div class="sb-tl-title">{{ sig.stock_name }} <span class="gold">{{ sig.status }}</span></div>
+                <div class="sb-tl-meta">{{ sig.type }} • {{ sig.category }}</div>
+              </div>
             </div>
-          </div>
-          <div class="meta-item">
-            <div class="meta-label">Type</div>
-            <div class="meta-value" style="color:{% if sig.recommendation == 'BUY' %}var(--accent){% else %}var(--loss){% endif %}">
-              {{ 'CE' if sig.recommendation == 'BUY' else 'PE' }}
-            </div>
-          </div>
-        </div>
-
-        <div class="card-footer">
-          <div class="card-time">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span class="time-ago" data-time="{{ sig.get('createdAt', '') }}">Just now</span>
-          </div>
-          <span class="card-sector">F&O</span>
-        </div>
-
-        <svg class="card-sparkline" preserveAspectRatio="none" viewBox="0 0 120 24" aria-hidden="true">
-          <defs>
-            <linearGradient id="sparkGradFno{{ loop.index }}" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="{% if sig.recommendation == 'BUY' %}#00E676{% else %}#FF4D4F{% endif %}" stop-opacity="0.3"/>
-              <stop offset="100%" stop-color="{% if sig.recommendation == 'BUY' %}#00E676{% else %}#FF4D4F{% endif %}" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <path class="sparkline-area" d="" fill="url(#sparkGradFno{{ loop.index }})" opacity="0.5"/>
-          <path class="sparkline-line" d="" fill="none" stroke="{% if sig.recommendation == 'BUY' %}#00E676{% else %}#FF4D4F{% endif %}" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </article>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="empty-state">
-      <div class="empty-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-      </div>
-      <h3 class="empty-title">No Active F&O Signals</h3>
-      <p class="empty-desc">We're analyzing options chains for high-probability setups. Premium F&O signals will appear here when available.</p>
-    </div>
-    {% endif %}
-  </section>
-
-  <!-- ============================================
-       HISTORY PANEL
-       ============================================ -->
-  <section id="panel-history" class="tab-panel" role="tabpanel" aria-labelledby="tab-history">
-    <div class="history-filters" role="group" aria-label="History filters">
-      <button class="filter-pill active" onclick="filterHistory('all', this)">All</button>
-      <button class="filter-pill" onclick="filterHistory('target-hit', this)">Target Hit</button>
-      <button class="filter-pill" onclick="filterHistory('expired', this)">Expired</button>
-      <button class="filter-pill" onclick="filterHistory('closed', this)">Closed</button>
-    </div>
-    {% if closed_signals %}
-    <div id="historyList">
-      {% for sig in closed_signals[:20] %}
-      <div class="history-card anim-fade-up"
-           style="animation-delay:{{ loop.index * 0.05 }}s"
-           data-status="{{ sig.status|lower|replace(' ', '-') }}"
-           onclick='openDrawer({{ sig|tojson|safe }})'>
-        <div class="history-logo bg-{{ (loop.index % 8) + 1 }}" aria-hidden="true">{{ sig.stockName[:2] }}</div>
-        <div class="history-info">
-          <div class="history-name">{{ sig.stockName }}</div>
-          <div class="history-meta">{{ sig.get('category', 'Intraday') }} • {{ sig.get('recommendation', 'BUY') }} • {{ sig.get('createdAt', '')[:10] if sig.get('createdAt') else '-' }}</div>
-        </div>
-        <span class="history-status {% if sig.status in ['Target Hit', 'TARGET HIT'] %}status-target-hit{% elif sig.status in ['Expired', 'EXPIRED'] %}status-expired{% elif sig.status in ['Closed', 'CLOSED'] %}status-closed{% else %}status-cancelled{% endif %}">
-          {{ sig.status }}
-        </span>
-      </div>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="empty-state">
-      <div class="empty-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-      </div>
-      <h3 class="empty-title">No History Yet</h3>
-      <p class="empty-desc">Your signal history will appear here as signals are closed, expired, or hit their targets.</p>
-    </div>
-    {% endif %}
-  </section>
-
-</main>
-
-<!-- ============================================
-     FOOTER
-     ============================================ -->
-<footer class="dashboard-footer">
-  <p><strong>⚠️ Disclaimer:</strong> Trading involves substantial risk of loss. Stock signals are for educational and informational purposes only. Stockboy is not SEBI registered. Past performance is not indicative of future results.</p>
-  <p style="margin-top:8px;opacity:0.6;">© 2025 Stockboy Premium. All rights reserved.</p>
-</footer>
-
-<!-- ============================================
-     DETAIL DRAWER
-     ============================================ -->
-<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()" aria-hidden="true"></div>
-<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Signal Details">
-  <div class="drawer-handle" onclick="closeDrawer()">
-    <div class="drawer-handle-bar"></div>
-  </div>
-  <div class="drawer-body">
-    <div class="drawer-header">
-      <div class="drawer-stock-info">
-        <div class="drawer-stock-logo" id="drawerLogo" aria-hidden="true">RE</div>
-        <div>
-          <div class="drawer-stock-name" id="drawerStockName">RELIANCE</div>
-          <div class="drawer-stock-sector" id="drawerSector">NSE • Intraday</div>
+            {% endfor %}
+          {% endif %}
         </div>
       </div>
-      <button class="drawer-close" onclick="closeDrawer()" aria-label="Close details">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+
     </div>
 
-    <div class="drawer-action-row">
-      <div class="drawer-action-badge" id="drawerAction">BUY</div>
-      <div class="drawer-cmp" id="drawerCMP">₹0.00</div>
-    </div>
-
-    <div class="drawer-section">
-      <div class="drawer-section-title">Technical Summary</div>
-      <div class="tech-grid">
-        <div class="tech-item">
-          <div class="tech-label">Momentum</div>
-          <div class="tech-value" id="techMomentum" style="color:var(--accent)">Strong</div>
-        </div>
-        <div class="tech-item">
-          <div class="tech-label">Volume</div>
-          <div class="tech-value" id="techVolume" style="color:var(--text-secondary)">Above Avg</div>
-        </div>
-        <div class="tech-item">
-          <div class="tech-label">RSI</div>
-          <div class="tech-value" id="techRSI" style="color:var(--warning)">62</div>
-        </div>
-        <div class="tech-item">
-          <div class="tech-label">MACD</div>
-          <div class="tech-value" id="techMACD" style="color:var(--accent)">Bullish</div>
-        </div>
-        <div class="tech-item">
-          <div class="tech-label">Moving Avg</div>
-          <div class="tech-value" id="techMA" style="color:var(--accent)">Above 20 DMA</div>
-        </div>
-        <div class="tech-item">
-          <div class="tech-label">Holding Time</div>
-          <div class="tech-value" id="techHolding" style="color:var(--text-secondary)">Intraday</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="drawer-section">
-      <div class="drawer-section-title">Risk Assessment</div>
-      <div class="risk-meter">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:13px;font-weight:700;" id="riskLabel">Low Risk</span>
-          <span style="font-size:12px;color:var(--text-tertiary);" id="riskConf">Confidence: High</span>
-        </div>
-        <div class="risk-bar-bg">
-          <div class="risk-bar-fill low" id="riskBar"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="drawer-section">
-      <div class="drawer-section-title">Probability</div>
-      <div class="prob-meter">
-        <div class="prob-circle">
-          <svg viewBox="0 0 48 48">
-            <circle class="prob-circle-bg" cx="24" cy="24" r="20"/>
-            <circle class="prob-circle-fill" cx="24" cy="24" r="20" stroke-dasharray="125.6" stroke-dashoffset="25" id="probCircle"/>
-          </svg>
-          <span class="prob-circle-text" id="probText">80%</span>
-        </div>
-        <div class="prob-info">
-          <div class="prob-title" id="probTitle">High Probability Trade</div>
-          <div class="prob-desc" id="probDesc">Based on technical indicators and market momentum</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="drawer-disclaimer">
-      <strong>⚠️ Important:</strong> This signal is for educational purposes only. Do your own research before making any trading decisions. Past performance is not a guarantee of future results. Trading in the stock market involves risk.
-    </div>
   </div>
 </div>
 
-<!-- ============================================
-     BOTTOM NAVIGATION
-     ============================================ -->
-<nav class="bottom-nav" role="navigation" aria-label="Main navigation">
-  <button class="bnav-item active" id="bnav-dashboard" onclick="switchTab('intraday', document.getElementById('tab-intraday')); setActiveNav(this);" aria-label="Dashboard">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
-    <span>Dashboard</span>
-  </button>
-  <button class="bnav-item" id="bnav-intraday" onclick="switchTab('intraday', document.getElementById('tab-intraday')); setActiveNav(this);" aria-label="Intraday Signals">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-    <span>Intraday</span>
-  </button>
-  <button class="bnav-item" id="bnav-fno" onclick="switchTab('fno', document.getElementById('tab-fno')); setActiveNav(this);" aria-label="F&O Signals">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-    <span>F&O</span>
-  </button>
-  <button class="bnav-item" id="bnav-history" onclick="switchTab('history', document.getElementById('tab-history')); setActiveNav(this);" aria-label="History">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-    <span>History</span>
-  </button>
-  <button class="bnav-item" onclick="window.location.href='/logout'" aria-label="Profile">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span>Profile</span>
-  </button>
+<!-- Mobile Bottom Navigation -->
+<nav class="sb-bottom-nav">
+  <a href="/dashboard" class="sb-nav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    Dashboard
+  </a>
+  <a href="#signals" class="sb-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    Signals
+  </a>
+  <a href="#fno" class="sb-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+    F&O
+  </a>
+  <a href="/profile" class="sb-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    Profile
+  </a>
 </nav>
-
-<!-- ============================================
-     JAVASCRIPT
-     ============================================ -->
-<script>
-(function() {
-  'use strict';
-
-  /* ---- Tab Switching ---- */
-  function switchTab(name, btn) {
-    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
-    document.querySelectorAll('.tab-btn').forEach(function(t) {
-      t.classList.remove('active');
-      t.setAttribute('aria-selected', 'false');
-    });
-    var panel = document.getElementById('panel-' + name);
-    if (panel) panel.classList.add('active');
-    if (btn) {
-      btn.classList.add('active');
-      btn.setAttribute('aria-selected', 'true');
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-  window.switchTab = switchTab;
-
-  /* ---- Bottom Nav ---- */
-  function setActiveNav(el) {
-    document.querySelectorAll('.bnav-item').forEach(function(b) { b.classList.remove('active'); });
-    el.classList.add('active');
-  }
-  window.setActiveNav = setActiveNav;
-
-  /* ---- Market Status ---- */
-  function updateMarketStatus() {
-    var now = new Date();
-    var options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-    var istStr = now.toLocaleTimeString('en-IN', options);
-    document.getElementById('headerClock').textContent = istStr;
-
-    var istDate = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-    var h = istDate.getHours();
-    var m = istDate.getMinutes();
-    var day = istDate.getDay();
-    var totalMins = h * 60 + m;
-    var isOpen = day >= 1 && day <= 5 && totalMins >= 555 && totalMins <= 930;
-
-    var dot = document.getElementById('marketDot');
-    var text = document.getElementById('marketStatusText');
-    if (isOpen) {
-      dot.className = 'market-dot open';
-      text.textContent = 'OPEN';
-      text.style.color = 'var(--accent)';
-    } else {
-      dot.className = 'market-dot closed';
-      text.textContent = 'CLOSED';
-      text.style.color = 'var(--loss)';
-    }
-  }
-
-  /* ---- Relative Time ---- */
-  function updateTimeAgo() {
-    document.querySelectorAll('.time-ago').forEach(function(el) {
-      var t = el.getAttribute('data-time');
-      if (!t) { el.textContent = 'Just now'; return; }
-      try {
-        var d = new Date(t);
-        if (isNaN(d.getTime())) { el.textContent = 'Recently'; return; }
-        var diff = Math.floor((Date.now() - d.getTime()) / 1000);
-        if (diff < 60) el.textContent = 'Just now';
-        else if (diff < 3600) el.textContent = Math.floor(diff / 60) + 'm ago';
-        else if (diff < 86400) el.textContent = Math.floor(diff / 3600) + 'h ago';
-        else el.textContent = Math.floor(diff / 86400) + 'd ago';
-      } catch(e) { el.textContent = 'Recently'; }
-    });
-  }
-
-  /* ---- Sparklines ---- */
-  function generateSparklines() {
-    document.querySelectorAll('.card-sparkline').forEach(function(svg) {
-      var points = [];
-      var y = 12;
-      for (var i = 0; i <= 12; i++) {
-        y = Math.max(2, Math.min(22, y + (Math.random() - 0.45) * 6));
-        points.push({ x: i * 10, y: y });
-      }
-      var lineD = 'M' + points.map(function(p) { return p.x + ',' + p.y; }).join(' L');
-      var areaD = lineD + ' L120,24 L0,24 Z';
-      var line = svg.querySelector('.sparkline-line');
-      var area = svg.querySelector('.sparkline-area');
-      if (line) line.setAttribute('d', lineD);
-      if (area) area.setAttribute('d', areaD);
-    });
-  }
-
-  /* ---- Live Update Counter ---- */
-  var lastUpdate = Date.now();
-  function updateLiveBadge() {
-    var diff = Math.floor((Date.now() - lastUpdate) / 1000);
-    var text;
-    if (diff < 5) text = 'Updated just now';
-    else if (diff < 60) text = 'Updated ' + diff + 's ago';
-    else text = 'Updated ' + Math.floor(diff / 60) + 'm ago';
-
-    var el = document.getElementById('liveUpdateText');
-    var ticker = document.getElementById('tickerLiveText');
-    if (el) el.textContent = text;
-    if (ticker) ticker.textContent = text;
-  }
-
-  /* Simulate live pulse every 15s */
-  setInterval(function() {
-    lastUpdate = Date.now();
-    document.querySelectorAll('.cmp-value').forEach(function(el) {
-      el.style.animation = 'pricePulse 0.6s ease';
-      setTimeout(function() { el.style.animation = ''; }, 700);
-    });
-  }, 15000);
-
-  /* ---- Drawer ---- */
-  function openDrawer(sig) {
-    var logoColors = ['bg-1','bg-2','bg-3','bg-4','bg-5','bg-6','bg-7','bg-8'];
-    var hash = 0;
-    var name = sig.stockName || 'XX';
-    for (var i = 0; i < name.length; i++) hash = (hash + name.charCodeAt(i)) % 8;
-
-    document.getElementById('drawerLogo').textContent = name.substring(0, 2);
-    document.getElementById('drawerLogo').className = 'drawer-stock-logo ' + logoColors[hash];
-    document.getElementById('drawerStockName').textContent = name;
-    document.getElementById('drawerSector').textContent = 'NSE • ' + (sig.category || 'Intraday');
-
-    var ab = document.getElementById('drawerAction');
-    var rec = sig.recommendation || 'BUY';
-    ab.textContent = rec;
-    ab.className = 'drawer-action-badge ' + (rec === 'BUY' ? 'buy' : 'sell');
-
-    var cmp = parseFloat(sig.currentPrice || sig.entryPrice || 0).toFixed(2);
-    document.getElementById('drawerCMP').textContent = '₹' + cmp;
-
-    /* Technical indicators (simulated from confidence) */
-    var conf = sig.confidence || 'High';
-    var isBuy = rec === 'BUY';
-    document.getElementById('techMomentum').textContent = conf === 'High' ? 'Strong' : (conf === 'Medium' ? 'Moderate' : 'Weak');
-    document.getElementById('techMomentum').style.color = conf === 'High' ? 'var(--accent)' : (conf === 'Medium' ? 'var(--warning)' : 'var(--loss)');
-    document.getElementById('techVolume').textContent = conf === 'High' ? 'Above Avg' : 'Average';
-    var rsi = conf === 'High' ? (isBuy ? 62 : 38) : (isBuy ? 55 : 45);
-    document.getElementById('techRSI').textContent = rsi;
-    document.getElementById('techRSI').style.color = rsi > 60 ? 'var(--accent)' : (rsi < 40 ? 'var(--loss)' : 'var(--warning)');
-    document.getElementById('techMACD').textContent = isBuy ? 'Bullish' : 'Bearish';
-    document.getElementById('techMACD').style.color = isBuy ? 'var(--accent)' : 'var(--loss)';
-    document.getElementById('techMA').textContent = isBuy ? 'Above 20 DMA' : 'Below 20 DMA';
-    document.getElementById('techMA').style.color = isBuy ? 'var(--accent)' : 'var(--loss)';
-    document.getElementById('techHolding').textContent = sig.duration || 'Intraday';
-
-    /* Risk meter */
-    var riskLevel = conf === 'High' ? 'low' : (conf === 'Medium' ? 'medium' : 'high');
-    document.getElementById('riskLabel').textContent = riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1) + ' Risk';
-    document.getElementById('riskConf').textContent = 'Confidence: ' + conf;
-    document.getElementById('riskBar').className = 'risk-bar-fill ' + riskLevel;
-
-    /* Probability */
-    var prob = conf === 'High' ? 85 : (conf === 'Medium' ? 65 : 45);
-    var circumference = 125.6;
-    var offset = circumference - (prob / 100) * circumference;
-    document.getElementById('probCircle').style.strokeDashoffset = offset;
-    document.getElementById('probText').textContent = prob + '%';
-    document.getElementById('probTitle').textContent = prob >= 75 ? 'High Probability Trade' : (prob >= 50 ? 'Moderate Probability' : 'Speculative Setup');
-    document.getElementById('probDesc').textContent = 'Based on technical indicators and market momentum';
-
-    document.getElementById('drawerOverlay').classList.add('open');
-    document.getElementById('drawer').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  window.openDrawer = openDrawer;
-
-  function closeDrawer() {
-    document.getElementById('drawerOverlay').classList.remove('open');
-    document.getElementById('drawer').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-  window.closeDrawer = closeDrawer;
-
-  /* Close on escape */
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeDrawer();
-  });
-
-  /* ---- History Filter ---- */
-  function filterHistory(filter, btn) {
-    document.querySelectorAll('.filter-pill').forEach(function(p) { p.classList.remove('active'); });
-    btn.classList.add('active');
-    document.querySelectorAll('.history-card').forEach(function(card) {
-      var status = card.getAttribute('data-status') || '';
-      if (filter === 'all') {
-        card.style.display = '';
-      } else if (filter === 'target-hit') {
-        card.style.display = (status === 'target-hit' || status === 'target hit') ? '' : 'none';
-      } else if (filter === 'expired') {
-        card.style.display = (status === 'expired') ? '' : 'none';
-      } else if (filter === 'closed') {
-        card.style.display = (status === 'closed') ? '' : 'none';
-      }
-    });
-  }
-  window.filterHistory = filterHistory;
-
-  /* ---- Init ---- */
-  updateMarketStatus();
-  updateTimeAgo();
-  generateSparklines();
-  setInterval(updateMarketStatus, 1000);
-  setInterval(updateTimeAgo, 30000);
-  setInterval(updateLiveBadge, 5000);
-
-})();
-</script>
 {% endblock %}

@@ -75,24 +75,7 @@
 {% endblock %}
 
 {% block content %}
-<nav class="nav">
-  <div class="nav-left">
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
-    <div>
-      <p>Stockboy Premium</p>
-      <p>Stock Signals Platform</p>
-    </div>
-  </div>
-  <div class="nav-right">
-    {% if logged_in and username %}
-    <span style="font-size:0.8rem;color:var(--muted)">Welcome, <span style="color:var(--gold);font-weight:600">{{ username }}</span></span>
-    <a href="/logout" style="font-size:0.75rem">Logout</a>
-    {% else %}
-    <a href="/">Home</a>
-    <a href="/auth" class="active-btn">Login / Register</a>
-    {% endif %}
-  </div>
-</nav>
+
 
 <div class="container">
   <header class="page-header fade-in">
@@ -142,6 +125,7 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 async function initiatePlanPayment(planSlug) {
+  if (window.sbShowPaymentLoader) window.sbShowPaymentLoader();
   try {
     const res = await fetch('/create-payment-order', {
       method: 'POST',

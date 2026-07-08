@@ -1,0 +1,383 @@
+/* ════════════════════════════════════════════════════════════════
+   STOCKBOY PREMIUM — TRUST & TESTIMONIAL SYSTEM CSS
+   Enterprise social proof components
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── 1. TRUST INDICATORS (COUNTERS) ── */
+.sb-trust-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-2);
+  margin: 3rem auto;
+  max-width: 1200px;
+  padding: 0 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .sb-trust-stats-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 600px) {
+  .sb-trust-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  /* Make last item span full width on mobile for odd number */
+  .sb-trust-stats-grid > div:last-child { grid-column: 1 / -1; }
+}
+
+.sb-trust-stat {
+  background: rgba(16, 37, 48, 0.4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  text-align: center;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  transition: transform 0.3s, background 0.3s;
+}
+.sb-trust-stat:hover {
+  transform: translateY(-5px);
+  background: rgba(16, 37, 48, 0.6);
+  border-color: rgba(255,213,74,0.2);
+}
+
+.sb-ts-val {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: var(--space-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+}
+.sb-ts-val span {
+  color: var(--gold, #FFD54A);
+  font-size: 1.5rem;
+}
+.sb-ts-label {
+  font-size: 0.75rem;
+  color: var(--text-muted, #8a9bb0);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+/* ── 2. CAROUSEL SYSTEM ── */
+.sb-trust-carousel-wrap {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto 4rem auto;
+  padding: 0 1.5rem;
+}
+
+.sb-trust-carousel {
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+}
+
+.sb-trust-track {
+  display: flex;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform;
+}
+
+.sb-trust-slide {
+  min-width: 100%;
+  flex-shrink: 0;
+  padding: 0 0.5rem; /* Gap between slides if we want to show multiple? Requirements say "Premium carousel. Each slide includes...". 100% width implies 1 per view. Let's stick to 1 per view for impact, or maybe a 3-card view? Requirements say "Testimonial Card: Each card should include Large profile image...". Wait, "Success stories carousel... auto slide, touch swipe". Let's do 1 card per view for a massive hero-like success story, or 3 cards on desktop. Let's do 100% width for mobile, 33.333% for desktop. */
+}
+@media (min-width: 769px) {
+  .sb-trust-slide { min-width: 33.3333%; }
+}
+@media (min-width: 1024px) {
+  .sb-trust-slide { padding: 0 1rem; }
+}
+
+/* ── 3. TESTIMONIAL CARD ── */
+.sb-testi-card {
+  background: radial-gradient(120% 120% at 50% -20%, rgba(255,213,74,0.05) 0%, rgba(12,24,32,0.8) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: inset 0 0 0 1px rgba(255,213,74,0.0);
+}
+.sb-testi-card:hover {
+  transform: translateY(-8px);
+  box-shadow: inset 0 0 0 1px rgba(255,213,74,0.1), 0 20px 40px -10px rgba(0,0,0,0.5);
+  border-color: rgba(255,213,74,0.2);
+}
+
+.sb-tc-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: 1.25rem;
+}
+
+.sb-tc-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+  border: 2px solid rgba(255,213,74,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.sb-tc-info { flex: 1; min-width: 0; }
+.sb-tc-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: 0.2rem;
+}
+.sb-tc-verified {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: var(--success, #00C853);
+  color: #000;
+  border-radius: 50%;
+}
+.sb-tc-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted, #8a9bb0);
+}
+
+.sb-tc-rating {
+  color: var(--gold, #FFD54A);
+  font-size: 0.85rem;
+  margin-bottom: var(--space-2);
+  letter-spacing: 0.1em;
+}
+
+.sb-tc-quote {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.6;
+  font-style: italic;
+  flex: 1;
+  margin-bottom: var(--space-3);
+}
+
+.sb-tc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.sb-tc-profit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba(0,200,83,0.1);
+  color: var(--success, #00C853);
+  border: 1px solid rgba(0,200,83,0.2);
+  border-radius: 2rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.sb-tc-style {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.05);
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+/* Carousel Controls */
+.sb-carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  background: rgba(16, 37, 48, 0.8);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s;
+  backdrop-filter: var(--glass-blur);
+}
+.sb-carousel-nav:hover {
+  background: var(--gold, #FFD54A);
+  color: #000;
+  border-color: var(--gold, #FFD54A);
+}
+.sb-carousel-prev { left: -0.5rem; }
+.sb-carousel-next { right: -0.5rem; }
+
+@media (max-width: 1024px) {
+  .sb-carousel-prev { left: 0.5rem; }
+  .sb-carousel-next { right: 0.5rem; }
+}
+
+.sb-carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-1);
+  margin-top: 2rem;
+}
+.sb-carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s var(--easing);
+}
+.sb-carousel-dot.active {
+  width: 24px;
+  background: var(--gold, #FFD54A);
+}
+
+/* ── 4. VIDEO PLACEHOLDERS ── */
+.sb-video-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  max-width: 1200px;
+  margin: 0 auto 4rem auto;
+  padding: 0 1.5rem;
+}
+@media (max-width: 768px) {
+  .sb-video-grid { grid-template-columns: 1fr; }
+}
+
+.sb-video-card {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(45deg, rgba(16, 37, 48, 1), rgba(20, 20, 25, 1));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+.sb-video-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255,213,74,0.2);
+}
+.sb-video-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="1.5" fill="rgba(255,255,255,0.05)"/></svg>') repeat;
+  opacity: 0.5;
+}
+.sb-play-btn {
+  width: 64px;
+  height: 64px;
+  background: rgba(255,213,74,0.1);
+  border: 2px solid var(--gold, #FFD54A);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold, #FFD54A);
+  z-index: 2;
+  transition: all 0.3s;
+  box-shadow: 0 0 30px rgba(255,213,74,0.2);
+}
+.sb-video-card:hover .sb-play-btn {
+  background: var(--gold, #FFD54A);
+  color: #000;
+  transform: scale(1.1);
+}
+.sb-video-label {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  z-index: 2;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* ── 5. COMMUNITY SECTION ── */
+.sb-community-banner {
+  background: linear-gradient(90deg, rgba(16,37,48,0.8) 0%, rgba(12,24,32,0.8) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-xl);
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2.5rem;
+  text-align: center;
+  backdrop-filter: var(--glass-blur);
+}
+.sb-comm-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: var(--space-1);
+}
+.sb-comm-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+.sb-comm-links {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.sb-comm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 0.75rem 1.5rem;
+  border-radius: 2rem;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+.sb-comm-btn:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateY(-2px);
+}
+.sb-comm-btn.tg:hover { border-color: #0088cc; color: #0088cc; }
+.sb-comm-btn.ig:hover { border-color: #e1306c; color: #e1306c; }
+.sb-comm-btn.wa:hover { border-color: #25D366; color: #25D366; }
+
+.sb-comm-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}

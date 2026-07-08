@@ -1,0 +1,299 @@
+/* ════════════════════════════════════════════════════════════════
+   STOCKBOY PREMIUM — ENTERPRISE LOADING SYSTEM
+   Zero CLS · 60 FPS Mobile · Compositor-Only Animations
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── 1. GLOBAL PAGE LOADER ── */
+.sb-page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: radial-gradient(ellipse at 50% -20%, rgba(30,41,59,1) 0%, rgba(8,9,13,1) 60%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.4s;
+  will-change: opacity;
+}
+.sb-page-loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.sb-loader-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: var(--gold, #FFD54A);
+  width: 0%;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(255,213,74,0.5);
+}
+.sb-loader-ring-wrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-3);
+}
+.sb-loader-logo {
+  width: 40px;
+  height: 40px;
+  z-index: 2;
+  animation: sbLoaderPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+.sb-loader-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255,213,74,0.1);
+  border-top-color: var(--gold, #FFD54A);
+  animation: sbLoaderSpin 1s linear infinite;
+  box-shadow: 0 0 20px rgba(255,213,74,0.15);
+}
+.sb-loader-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted, #8a9bb0);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: sbLoaderTextShimmer 2s infinite;
+}
+
+@keyframes sbLoaderSpin {
+  to { transform: rotate(360deg); }
+}
+@keyframes sbLoaderPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.95); }
+}
+@keyframes sbLoaderTextShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── 2. PREMIUM SKELETON SYSTEM (NO DOM SPINNERS) ── */
+.sb-skel {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.03) 25%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: sbSkelShimmer 1.5s infinite;
+  border-radius: 0.25rem;
+}
+@keyframes sbSkelShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Specific Skeleton Components */
+.sb-skel-signal-card {
+  background: rgba(16,37,48,0.4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2);
+  height: auto;
+  min-height: 180px;
+}
+.sb-skel-signal-card .sb-skel-header {
+  display: flex; justify-content: space-between; margin-bottom: var(--space-2);
+}
+.sb-skel-signal-card .sb-skel-ticker { width: 30%; height: 1.2rem; border-radius: 0.25rem; }
+.sb-skel-signal-card .sb-skel-badge { width: 15%; height: 1.2rem; border-radius: 0.25rem; }
+.sb-skel-signal-card .sb-skel-body {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); margin-bottom: var(--space-2);
+}
+.sb-skel-signal-card .sb-skel-cell { height: 3rem; border-radius: var(--radius-sm); }
+.sb-skel-signal-card .sb-skel-footer { height: 1.5rem; border-radius: 0.25rem; width: 60%; }
+
+.sb-skel-profile {
+  display: flex; align-items: center; gap: var(--space-2); margin-bottom: 2rem;
+}
+.sb-skel-avatar { width: 64px; height: 64px; border-radius: 50%; }
+.sb-skel-lines { flex: 1; }
+.sb-skel-line-1 { width: 40%; height: 1.2rem; margin-bottom: var(--space-1); }
+.sb-skel-line-2 { width: 25%; height: 0.8rem; }
+
+.sb-skel-chart {
+  width: 100%;
+  height: 250px;
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-2);
+}
+
+/* ── 3. BUTTON LOADING STATES ── */
+.btn-loading {
+  position: relative !important;
+  color: transparent !important;
+  pointer-events: none !important;
+  transition: all 0.2s ease !important;
+}
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin-left: -10px;
+  margin-top: -10px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: sbLoaderSpin 0.7s linear infinite;
+}
+.btn-success {
+  position: relative !important;
+  color: transparent !important;
+  pointer-events: none !important;
+  background: var(--success, #00C853) !important;
+  border-color: var(--success, #00C853) !important;
+}
+.btn-success::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: bold;
+  animation: sbCheckPop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── 4. PAYMENT LOADING OVERLAY ── */
+.sb-payment-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: rgba(8,9,13,0.85);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s;
+}
+.sb-payment-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+.sb-payment-card {
+  background: rgba(16,37,48,0.8);
+  border: 1px solid rgba(255,213,74,0.15);
+  border-radius: 1.25rem;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5), 0 0 40px rgba(255,213,74,0.05);
+  transform: translateY(20px) scale(0.95);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sb-payment-overlay.active .sb-payment-card {
+  transform: translateY(0) scale(1);
+}
+.sb-payment-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.5rem;
+  color: var(--gold, #FFD54A);
+  animation: sbShieldPulse 2s infinite;
+}
+.sb-payment-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: var(--space-1);
+}
+.sb-payment-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted, #8a9bb0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+}
+.sb-payment-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: sbLoaderSpin 0.7s linear infinite;
+}
+
+@keyframes sbShieldPulse {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(255,213,74,0.2)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 25px rgba(255,213,74,0.6)); transform: scale(1.05); }
+}
+
+/* ── 5. ERROR RETRY COMPONENT ── */
+.sb-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  background: rgba(255,82,82,0.04);
+  border: 1px dashed rgba(255,82,82,0.2);
+  border-radius: var(--radius-lg);
+  animation: sbPageFadeIn 0.3s ease;
+}
+.sb-error-icon {
+  color: var(--danger, #FF5252);
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--space-2);
+  opacity: 0.8;
+}
+.sb-error-text {
+  font-size: 0.9rem;
+  color: var(--text-muted, #8a9bb0);
+  margin-bottom: 1.25rem;
+}
+.sb-error-retry {
+  padding: 0.5rem 1.25rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sb-error-retry:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.2);
+}
+
+/* ── ACCESSIBILITY (prefers-reduced-motion) ── */
+@media (prefers-reduced-motion: reduce) {
+  .sb-loader-ring, .btn-loading::after, .sb-payment-spinner {
+    animation-duration: 3s; /* Slow down spinners */
+  }
+  .sb-loader-logo, .sb-payment-icon, .sb-loader-text {
+    animation: none !important;
+  }
+  .sb-skel {
+    animation: sbSkelPulse 2s infinite alternate; /* fallback to simple pulse */
+    background: rgba(255,255,255,0.05);
+  }
+  @keyframes sbSkelPulse {
+    0% { opacity: 0.6; }
+    100% { opacity: 1; }
+  }
+}

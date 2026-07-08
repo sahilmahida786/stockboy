@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}Stockboy Premium – Intraday & F&O Stock Signals | Join Today{% endblock %}
-{% block description %}Get verified stock market signals with exact entry, stop-loss, and 3 targets. Best premium stock tips for NSE & BSE traders.{% endblock %}
+{% block description %}Access professional market research, expert insights, and precise actionable trading intelligence. The premier destination for NSE & BSE traders.{% endblock %}
 
 {% block extra_schema %}
 <script type="application/ld+json">
@@ -59,6 +59,8 @@
 {% endblock %}
 
 {% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/trust.css') }}" />
 <style>
 
   
@@ -105,234 +107,6 @@
   .user-info .name span { color: var(--gold); font-weight: 600; }
   .user-info .logout { font-size: 0.7rem; color: var(--text-muted); text-decoration: none; transition: color 0.25s; }
   .user-info .logout:hover { color: var(--danger); }
-
-  /* ═══════════════════════════════════════════════
-     HERO SECTION — Premium Enterprise Design
-     ═══════════════════════════════════════════════ */
-  .hero {
-    position: relative;
-    padding: 5rem 1.25rem 3.5rem;
-    text-align: center;
-    overflow: hidden;
-    min-height: max(82vh, 540px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Layered gradient background */
-  .hero::before {
-    content: '';
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse 55% 45% at 50% -5%, rgba(255,213,74,0.05) 0%, transparent 70%),
-      radial-gradient(ellipse 70% 50% at 15% 85%, rgba(15,23,42,0.7) 0%, transparent 50%),
-      radial-gradient(ellipse 70% 50% at 85% 85%, rgba(30,41,59,0.5) 0%, transparent 50%),
-      linear-gradient(180deg, #081826 0%, #0B1220 30%, #0F172A 65%, #081826 100%);
-    z-index: 0;
-  }
-
-  /* Ambient glow — breathing */
-  .hero-glow {
-    position: absolute;
-    top: -15%; left: 50%; transform: translateX(-50%);
-    width: 500px; height: 350px;
-    background: radial-gradient(circle, rgba(255,213,74,0.04) 0%, transparent 65%);
-    animation: breathe 7s ease-in-out infinite;
-    pointer-events: none; z-index: 0;
-  }
-
-  /* Grid pattern */
-  .hero-grid {
-    position: absolute; inset: 0; z-index: 0;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-    background-size: 56px 56px;
-    animation: gridFade 8s ease-in-out infinite;
-    mask-image: radial-gradient(ellipse 65% 55% at 50% 40%, black 20%, transparent 70%);
-    -webkit-mask-image: radial-gradient(ellipse 65% 55% at 50% 40%, black 20%, transparent 70%);
-  }
-
-  /* SVG Chart — ambient financial visual */
-  .hero-chart-wrap {
-    position: absolute;
-    bottom: 0; left: 50%; transform: translateX(-50%);
-    width: 100%; max-width: 840px;
-    height: 250px; z-index: 0;
-    opacity: 0.3;
-    mask-image: linear-gradient(to top, transparent 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.8) 50%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to top, transparent 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.8) 50%, transparent 100%);
-  }
-  .hero-chart-wrap svg { width: 100%; height: 100%; }
-
-  /* ─── CONTENT ─── */
-  .hero-content {
-    position: relative; z-index: 1;
-    max-width: 620px; margin: 0 auto;
-  }
-
-  /* Trust badge */
-  .hero-badge {
-    display: inline-flex;
-    align-items: center; gap: 0.45rem;
-    padding: 0.35rem 0.9rem;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 2rem;
-    font-size: 0.68rem; font-weight: 500;
-    color: rgba(255,255,255,0.65);
-    letter-spacing: 0.02em;
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    margin-bottom: 1.75rem;
-    transition: border-color 0.3s, background 0.3s;
-  }
-  .hero-badge:hover {
-    border-color: rgba(255,213,74,0.18);
-    background: rgba(255,213,74,0.04);
-  }
-  .hero-badge .live-dot {
-    width: 6px; height: 6px;
-    background: var(--success);
-    border-radius: 50%;
-    animation: dotPulse 2s ease-in-out infinite;
-    flex-shrink: 0;
-  }
-
-  /* Headline */
-  .hero-h {
-    font-size: clamp(1.65rem, 5.5vw, 3.1rem);
-    font-weight: 700;
-    line-height: 1.12;
-    letter-spacing: -0.03em;
-    margin-bottom: 1.15rem;
-    color: rgba(255,255,255,0.95);
-  }
-  .hero-h .gold {
-    background: linear-gradient(135deg, #FFD54A, #FFB300);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* Subtitle */
-  .hero-sub {
-    font-size: clamp(0.85rem, 2.2vw, 1rem);
-    color: rgba(138,155,176,0.8);
-    max-width: 480px;
-    margin: 0 auto 2rem;
-    line-height: 1.7;
-    font-weight: 400;
-  }
-
-  /* CTAs */
-  .hero-cta {
-    display: flex; align-items: center; justify-content: center;
-    gap: 0.65rem; flex-wrap: wrap;
-    margin-bottom: 2.25rem;
-  }
-  .cta-main {
-    display: inline-flex; align-items: center; gap: 0.45rem;
-    padding: 0.72rem 1.6rem;
-    background: linear-gradient(135deg, #FFD54A, #FFB300);
-    color: #0B1220; font-weight: 600; font-size: 0.85rem;
-    border: none; border-radius: 0.55rem; cursor: pointer;
-    text-decoration: none;
-    transition: all 0.28s cubic-bezier(0.22,1,0.36,1);
-    box-shadow: 0 1px 8px rgba(255,213,74,0.18);
-  }
-  .cta-main:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(255,213,74,0.3);
-  }
-  .cta-main:active { transform: translateY(0); }
-  .cta-main svg { width: 15px; height: 15px; }
-
-  .cta-ghost {
-    display: inline-flex; align-items: center; gap: 0.45rem;
-    padding: 0.72rem 1.6rem;
-    background: transparent;
-    color: rgba(255,255,255,0.75); font-weight: 500; font-size: 0.85rem;
-    border: 1px solid rgba(255,255,255,0.1); border-radius: 0.55rem;
-    cursor: pointer; text-decoration: none;
-    transition: all 0.28s cubic-bezier(0.22,1,0.36,1);
-  }
-  .cta-ghost:hover {
-    border-color: rgba(255,255,255,0.22);
-    background: rgba(255,255,255,0.03);
-    color: #fff;
-    transform: translateY(-1px);
-  }
-  .cta-ghost svg { width: 13px; height: 13px; opacity: 0.5; }
-
-  /* Divider line */
-  .hero-divider {
-    width: 48px; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,213,74,0.25), transparent);
-    margin: 0 auto 1rem;
-  }
-
-  /* Stats row */
-  .hero-stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.45rem;
-    max-width: 480px;
-    margin: 0 auto;
-  }
-  .hero-stat {
-    text-align: center;
-    padding: 0.75rem 0.25rem;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 0.6rem;
-    transition: all 0.25s;
-  }
-  .hero-stat:hover {
-    border-color: rgba(255,213,74,0.12);
-    background: rgba(255,213,74,0.025);
-  }
-  .hero-stat .val {
-    font-size: clamp(1rem, 2.8vw, 1.25rem);
-    font-weight: 700; color: #fff;
-    letter-spacing: -0.02em;
-    line-height: 1;
-    margin-bottom: 0.2rem;
-  }
-  .hero-stat .lbl {
-    font-size: 0.58rem;
-    color: rgba(138,155,176,0.6);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 500;
-  }
-
-  /* ─── Mobile-first responsive hero ─── */
-  @media (max-width: 374px) {
-    .hero { padding: 2.5rem 0.85rem 2rem; min-height: 75vh; }
-    .hero-h { font-size: 1.45rem; }
-    .hero-badge { font-size: 0.6rem; padding: 0.3rem 0.7rem; }
-    .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 0.4rem; max-width: 260px; }
-    .hero-cta { flex-direction: column; gap: 0.5rem; }
-    .cta-main, .cta-ghost { width: 100%; justify-content: center; font-size: 0.82rem; }
-    .hero-chart-wrap { height: 160px; }
-  }
-  @media (min-width: 375px) and (max-width: 480px) {
-    .hero { padding: 3rem 1rem 2.5rem; min-height: 78vh; }
-    .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 0.4rem; max-width: 300px; }
-    .hero-cta { flex-direction: column; gap: 0.5rem; }
-    .cta-main, .cta-ghost { width: 100%; justify-content: center; }
-    .hero-chart-wrap { height: 180px; }
-  }
-  @media (min-width: 481px) and (max-width: 768px) {
-    .hero { padding: 3.5rem 1.25rem 3rem; }
-    .hero-stats { max-width: 420px; }
-    .hero-chart-wrap { height: 220px; }
-  }
-  @media (min-width: 769px) {
-    .hero { padding: 5.5rem 2rem 4.5rem; min-height: 88vh; }
-    .hero-h { letter-spacing: -0.035em; }
-  }
 
   /* ═══════════════════════════════════════════════
      NEW SECTIONS — Premium Conversion Optimization
@@ -939,9 +713,7 @@
 
   /* Scroll reveal for remaining sections */
   @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
-  .fade-up { animation: fadeUp 0.7s ease forwards; opacity: 0; }
-
-  /* Plans */
+/* Plans */
   .plans-section { max-width: 1200px; margin: 0 auto; padding: 4rem 1.5rem; }
   .section-title { text-align: center; margin-bottom: 3rem; }
   .section-title h2 { font-size: 2.25rem; font-weight: 700; margin-bottom: 0.5rem; }
@@ -1333,8 +1105,7 @@
       scroll-behavior: auto !important;
     }
     .hf { opacity: 1 !important; transform: none !important; }
-    .fade-up { opacity: 1 !important; animation: none !important; }
-    #navProgress { display: none; }
+#navProgress { display: none; }
   }
 
   /* ── Min touch target 44px ── */
@@ -1374,124 +1145,129 @@
 <!-- ════════════════════════════════════════════
      HERO SECTION — Premium Enterprise Design
      ════════════════════════════════════════════ -->
-<section class="hero" id="hero">
-  <!-- Background layers -->
-  <div class="hero-glow"></div>
-  <div class="hero-grid"></div>
+<!-- ═══════════════════════════════════════════════
+     ENTERPRISE HERO SECTION
+     ═══════════════════════════════════════════════ -->
+<section class="sb-hero-wrapper" id="hero">
+  <div class="sb-hero-bg"></div>
+  <div class="sb-hero-particle" style="left: 20%; animation-duration: 18s;"></div>
+  <div class="sb-hero-particle" style="left: 70%; animation-duration: 22s; animation-delay: 2s;"></div>
+  <div class="sb-hero-particle" style="left: 40%; animation-duration: 15s; animation-delay: 5s;"></div>
 
-  <!-- SVG Candlestick chart — ambient financial visual -->
-  <div class="hero-chart-wrap">
-    <svg viewBox="0 0 840 250" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-      <!-- Price grid lines -->
-      <line x1="0" y1="80"  x2="840" y2="80"  stroke="rgba(255,255,255,0.03)" stroke-dasharray="3 8"/>
-      <line x1="0" y1="130" x2="840" y2="130" stroke="rgba(255,255,255,0.03)" stroke-dasharray="3 8"/>
-      <line x1="0" y1="180" x2="840" y2="180" stroke="rgba(255,255,255,0.03)" stroke-dasharray="3 8"/>
-      <!-- Trend line -->
-      <path d="M0 200 C60 192,100 185,160 168 S250 130,320 138 S420 110,490 92 S580 72,660 80 S740 62,810 44 L840 38"
-        stroke="rgba(0,200,83,0.22)" stroke-width="1.5" fill="none"
-        stroke-dasharray="1000" style="animation: drawLine 3.5s ease forwards;"/>
-      <!-- Area fill -->
-      <path d="M0 200 C60 192,100 185,160 168 S250 130,320 138 S420 110,490 92 S580 72,660 80 S740 62,810 44 L840 38 L840 250 L0 250 Z"
-        fill="url(#aGrad)" opacity="0.25"/>
-      <!-- Candlesticks -->
-      <g opacity="0.45">
-        <line x1="70" y1="180" x2="70" y2="162" stroke="rgba(0,200,83,0.5)" stroke-width="0.8"/><rect x="67" y="166" width="6" height="10" rx="0.8" fill="rgba(0,200,83,0.35)"/>
-        <line x1="120" y1="172" x2="120" y2="190" stroke="rgba(255,82,82,0.4)" stroke-width="0.8"/><rect x="117" y="175" width="6" height="9" rx="0.8" fill="rgba(255,82,82,0.3)"/>
-        <line x1="160" y1="155" x2="160" y2="138" stroke="rgba(0,200,83,0.5)" stroke-width="0.8"/><rect x="157" y="142" width="6" height="11" rx="0.8" fill="rgba(0,200,83,0.35)"/>
-        <line x1="250" y1="128" x2="250" y2="145" stroke="rgba(255,82,82,0.4)" stroke-width="0.8"/><rect x="247" y="132" width="6" height="8" rx="0.8" fill="rgba(255,82,82,0.3)"/>
-        <line x1="320" y1="145" x2="320" y2="120" stroke="rgba(0,200,83,0.5)" stroke-width="0.8"/><rect x="317" y="125" width="6" height="14" rx="0.8" fill="rgba(0,200,83,0.35)"/>
-        <line x1="420" y1="108" x2="420" y2="125" stroke="rgba(255,82,82,0.4)" stroke-width="0.8"/><rect x="417" y="112" width="6" height="8" rx="0.8" fill="rgba(255,82,82,0.3)"/>
-        <line x1="490" y1="100" x2="490" y2="78" stroke="rgba(0,200,83,0.5)" stroke-width="0.8"/><rect x="487" y="82" width="6" height="14" rx="0.8" fill="rgba(0,200,83,0.35)"/>
-        <line x1="580" y1="70" x2="580" y2="88" stroke="rgba(255,82,82,0.4)" stroke-width="0.8"/><rect x="577" y="74" width="6" height="9" rx="0.8" fill="rgba(255,82,82,0.3)"/>
-        <line x1="660" y1="85" x2="660" y2="65" stroke="rgba(0,200,83,0.5)" stroke-width="0.8"/><rect x="657" y="68" width="6" height="12" rx="0.8" fill="rgba(0,200,83,0.35)"/>
-        <line x1="740" y1="60" x2="740" y2="78" stroke="rgba(255,82,82,0.4)" stroke-width="0.8"/><rect x="737" y="64" width="6" height="8" rx="0.8" fill="rgba(255,82,82,0.3)"/>
-        <line x1="810" y1="52" x2="810" y2="30" stroke="rgba(0,200,83,0.5)" stroke-width="0.8"/><rect x="807" y="35" width="6" height="14" rx="0.8" fill="rgba(0,200,83,0.35)"/>
-      </g>
-      <defs>
-        <linearGradient id="aGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(0,200,83,0.1)"/>
-          <stop offset="100%" stop-color="rgba(0,200,83,0)"/>
-        </linearGradient>
-      </defs>
-    </svg>
-  </div>
+  <div class="sb-hero-container">
+    
+    <!-- LEFT COLUMN -->
+    <div class="sb-hero-left">
+      <div class="sb-hero-badge-wrap hf hf-1">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--gold)"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+        <span class="sb-hero-badge-txt">India's #1 Premium Signal Platform</span>
+      </div>
+      
+      <h1 class="sb-hero-title hf hf-2">
+        Trade with <span class="highlight">Precision.</span><br>
+        Profit with Confidence.
+      </h1>
+      
+      <p class="sb-hero-desc hf hf-3">
+        Get highly accurate Intraday and F&O stock signals with exact entry, strict stop-loss, and multiple target levels. Stop gambling, start trading like a professional.
+      </p>
 
-  <!-- Content -->
-  <div class="hero-content">
-    <!-- Trust badge -->
-    <div class="hf hf-1">
-      <span class="hero-badge">
-        <span class="live-dot"></span>
-        500+ active members · 85% historical accuracy
-      </span>
-    </div>
-
-    <!-- Headline -->
-    <h1 class="hero-h hf hf-2">
-      Trade With Confidence.<br>
-      <span class="gold">Not Guesswork.</span>
-    </h1>
-
-    <!-- Subtitle -->
-    <p class="hero-sub hf hf-3">
-      Expert-curated stock signals with precise entries,
-      multiple targets, and disciplined risk management.
-    </p>
-
-    <!-- CTAs -->
-    <div class="hero-cta hf hf-4">
-      {% if logged_in %}
-        {% if has_subscription %}
-        <a href="/dashboard" class="cta-main">
-          Open Dashboard
-          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z"/></svg>
+      <div class="sb-hero-cta-group hf hf-4">
+        <a href="/plans" class="sb-btn sb-btn-primary">
+          Get Premium Access
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         </a>
-        {% else %}
-        <a href="#plans" class="cta-main">
-          Explore Plans
-          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z"/></svg>
+        <a href="#testimonials" class="sb-btn sb-btn-secondary">
+          View Success Stories
         </a>
-        {% endif %}
-      {% else %}
-      <a href="/auth" class="cta-main">
-        Get Started
-        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z"/></svg>
-      </a>
-      {% endif %}
-      <a href="#plans" class="cta-ghost">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M6.5 5.5v5l4-2.5z" fill="currentColor" stroke="none"/></svg>
-        View Plans
-      </a>
+      </div>
+
+      <div class="sb-hero-trust hf hf-5">
+        <div class="sb-trust-item">
+          <span class="sb-trust-num">1.2k+</span>
+          <span class="sb-trust-lbl">Active Members</span>
+        </div>
+        <div class="sb-trust-item">
+          <span class="sb-trust-num" style="color:var(--success)">85%</span>
+          <span class="sb-trust-lbl">Target Hit Rate</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Divider -->
-    <div class="hero-divider hf hf-4"></div>
+    <!-- RIGHT COLUMN -->
+    <div class="sb-hero-right hf hf-3">
+      <div class="sb-terminal">
+        
+        <!-- Live Market Strip -->
+        <div class="sb-market-strip">
+          <div class="sb-live-badge">
+            <div class="sb-live-dot"></div>
+            LIVE MARKET
+          </div>
+          <div class="sb-ticker up">NIFTY 50 ↑ 24,150.20</div>
+          <div class="sb-ticker down">BANKNIFTY ↓ 52,340.85</div>
+          <div class="sb-ticker up">SENSEX ↑ 79,400.10</div>
+        </div>
 
-    <!-- Social proof stats -->
-    <div class="hero-stats hf hf-5">
-      <div class="hero-stat">
-        <div class="val">500+</div>
-        <div class="lbl">Members</div>
-      </div>
-      <div class="hero-stat">
-        <div class="val">85%</div>
-        <div class="lbl">Accuracy</div>
-      </div>
-      <div class="hero-stat">
-        <div class="val">24/7</div>
-        <div class="lbl">Coverage</div>
-      </div>
-      <div class="hero-stat">
-        <div class="val">3+</div>
-        <div class="lbl">Daily</div>
+        <!-- Signal Preview -->
+        <div class="sb-sig-preview">
+          <div class="sb-sig-head">
+            <div>
+              <div class="sb-sig-stock">RELIANCE IND</div>
+              <div class="sb-sig-type">Intraday • Equity</div>
+            </div>
+            <div class="sb-buy-tag">BUY</div>
+          </div>
+          
+          <div class="sb-sig-grid">
+            <div class="sb-sig-val-box">
+              <div class="sb-svb-lbl">Entry</div>
+              <div class="sb-svb-val">₹2,950</div>
+            </div>
+            <div class="sb-sig-val-box">
+              <div class="sb-svb-lbl">Stop Loss</div>
+              <div class="sb-svb-val" style="color:var(--danger)">₹2,930</div>
+            </div>
+            <div class="sb-sig-val-box">
+              <div class="sb-svb-lbl">Target 3</div>
+              <div class="sb-svb-val gold">₹3,010</div>
+            </div>
+          </div>
+
+          <div class="sb-sig-progress-wrap">
+            <div class="sb-sig-progress-lbl">
+              <span>Target 2 Achieved (₹2,985)</span>
+              <span style="color:var(--success); font-weight:700;">+₹35</span>
+            </div>
+            <div class="sb-sig-progress-bar">
+              <div class="sb-sig-progress-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sentiment -->
+        <div class="sb-sentiment">
+          <div class="sb-sent-left">
+            <div class="sb-sent-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
+            <div>
+              <div class="sb-sent-txt">Market Sentiment</div>
+              <div class="sb-sent-sub">Strongly Bullish</div>
+            </div>
+          </div>
+          <div class="sb-sent-gauge"></div>
+        </div>
+
       </div>
     </div>
+
   </div>
 </section>
 
 <!-- ══ Section 1: Live Signal Preview ══ -->
 <section class="sec signal-preview" id="live-signal">
-  <div class="sec-title fade-up">
+  <div class="sec-title reveal-slide-up">
     <span class="sec-label">
       <span style="width:6px;height:6px;background:var(--success);border-radius:50%;display:inline-block;animation:dotPulse 2s infinite"></span>
       Live Signal Preview
@@ -1501,7 +1277,7 @@
   </div>
 
   <!-- Premium Signal Card V2 -->
-  <div class="signal-card-v2 fade-up">
+  <div class="signal-card-v2 reveal-slide-up sb-card-glow">
     <!-- Top bar -->
     <div class="signal-topbar">
       <div class="signal-ticker-group">
@@ -1570,33 +1346,33 @@
 </section>
 
 <!-- ══ Section 2: Performance Metrics ══ -->
-<section class="sec metrics-section fade-up">
+<section class="sec metrics-section reveal-slide-up">
   <div class="metrics-grid">
     <div class="metric-card">
-      <div class="m-val" data-count="500" data-suffix="+">0</div>
+      <div class="m-val" data-sb-count="500" data-sb-suffix="+">0</div>
       <div class="m-label">Active<br>Members</div>
     </div>
     <div class="metric-card">
-      <div class="m-val" data-count="85" data-suffix="%+">0</div>
+      <div class="m-val" data-sb-count="85" data-sb-suffix="%+">0</div>
       <div class="m-label">Historical<br>Accuracy</div>
     </div>
     <div class="metric-card">
-      <div class="m-val" data-static="24/7">24/7</div>
+      <div class="m-val" data-sb-static="24/7">24/7</div>
       <div class="m-label">Market<br>Coverage</div>
     </div>
     <div class="metric-card">
-      <div class="m-val" data-count="3" data-suffix="+">0</div>
+      <div class="m-val" data-sb-count="3" data-sb-suffix="+">0</div>
       <div class="m-label">Signals<br>Daily</div>
     </div>
     <div class="metric-card">
-      <div class="m-val" data-count="25" data-prefix="₹" data-suffix="L+">0</div>
+      <div class="m-val" data-sb-count="25" data-sb-prefix="₹" data-sb-suffix="L+">0</div>
       <div class="m-label">Capital<br>Tracked</div>
     </div>
   </div>
 </section>
 
 <!-- ══ Section 3: Dashboard Preview ══ -->
-<section class="sec dash-preview-section fade-up" id="dashboard-preview">
+<section class="sec dash-preview-section reveal-slide-up" id="dashboard-preview">
   <div class="sec-title">
     <span class="sec-label">
       <svg width="5" height="5" viewBox="0 0 5 5"><circle cx="2.5" cy="2.5" r="2.5" fill="var(--gold)"/></svg>
@@ -1605,7 +1381,7 @@
     <h2>Your Trading Command Centre</h2>
     <p>Everything you need, beautifully organized in one place</p>
   </div>
-  <div class="dash-window">
+  <div class="dash-window sb-card-glow">
     <!-- macOS window chrome -->
     <div class="dash-chrome">
       <div class="chrome-dots"><span></span><span></span><span></span></div>
@@ -1670,13 +1446,13 @@
 
 <!-- Membership Plans -->
 <section class="plans-section" id="plans">
-  <div class="section-title fade-up">
+  <div class="section-title reveal-slide-up">
     <h2>Choose Your Membership</h2>
-    <p>Unlock premium stock signals and market opportunities</p>
+    <p>Unlock professional trading intelligence and market insights</p>
   </div>
   <div class="plans-grid">
     {% for slug, plan in plans.items() %}
-    <div class="plan-card fade-up {% if plan.popular %}popular{% endif %}" style="animation-delay: {{ loop.index * 0.1 }}s;">
+    <div class="plan-card reveal-slide-up {% if plan.popular %}popular{% endif %}" style="animation-delay: {{ loop.index * 0.1 }}s;">
       <span class="plan-badge">{{ plan.badge }}</span>
       <div class="plan-name">{{ plan.name }}</div>
       <div class="plan-price">{{ plan.price_display }}</div>
@@ -1704,152 +1480,315 @@
   </div>
 </section>
 
-<!-- ══ Section 4: Testimonials ══ -->
-<section class="sec testi-section fade-up" id="testimonials">
+<!-- ══ Section 4: Enterprise Trust System ══ -->
+<section class="sec trust-system reveal-slide-up" id="testimonials" style="padding-top: 4rem;">
+  
   <div class="sec-title">
     <span class="sec-label">
-      <svg width="5" height="5" viewBox="0 0 5 5"><circle cx="2.5" cy="2.5" r="2.5" fill="var(--gold)"/></svg>
-      Member Stories
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Proven Trust & Results
     </span>
-    <h2>Traders Who Trust Stockboy</h2>
-    <p>Real results from verified members across India</p>
+    <h2>Join the Winning Community</h2>
+    <p>Real traders, real profits. Trusted by thousands across India.</p>
   </div>
-  <div class="testi-slider-wrap">
-    <div class="testi-track" id="testiTrack">
-      <!-- Card 1 -->
-      <div class="testi-card-v2">
-        <div class="testi-card-top">
-          <div class="testi-author-row">
-            <div class="testi-av gold">AK</div>
-            <div>
-              <div class="testi-name">Arjun Kumar</div>
-              <div class="testi-city">Mumbai, Maharashtra</div>
-            </div>
-          </div>
-          <div class="verified-badge">
-            <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M5 0.5L6.2 3.6H9.5L6.9 5.5L7.9 8.6L5 6.7L2.1 8.6L3.1 5.5L0.5 3.6H3.8Z" fill="var(--success)"/></svg>
-            Verified
-          </div>
-        </div>
-        <div class="testi-stars">★★★★★</div>
-        <div class="testi-quote">&ldquo;Been using Stockboy for 4 months. The signals are precise — Entry, SL, and 3 targets every time. Target 1 hits almost always. Finally consistently profitable.&rdquo;</div>
-        <div class="testi-footer-row">
-          <span class="profit-badge">↑ +₹38,000 profit</span>
-          <span class="exp-label">3 yrs experience</span>
-        </div>
-      </div>
-      <!-- Card 2 -->
-      <div class="testi-card-v2">
-        <div class="testi-card-top">
-          <div class="testi-author-row">
-            <div class="testi-av blue">PS</div>
-            <div>
-              <div class="testi-name">Priya Sharma</div>
-              <div class="testi-city">Pune, Maharashtra</div>
-            </div>
-          </div>
-          <div class="verified-badge">
-            <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M5 0.5L6.2 3.6H9.5L6.9 5.5L7.9 8.6L5 6.7L2.1 8.6L3.1 5.5L0.5 3.6H3.8Z" fill="var(--success)"/></svg>
-            Verified
-          </div>
-        </div>
-        <div class="testi-stars">★★★★★</div>
-        <div class="testi-quote">&ldquo;As a beginner I was always confused about entry and exit. Stockboy's dashboard shows everything clearly. The stop loss discipline has saved me from big losses.&rdquo;</div>
-        <div class="testi-footer-row">
-          <span class="profit-badge">↑ +₹22,500 profit</span>
-          <span class="exp-label">1 yr experience</span>
-        </div>
-      </div>
-      <!-- Card 3 -->
-      <div class="testi-card-v2">
-        <div class="testi-card-top">
-          <div class="testi-author-row">
-            <div class="testi-av pink">RV</div>
-            <div>
-              <div class="testi-name">Rohan Verma</div>
-              <div class="testi-city">Bengaluru, Karnataka</div>
-            </div>
-          </div>
-          <div class="verified-badge">
-            <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M5 0.5L6.2 3.6H9.5L6.9 5.5L7.9 8.6L5 6.7L2.1 8.6L3.1 5.5L0.5 3.6H3.8Z" fill="var(--success)"/></svg>
-            Verified
-          </div>
-        </div>
-        <div class="testi-stars">★★★★★</div>
-        <div class="testi-quote">&ldquo;The 1:3 risk-reward on every signal is what sold me. Telegram groups give noise. Stockboy gives structure. Worth every rupee of the subscription.&rdquo;</div>
-        <div class="testi-footer-row">
-          <span class="profit-badge">↑ +₹61,000 profit</span>
-          <span class="exp-label">5 yrs experience</span>
-        </div>
-      </div>
-      <!-- Card 4 -->
-      <div class="testi-card-v2">
-        <div class="testi-card-top">
-          <div class="testi-author-row">
-            <div class="testi-av blue">MD</div>
-            <div>
-              <div class="testi-name">Manish Desai</div>
-              <div class="testi-city">Ahmedabad, Gujarat</div>
-            </div>
-          </div>
-          <div class="verified-badge">
-            <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M5 0.5L6.2 3.6H9.5L6.9 5.5L7.9 8.6L5 6.7L2.1 8.6L3.1 5.5L0.5 3.6H3.8Z" fill="var(--success)"/></svg>
-            Premium
-          </div>
-        </div>
-        <div class="testi-stars">★★★★★</div>
-        <div class="testi-quote">&ldquo;I trade F&O and need quick alerts. Stockboy's mobile terminal is exactly what I was looking for. Very professional and no lag on targets.&rdquo;</div>
-        <div class="testi-footer-row">
-          <span class="profit-badge">↑ +₹85,000 profit</span>
-          <span class="exp-label">4 yrs experience</span>
-        </div>
-      </div>
-    </div><!-- /testi-track -->
-  </div>
-</section>
 
-<!-- Features -->
-<section class="features-section">
-  <div class="section-title fade-up">
-    <h2>What You Get</h2>
-    <p>Everything you need for smarter trading decisions</p>
-  </div>
-  <div class="features-grid">
-    <div class="feature-card fade-up">
-      <div class="feature-icon">📈</div>
-      <h3>Premium Stock Signals</h3>
-      <p>Expert-analyzed buy/sell signals with precise entry, target, and stop-loss levels for NSE & BSE stocks.</p>
+  <!-- Trust Indicators -->
+  <div class="sb-trust-stats-grid reveal-stagger">
+    <div class="sb-trust-stat">
+      <div class="sb-ts-val"><span class="sb-counter-val" data-target="500" data-suffix="+">0</span></div>
+      <div class="sb-ts-label">Active Members</div>
     </div>
-    <div class="feature-card fade-up">
-      <div class="feature-icon">🎯</div>
-      <h3>Multi-Target Strategy</h3>
-      <p>Each signal comes with 3 targets and a defined stop loss for optimal risk-reward management.</p>
+    <div class="sb-trust-stat">
+      <div class="sb-ts-val"><span class="sb-counter-val" data-target="1.2" data-suffix="k+">0</span></div>
+      <div class="sb-ts-label">Signals Published</div>
     </div>
-    <div class="feature-card fade-up">
-      <div class="feature-icon">⚡</div>
-      <h3>Real-Time Updates</h3>
-      <p>Live status updates when targets are hit or stop-loss is triggered. Stay informed at every step.</p>
+    <div class="sb-trust-stat">
+      <div class="sb-ts-val"><span class="sb-counter-val" data-target="92" data-suffix="%">0</span></div>
+      <div class="sb-ts-label">Target Hit Rate</div>
     </div>
-    <div class="feature-card fade-up">
-      <div class="feature-icon">🛡️</div>
-      <h3>Risk Management</h3>
-      <p>Every signal includes a calculated risk-reward ratio to help you manage your capital wisely.</p>
+    <div class="sb-trust-stat">
+      <div class="sb-ts-val"><span class="sb-counter-val" data-target="3" data-suffix="+">0</span></div>
+      <div class="sb-ts-label">Years of Service</div>
     </div>
-    <div class="feature-card fade-up">
-      <div class="feature-icon">📊</div>
-      <h3>Premium Dashboard</h3>
-      <p>Beautiful, real-time dashboard showing all active signals, historical performance, and your portfolio.</p>
-    </div>
-    <div class="feature-card fade-up">
-      <div class="feature-icon">💬</div>
-      <h3>Priority Support</h3>
-      <p>Get dedicated support via WhatsApp and Telegram. Average response time under 5 minutes.</p>
+    <div class="sb-trust-stat">
+      <div class="sb-ts-val">
+        <span class="sb-counter-val" data-target="4.9" data-suffix="/5">0</span>
+      </div>
+      <div class="sb-ts-label">Average Rating</div>
     </div>
   </div>
+
+  <!-- Success Stories Carousel -->
+  <div class="sb-trust-carousel-wrap reveal-slide-up" style="animation-delay: 0.2s">
+    <div class="sb-trust-carousel">
+      <div class="sb-trust-track" id="sbTrustTrack">
+        
+        <div class="sb-trust-slide">
+          <div class="sb-testi-card">
+            <div class="sb-tc-header">
+              <div class="sb-tc-avatar">AK</div>
+              <div class="sb-tc-info">
+                <div class="sb-tc-name">
+                  Arjun Kumar
+                  <span class="sb-tc-verified" title="Verified Member">✓</span>
+                </div>
+                <div class="sb-tc-meta">Mumbai, MH • Premium Yearly</div>
+              </div>
+            </div>
+            <div class="sb-tc-rating">★★★★★</div>
+            <div class="sb-tc-quote">
+              "Been using Stockboy for 4 months. The signals are precise — Entry, SL, and 3 targets every time. Finally consistently profitable."
+            </div>
+            <div class="sb-tc-footer">
+              <span class="sb-tc-profit">↑ +₹38,000 profit</span>
+              <span class="sb-tc-style">Intraday / F&O</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sb-trust-slide">
+          <div class="sb-testi-card">
+            <div class="sb-tc-header">
+              <div class="sb-tc-avatar">PS</div>
+              <div class="sb-tc-info">
+                <div class="sb-tc-name">
+                  Priya Sharma
+                  <span class="sb-tc-verified" title="Verified Member">✓</span>
+                </div>
+                <div class="sb-tc-meta">Pune, MH • Lifetime Access</div>
+              </div>
+            </div>
+            <div class="sb-tc-rating">★★★★★</div>
+            <div class="sb-tc-quote">
+              "As a beginner I was always confused about entry and exit. The dashboard shows everything clearly. The SL discipline has saved me from big losses."
+            </div>
+            <div class="sb-tc-footer">
+              <span class="sb-tc-profit">↑ +₹22,500 profit</span>
+              <span class="sb-tc-style">Swing Trading</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sb-trust-slide">
+          <div class="sb-testi-card">
+            <div class="sb-tc-header">
+              <div class="sb-tc-avatar">RV</div>
+              <div class="sb-tc-info">
+                <div class="sb-tc-name">
+                  Rohan Verma
+                  <span class="sb-tc-verified" title="Verified Member">✓</span>
+                </div>
+                <div class="sb-tc-meta">Bengaluru, KA • Premium Monthly</div>
+              </div>
+            </div>
+            <div class="sb-tc-rating">★★★★★</div>
+            <div class="sb-tc-quote">
+              "The 1:3 risk-reward on every signal is what sold me. Telegram groups give noise. Stockboy gives structure. Worth every rupee."
+            </div>
+            <div class="sb-tc-footer">
+              <span class="sb-tc-profit">↑ +₹61,000 profit</span>
+              <span class="sb-tc-style">Intraday</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sb-trust-slide">
+          <div class="sb-testi-card">
+            <div class="sb-tc-header">
+              <div class="sb-tc-avatar">MD</div>
+              <div class="sb-tc-info">
+                <div class="sb-tc-name">
+                  Manish Desai
+                  <span class="sb-tc-verified" title="Verified Member">✓</span>
+                </div>
+                <div class="sb-tc-meta">Ahmedabad, GJ • Premium Quarterly</div>
+              </div>
+            </div>
+            <div class="sb-tc-rating">★★★★★</div>
+            <div class="sb-tc-quote">
+              "I trade F&O and need quick alerts. Stockboy's mobile terminal is exactly what I was looking for. Very professional and no lag on targets."
+            </div>
+            <div class="sb-tc-footer">
+              <span class="sb-tc-profit">↑ +₹85,000 profit</span>
+              <span class="sb-tc-style">F&O Options</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    
+    <!-- Navigation -->
+    <button class="sb-carousel-nav sb-carousel-prev" id="sbCarouselPrev" aria-label="Previous Slide">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <button class="sb-carousel-nav sb-carousel-next" id="sbCarouselNext" aria-label="Next Slide">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+    
+    <div class="sb-carousel-dots" id="sbCarouselDots"></div>
+  </div>
+
+  <!-- Live Performance Dashboard -->
+  <div class="sb-perf-dashboard" style="margin-top:4rem;">
+    <div class="section-title reveal-slide-up">
+      <h2 style="font-size:2.5rem; font-weight:800; margin-bottom:1rem; letter-spacing:-0.03em;">Live Performance Dashboard</h2>
+      <p style="color:var(--text-muted); font-size:1.1rem; max-width:600px; margin:0 auto 3rem;">Track our latest premium trading performance and market intelligence.</p>
+    </div>
+    
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:var(--space-3); max-width:1200px; margin:0 auto; padding:0 1.5rem;">
+      
+      <!-- Card 1: Today's Signals -->
+      <div class="sb-perf-card reveal-slide-up" style="animation-delay: 0.1s; background:var(--glass-bg); border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-3); transition:transform 0.3s var(--easing), box-shadow 0.3s var(--easing);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-2);">
+          <h3 style="font-size:1.1rem; font-weight:700;">Today's Signals</h3>
+          <div style="display:flex; align-items:center; gap:0.4rem; background:rgba(0,200,83,0.1); color:var(--success); padding:0.25rem 0.75rem; border-radius:var(--radius-xl); font-size:0.75rem; font-weight:700;">
+            <span style="width:6px; height:6px; border-radius:50%; background:var(--success); display:inline-block; animation:pulse 2s infinite;"></span> Active
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:var(--space-2);">
+          <div>
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.25rem;">Active Signals</div>
+            <div style="font-size:3rem; font-weight:800; color:var(--gold); line-height:1;">3</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:var(--space-2); border-top:1px solid var(--border); padding-top:var(--space-2);">
+          <div><span style="font-weight:700; color:#fff;">2</span> <span style="font-size:0.8rem; color:var(--text-muted);">Intraday</span></div>
+          <div><span style="font-weight:700; color:#fff;">1</span> <span style="font-size:0.8rem; color:var(--text-muted);">F&O</span></div>
+        </div>
+      </div>
+
+      <!-- Card 2: Recent Target Hits -->
+      <div class="sb-perf-card reveal-slide-up" style="animation-delay: 0.2s; background:var(--glass-bg); border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-3); transition:transform 0.3s var(--easing), box-shadow 0.3s var(--easing);">
+        <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:var(--space-2);">Recent Target Hits</h3>
+        <div style="display:flex; flex-direction:column; gap:1rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
+            <div>
+              <div style="font-weight:700; font-size:0.95rem;">MRPL <span style="font-size:0.7rem; background:rgba(0,200,83,0.15); color:var(--success); padding:0.15rem 0.4rem; border-radius:0.25rem; margin-left:0.4rem;">BUY</span></div>
+              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;"><span style="color:var(--gold);">✔ Target Hit</span></div>
+            </div>
+            <div style="font-weight:800; color:var(--success);">+3.6%</div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
+            <div>
+              <div style="font-weight:700; font-size:0.95rem;">BEL <span style="font-size:0.7rem; background:rgba(0,200,83,0.15); color:var(--success); padding:0.15rem 0.4rem; border-radius:0.25rem; margin-left:0.4rem;">BUY</span></div>
+              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;"><span style="color:var(--gold);">✔ Target Hit</span></div>
+            </div>
+            <div style="font-weight:800; color:var(--success);">+4.1%</div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:700; font-size:0.95rem;">TATA MOTORS <span style="font-size:0.7rem; background:rgba(255,82,82,0.15); color:var(--danger); padding:0.15rem 0.4rem; border-radius:0.25rem; margin-left:0.4rem;">SELL</span></div>
+              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;"><span style="color:var(--gold);">✔ Target Hit</span></div>
+            </div>
+            <div style="font-weight:800; color:var(--success);">+2.8%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Monthly Performance -->
+      <div class="sb-perf-card reveal-slide-up" style="animation-delay: 0.3s; background:var(--glass-bg); border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-3); transition:transform 0.3s var(--easing), box-shadow 0.3s var(--easing);">
+        <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:var(--space-2);">Monthly Performance</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-2); margin-bottom:1.5rem;">
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.2rem;">Signals Published</div>
+            <div style="font-size:1.5rem; font-weight:800; color:#fff;">58</div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.2rem;">Target Hit</div>
+            <div style="font-size:1.5rem; font-weight:800; color:var(--gold);">49</div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom:1rem;">
+          <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:0.4rem;">
+            <span style="color:var(--text-muted);">Accuracy</span>
+            <span style="font-weight:700; color:var(--success);">84%</span>
+          </div>
+          <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+            <div style="width:84%; height:100%; background:var(--success); border-radius:3px;"></div>
+          </div>
+        </div>
+        
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:0.4rem;">
+            <span style="color:var(--text-muted);">Risk Reward Ratio</span>
+            <span style="font-weight:700; color:var(--blue-accent);">1 : 2.7</span>
+          </div>
+          <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+            <div style="width:70%; height:100%; background:var(--blue-accent); border-radius:3px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: Why Members Choose -->
+      <div class="sb-perf-card reveal-slide-up" style="animation-delay: 0.4s; background:var(--glass-bg); border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-3); transition:transform 0.3s var(--easing), box-shadow 0.3s var(--easing);">
+        <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:var(--space-2);">Why Members Choose Stockboy</h3>
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.9rem; color:var(--text-muted);">
+            <div style="width:20px; height:20px; background:rgba(255,213,74,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); flex-shrink:0;">✔</div> Premium Research
+          </div>
+          <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.9rem; color:var(--text-muted);">
+            <div style="width:20px; height:20px; background:rgba(255,213,74,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); flex-shrink:0;">✔</div> Entry Strategy
+          </div>
+          <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.9rem; color:var(--text-muted);">
+            <div style="width:20px; height:20px; background:rgba(255,213,74,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); flex-shrink:0;">✔</div> Risk Management
+          </div>
+          <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.9rem; color:var(--text-muted);">
+            <div style="width:20px; height:20px; background:rgba(255,213,74,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); flex-shrink:0;">✔</div> Real Time Alerts
+          </div>
+          <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.9rem; color:var(--text-muted);">
+            <div style="width:20px; height:20px; background:rgba(255,213,74,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); flex-shrink:0;">✔</div> Multiple Targets
+          </div>
+          <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.9rem; color:var(--text-muted);">
+            <div style="width:20px; height:20px; background:rgba(255,213,74,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); flex-shrink:0;">✔</div> Capital Protection
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <style>
+    .sb-perf-card:hover {
+      transform: translateY(-4px) !important;
+      box-shadow: var(--shadow-glow) !important;
+      border-color: rgba(255,213,74,0.3) !important;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(0,200,83,0.4); }
+      70% { box-shadow: 0 0 0 6px rgba(0,200,83,0); }
+      100% { box-shadow: 0 0 0 0 rgba(0,200,83,0); }
+    }
+  </style>
+
+
+  <!-- Community Banner -->
+  <div class="sb-community-banner reveal-slide-up" style="animation-delay: 0.4s">
+    <div class="sb-comm-title">Join our Trading Community</div>
+    <div class="sb-comm-subtitle">Connect with thousands of active traders across India.</div>
+    <div class="sb-comm-links">
+      <a href="https://t.me/pennystocksboy" target="_blank" class="sb-comm-btn tg">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+        Telegram
+        <span class="sb-comm-count">5k+ Members</span>
+      </a>
+      <a href="https://www.instagram.com/stocks_boy1" target="_blank" class="sb-comm-btn ig">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+        Instagram
+        <span class="sb-comm-count">Verified Page</span>
+      </a>
+      <a href="#" class="sb-comm-btn wa" onclick="event.preventDefault(); window.StockboyToast && window.StockboyToast.show({title: 'Coming Soon', message: 'WhatsApp channel will be available shortly.', type: 'info'})">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg>
+        WhatsApp
+        <span class="sb-comm-count">Coming Soon</span>
+      </a>
+    </div>
+  </div>
+
 </section>
 
 <!-- ══ Section 5: Why Stockboy ══ -->
-<section class="sec compare-section fade-up" id="why-stockboy">
+<section class="sec compare-section reveal-slide-up" id="why-stockboy">
   <div class="sec-title">
     <span class="sec-label">
       <svg width="5" height="5" viewBox="0 0 5 5"><circle cx="2.5" cy="2.5" r="2.5" fill="var(--gold)"/></svg>
@@ -1858,7 +1797,7 @@
     <h2>Stockboy vs Random Telegram Groups</h2>
     <p>See why professional signals beat the noise every time</p>
   </div>
-  <div class="compare-table-v2">
+  <div class="compare-table-v2 reveal-scale sb-card-glow">
     <div class="compare-head">
       <div class="ch-feature">Feature</div>
       <div class="ch-sb">⚡ Stockboy</div>
@@ -1904,33 +1843,33 @@
 
 <!-- How it works -->
 <section class="steps-section">
-  <div class="section-title fade-up">
+  <div class="section-title reveal-slide-up">
     <h2>How It Works</h2>
     <p>Start receiving premium signals in 4 simple steps</p>
   </div>
   <div class="steps-list">
-    <div class="step fade-up">
+    <div class="step reveal-slide-up">
       <div class="step-num">1</div>
       <div>
         <h3>Choose a Membership Plan</h3>
         <p>Select from monthly, quarterly, yearly, or lifetime plans based on your trading needs.</p>
       </div>
     </div>
-    <div class="step fade-up">
+    <div class="step reveal-slide-up">
       <div class="step-num">2</div>
       <div>
         <h3>Register & Pay Securely</h3>
         <p>Create your account and complete payment via Razorpay. Fully secure and encrypted.</p>
       </div>
     </div>
-    <div class="step fade-up">
+    <div class="step reveal-slide-up">
       <div class="step-num">3</div>
       <div>
         <h3>Get Instant Access</h3>
         <p>Your subscription is activated instantly after payment. No waiting, no manual approval.</p>
       </div>
     </div>
-    <div class="step fade-up">
+    <div class="step reveal-slide-up">
       <div class="step-num">4</div>
       <div>
         <h3>View Premium Signals</h3>
@@ -1941,7 +1880,7 @@
 </section>
 
 <!-- ══ Section 6: Trust Section V2 ══ -->
-<div class="trust-section-v2 fade-up" id="trust">
+<div class="trust-section-v2 reveal-slide-up" id="trust">
   <div class="trust-cards-grid">
     <div class="trust-card-v2">
       <div class="trust-icon-wrap">
@@ -1975,7 +1914,7 @@
 </div>
 
 <!-- ══ Section 7: Premium CTA ══ -->
-<section class="premium-cta-section fade-up" id="cta">
+<section class="premium-cta-section reveal-slide-up" id="cta">
   <div class="cta-inner-wrap">
     <div class="cta-eyebrow-row">
       <span class="cer-line"></span>
@@ -2015,7 +1954,7 @@
 </section>
 
 <!-- Disclaimer -->
-<div class="disclaimer fade-up">
+<div class="disclaimer reveal-slide-up">
   <p><strong>Disclaimer:</strong> Stock market investments are subject to market risks. Past performance is not indicative of future results. The signals provided are for educational and informational purposes only and should not be considered as financial advice. Please consult your financial advisor before making any investment decisions. Stockboy is not a SEBI-registered investment advisor.</p>
 </div>
 
@@ -2037,9 +1976,7 @@
 <!-- Razorpay -->
 <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 <script>
-/* ── Scroll reveal ── */
-const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.style.animationPlayState = 'running'; });
+
 }, { threshold: 0.08 });
 document.querySelectorAll('.fade-up').forEach(el => {
   el.style.animationPlayState = 'paused';
@@ -2055,29 +1992,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 });
 
-/* ── Count-up animation (fires once on scroll-into-view) ── */
-function animateCount(el) {
-  const target = parseInt(el.dataset.count, 10);
-  const prefix = el.dataset.prefix || '';
-  const suffix = el.dataset.suffix || '';
-  if (!target || el.dataset.static) return;
-  const duration = 1800;
-  const t0 = performance.now();
-  (function step(now) {
-    const p = Math.min((now - t0) / duration, 1);
-    const ease = 1 - Math.pow(1 - p, 3);
-    el.textContent = prefix + Math.floor(ease * target) + suffix;
-    if (p < 1) requestAnimationFrame(step);
-    else el.textContent = prefix + target + suffix;
-  })(performance.now());
-}
-const countObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting && !e.target.dataset.animated) {
-      e.target.dataset.animated = '1';
-      animateCount(e.target);
-    }
-  });
+
 }, { threshold: 0.5 });
 document.querySelectorAll('[data-count]').forEach(el => {
   if (!el.dataset.static) el.textContent = (el.dataset.prefix || '') + '0' + (el.dataset.suffix || '');
@@ -2110,6 +2025,7 @@ if (track) {
 
 /* ── Payment ── */
 async function initiatePlanPayment(planSlug) {
+  if (window.sbShowPaymentLoader) window.sbShowPaymentLoader();
   try {
     const res = await fetch('/create-payment-order', {
       method: 'POST',
