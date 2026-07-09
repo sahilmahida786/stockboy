@@ -274,9 +274,9 @@
           <div class="sb-sig-card active" style="margin-bottom: 1rem;">
             <div class="sb-sig-head">
               <div class="sb-sig-stock-row">
-                <div class="sb-stock-logo">{{ sig.stock_name[:2] }}</div>
+                <div class="sb-stock-logo">{{ (sig.get('stockName') or 'UN')[:2] }}</div>
                 <div>
-                  <div class="sb-stock-name">{{ sig.stock_name }}</div>
+                  <div class="sb-stock-name">{{ sig.get('stockName') }}</div>
                   <div class="sb-stock-meta">Confidence: {{ sig.get('confidence', '85%') }}</div>
                 </div>
               </div>
@@ -330,9 +330,9 @@
           <div class="sb-sig-card" style="margin-bottom: 1rem;">
             <div class="sb-sig-head">
               <div class="sb-sig-stock-row">
-                <div class="sb-stock-logo" style="color: #4facfe;">{{ sig.stock_name[:2] }}</div>
+                <div class="sb-stock-logo" style="color: #4facfe;">{{ (sig.get('stockName') or 'UN')[:2] }}</div>
                 <div>
-                  <div class="sb-stock-name">{{ sig.stock_name }}</div>
+                  <div class="sb-stock-name">{{ sig.get('stockName') }}</div>
                   <div class="sb-stock-meta">Expiry: {{ sig.get('expiry', 'Current Month') }}</div>
                 </div>
               </div>
@@ -380,7 +380,7 @@
             <div class="sb-tl-item">
               <div class="sb-tl-icon">✓</div>
               <div class="sb-tl-content">
-                <div class="sb-tl-title">{{ sig.stock_name }} <span class="gold">{{ sig.status }}</span></div>
+                <div class="sb-tl-title">{{ sig.get('stockName') }} <span class="gold">{{ sig.get('status') }}</span></div>
                 <div class="sb-tl-meta">{{ sig.type }} • {{ sig.category }}</div>
               </div>
             </div>
