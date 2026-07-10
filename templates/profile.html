@@ -1,255 +1,142 @@
 {% extends 'base.html' %}
 
-{% block title %}Profile | Stockboy Premium{% endblock %}
-{% block description %}Manage your premium Stockboy subscription, payments, and account settings.{% endblock %}
+{% block title %}Premium Profile | Stockboy{% endblock %}
+{% block description %}Manage your exclusive Stockboy Premium membership.{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/luxury-workspace.css') }}" />
 {% endblock %}
 
 {% block content %}
-<div class="sb-profile-container">
+<div class="lux-bg"></div>
+<div class="lux-particles"></div>
 
-  <!-- Header -->
-  <div class="sb-profile-header reveal-slide-up">
-    <div class="sb-profile-avatar-wrap">
-      <div class="sb-profile-avatar">
-        {{ name[:1]|upper if name else 'T' }}
-      </div>
-      <div class="sb-profile-badge">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+<div class="lux-container">
+  
+  <div class="lux-section-title reveal" style="margin-top:0;">Account & Membership</div>
+  
+  <!-- THE CENTURION CARD -->
+  <div class="centurion-card reveal">
+    <div class="cc-top">
+      <div class="cc-logo">STOCKBOY</div>
+      <div class="cc-tier" style="color:rgba(255,255,255,0.7); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; font-weight:600;">
+        {{ plan|capitalize if plan != 'none' else 'Premium' }}
       </div>
     </div>
-    <div class="sb-profile-info">
-      <div class="sb-profile-name">{{ name }}</div>
-      <div class="sb-profile-email">{{ user.get('email', '') }}</div>
-      <div class="sb-profile-tags">
-        <span class="sb-profile-tag">Member</span>
-        {% if plan != 'none' %}
-        <span class="sb-profile-tag">Premium {{ plan|capitalize }}</span>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Grid -->
-  <div class="sb-profile-grid">
     
-    <!-- Left Column -->
-    <div style="display:flex; flex-direction:column; gap:1.5rem;">
-      
-      <!-- Stats -->
-      <div class="sb-stats-grid reveal-stagger">
-        <div class="sb-stat-card sb-card-glow">
-          <div class="sb-stat-label">Signals Viewed</div>
-          <div class="sb-stat-value">--</div> <!-- Placeholder for future analytics -->
-        </div>
-        <div class="sb-stat-card sb-card-glow">
-          <div class="sb-stat-label">Targets Hit</div>
-          <div class="sb-stat-value gold">--</div>
-        </div>
-        <div class="sb-stat-card sb-card-glow">
-          <div class="sb-stat-label">Account Status</div>
-          <div class="sb-stat-value {{ 'green' if plan != 'none' else 'gold' }}">
-            {{ 'Active' if plan != 'none' else 'Free' }}
-          </div>
-        </div>
+    <div class="cc-chip"></div>
+    
+    <div class="cc-bottom">
+      <div>
+        <div class="cc-member">Member Since</div>
+        <div class="cc-name">{{ name }}</div>
       </div>
-
-      <!-- Payment History -->
-      <div class="sb-section reveal-slide-up" style="animation-delay: 0.2s">
-        <div class="sb-section-header">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          Payment History
-        </div>
-        <div class="sb-table-wrap">
-          <table class="sb-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Plan</th>
-                <th>Amount</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="paymentHistoryBody">
-              <!-- Skeletons while loading -->
-              <tr><td colspan="4"><div class="sb-skel sb-skel-profile"></div></td></tr>
-              <tr><td colspan="4"><div class="sb-skel sb-skel-profile"></div></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Profile Settings -->
-      <div class="sb-section reveal-slide-up" style="animation-delay: 0.3s">
-        <div class="sb-section-header">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          Account Settings
-        </div>
-        <form class="sb-form-grid" onsubmit="event.preventDefault(); window.StockboyToast.show({title:'Settings Saved', type:'success'})">
-          <div class="sb-form-group">
-            <label>Display Name</label>
-            <input type="text" value="{{ name }}" disabled>
-          </div>
-          <div class="sb-form-group">
-            <label>Email Address</label>
-            <input type="email" value="{{ user.get('email', '') }}" disabled>
-          </div>
-          <div class="sb-form-group">
-            <label>Telegram Username (Optional)</label>
-            <input type="text" placeholder="@username">
-          </div>
-          <div class="sb-form-group">
-            <label>Notification Preferences</label>
-            <input type="text" value="Push, Email" disabled>
-          </div>
-          <div class="sb-form-group" style="grid-column: 1 / -1; margin-top: 1rem;">
-            <button type="submit" class="btn-renew" style="width: auto; padding: 0.75rem 2rem;">Save Changes</button>
-          </div>
-        </form>
-      </div>
-      
-    </div>
-
-    <!-- Right Column -->
-    <div style="display:flex; flex-direction:column; gap:1.5rem;">
-      
-      <!-- Subscription -->
-      <div class="sb-sub-card reveal-slide-up" style="animation-delay: 0.1s">
-        <div class="sb-sub-header">
-          <div class="sb-sub-title">{{ plan|capitalize if plan != 'none' else 'Free Plan' }}</div>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        </div>
-        
-        <div class="sb-sub-details">
-          {% if plan != 'none' %}
-          <div class="sb-sub-row">
-            <span class="label">Expiry Date</span>
-            <span class="val">{{ expiry[:10] if expiry else 'Lifetime' }}</span>
-          </div>
-          <div class="sb-sub-row">
-            <span class="label">Status</span>
-            <span class="val" style="color:var(--success)">Active</span>
-          </div>
+      <div style="text-align:right;">
+        <div class="cc-member">Valid Thru</div>
+        <div style="font-size:0.9rem; font-weight:600; font-family:monospace; color:#fff;">
+          {% if expiry and expiry != 'none' %}
+            {{ expiry[:10] }}
           {% else %}
-          <div class="sb-sub-row">
-            <span class="label">Status</span>
-            <span class="val" style="color:var(--text-muted)">No active plan</span>
-          </div>
+            LIFETIME
           {% endif %}
         </div>
-
-        {% if plan != 'none' and expiry != 'lifetime' %}
-        <div class="sb-sub-progress">
-          <div class="sb-sub-progress-bar" style="width: 75%"></div>
-        </div>
-        {% endif %}
-
-        <div class="sb-sub-actions">
-          <a href="/plans" class="btn-renew">Renew / Upgrade</a>
-        </div>
       </div>
-
-      <!-- Watchlist Placeholder -->
-      <div class="sb-section reveal-slide-up" style="animation-delay: 0.2s">
-        <div class="sb-section-header">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l3-9 5 18 3-9h5"/></svg>
-          Watchlist
-        </div>
-        <div class="sb-coming-soon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <span>Premium Watchlist Coming Soon</span>
-        </div>
-      </div>
-
-      <!-- Timeline Placeholder -->
-      <div class="sb-section reveal-slide-up" style="animation-delay: 0.3s">
-        <div class="sb-section-header">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Timeline
-        </div>
-        <div class="sb-coming-soon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          <span>Profile Timeline Coming Soon</span>
-        </div>
-      </div>
-
-      <!-- Security -->
-      <div class="sb-section sb-danger-zone reveal-slide-up" style="animation-delay: 0.4s">
-        <div class="sb-section-header" style="color:var(--danger)">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Security
-        </div>
-        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom: 1.25rem;">
-          Securely log out of your session on this device.
-        </p>
-        <button onclick="window.location.href='/logout'" class="btn-danger">Logout Session</button>
-      </div>
-
     </div>
   </div>
-</div>
-{% endblock %}
 
-{% block extra_js %}
-<script type="module">
-  import { getFirestore, collection, query, where, orderBy, limit, getDocs } 
-    from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+  <div class="lux-grid-2 reveal" style="margin-bottom:1.5rem;">
+    <div class="ls-card">
+      <div class="ls-lbl">Member ID</div>
+      <div class="ls-val" style="font-family:monospace;">SB-{{ user.get('uid', '0000')[:8]|upper if user else '0000' }}</div>
+    </div>
+    <div class="ls-card">
+      <div class="ls-lbl">Status</div>
+      <div class="ls-val" style="color:var(--accent);">Active</div>
+    </div>
+  </div>
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // Wait for Firebase Auth
-    const checkAuth = setInterval(() => {
-      if (window.firebaseAuth && window.firebaseAuth.currentUser) {
-        clearInterval(checkAuth);
-        fetchPaymentHistory(window.firebaseAuth.currentUser.uid, window.firebaseAuth.currentUser.email);
-      }
-    }, 500);
-  });
-
-  async function fetchPaymentHistory(uid, email) {
-    const db = getFirestore();
-    const tableBody = document.getElementById('paymentHistoryBody');
+  <div class="lux-section-title reveal">Settings & Security</div>
+  
+  <div class="lux-list reveal">
+    <a href="#" class="lux-list-item" onclick="alert('WhatsApp notifications are enabled for your premium tier.')">
+      <div class="lli-left">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        Priority WhatsApp Alerts
+      </div>
+      <div class="lli-right">
+        <span style="color:var(--accent);">Active</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </div>
+    </a>
     
-    try {
-      // Create a query against the payments collection.
-      // We will try querying by userEmail to support Razorpay webhook docs.
-      const paymentsRef = collection(db, "payments");
-      const q = query(paymentsRef, where("userEmail", "==", email), orderBy("createdAt", "desc"), limit(10));
-      
-      const querySnapshot = await getDocs(q);
-      
-      if (querySnapshot.empty) {
-        tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:2rem;">No payment history found.</td></tr>`;
-        return;
+    <a href="#" class="lux-list-item" id="btnRequestPush">
+      <div class="lli-left">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        Push Notifications
+      </div>
+      <div class="lli-right">
+        <span>Configure</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </div>
+    </a>
+
+    <a href="#" class="lux-list-item" onclick="alert('Join the VIP Telegram community from the links sent to your email.')">
+      <div class="lli-left">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        VIP Community Access
+      </div>
+      <div class="lli-right">
+        <span style="color:var(--gold-primary);">Join</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </div>
+    </a>
+    
+    <a href="/logout" class="lux-list-item">
+      <div class="lli-left" style="color:var(--ruby);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Sign Out Securely
+      </div>
+    </a>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAVIGATION (MOBILE) -->
+<nav class="lux-bottom-nav">
+  <a href="/dashboard" class="lbn-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+    <span>Workspace</span>
+  </a>
+  <a href="/dashboard#signals" class="lbn-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    <span>Signals</span>
+  </a>
+  <a href="/profile" class="lbn-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Account</span>
+  </a>
+</nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
       }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
 
-      let html = '';
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const dateStr = data.createdAt ? data.createdAt.substring(0, 10) : '-';
-        const amount = data.amount || 0;
-        const plan = data.plan || 'Plan';
-        let statusClass = 'warning';
-        if (data.status === 'captured') statusClass = 'success';
-        if (data.status === 'failed') statusClass = 'error';
-        
-        html += `
-          <tr>
-            <td>${dateStr}</td>
-            <td><strong>${plan}</strong></td>
-            <td>₹${amount}</td>
-            <td><span class="sb-badge ${statusClass}">${data.status || 'unknown'}</span></td>
-          </tr>
-        `;
-      });
-
-      tableBody.innerHTML = html;
-
-    } catch (e) {
-      console.error("Error fetching payments:", e);
-      tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--danger); padding:2rem;">Failed to load payments.</td></tr>`;
-    }
+  const btnPush = document.getElementById('btnRequestPush');
+  if (btnPush && window.StockboyPWA) {
+    btnPush.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.StockboyPWA.requestNotificationPermission();
+    });
   }
+});
 </script>
 {% endblock %}

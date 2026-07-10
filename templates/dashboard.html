@@ -1,28 +1,30 @@
 {% extends 'base.html' %}
 
-{% block title %}Research Workspace | Stockboy Premium{% endblock %}
+{% block title %}Premium Workspace | Stockboy{% endblock %}
 {% block description %}Exclusive research and trading intelligence workspace.{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard-workspace.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/luxury-workspace.css') }}" />
 {% endblock %}
 
 {% block content %}
+<div class="lux-bg"></div>
+<div class="lux-particles"></div>
 
 <!-- Enterprise Onboarding & Risk System (Preserved) -->
 {% if user_risk_version != current_risk_version %}
-<div id="sbRiskOnboarding" style="position:fixed; inset:0; z-index:99999; display:flex; flex-direction:column; background:#07090C; color:#fff; transition:opacity 0.6s ease-in-out;">
-  <div id="sbWelcomeStep" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem; text-align:center; transition:opacity 0.4s; background:#07090C;">
-    <div style="width:80px; height:80px; margin-bottom:2rem; background:rgba(229,192,123,0.1); border-radius:1.5rem; display:flex; align-items:center; justify-content:center; border:1px solid rgba(229,192,123,0.3);">
+<div id="sbRiskOnboarding" style="position:fixed; inset:0; z-index:99999; display:flex; flex-direction:column; background:#050608; color:#fff; transition:opacity 0.6s var(--ease);">
+  <div id="sbWelcomeStep" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem; text-align:center; transition:opacity 0.4s; background:#050608;">
+    <div style="width:80px; height:80px; margin-bottom:2rem; background:rgba(246,196,83,0.1); border-radius:24px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(246,196,83,0.3);">
       <img src="{{ url_for('static', filename='logo.png') }}" style="width:48px;" alt="Stockboy">
     </div>
-    <h1 style="font-size:2rem; font-weight:800; margin-bottom:1rem; letter-spacing:-0.03em;">Welcome to Stockboy Premium</h1>
-    <p style="color:var(--text-muted); font-size:1rem; max-width:400px; line-height:1.6; margin-bottom:3rem;">Thank you for joining. You now have access to our Premium Trading Intelligence Platform.</p>
-    <button id="sbBtnNext" style="padding:1rem 3rem; background:var(--gold-primary); color:#0B1220; font-weight:700; font-size:1.1rem; border-radius:12px; border:none; cursor:pointer; box-shadow:0 4px 20px rgba(229,192,123,0.2); transition:transform 0.2s;">Continue</button>
+    <h1 style="font-size:2rem; font-weight:800; margin-bottom:1rem; letter-spacing:-0.03em;">Welcome to Premium</h1>
+    <p style="color:var(--text-muted); font-size:1rem; max-width:400px; line-height:1.6; margin-bottom:3rem;">You now have access to our exclusive Trading Intelligence Platform.</p>
+    <button id="sbBtnNext" style="padding:1rem 3rem; background:var(--gold-primary); color:#000; font-weight:700; font-size:1.1rem; border-radius:16px; border:none; cursor:pointer; box-shadow:0 4px 20px rgba(246,196,83,0.2); transition:transform 0.2s;">Continue</button>
   </div>
   <div id="sbRiskStep" style="flex:1; display:none; flex-direction:column; align-items:center; justify-content:center; padding:2rem; text-align:center;">
-    <div style="background:rgba(14,18,25,0.8); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(229,192,123,0.3); border-radius:16px; max-width:600px; width:100%; padding:2.5rem; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
-      <div style="width:56px; height:56px; margin:0 auto 1.5rem; background:rgba(229,192,123,0.1); color:var(--gold-primary); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+    <div style="background:rgba(14,17,23,0.8); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border:1px solid rgba(246,196,83,0.3); border-radius:24px; max-width:600px; width:100%; padding:2.5rem; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+      <div style="width:56px; height:56px; margin:0 auto 1.5rem; background:rgba(246,196,83,0.1); color:var(--gold-primary); border-radius:50%; display:flex; align-items:center; justify-content:center;">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
       </div>
       <h2 style="font-size:1.5rem; font-weight:800; margin-bottom:1.5rem;">Market Risk Notice</h2>
@@ -32,13 +34,13 @@
         <p style="margin-bottom:1rem;">Past performance does not guarantee future performance. Only trade with capital you can afford to risk. Always use proper position sizing and risk management.</p>
         <p>Please read and understand this notice before accessing Premium content.</p>
       </div>
-      <label style="display:flex; align-items:flex-start; gap:0.75rem; text-align:left; cursor:pointer; margin-bottom:2rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+      <label style="display:flex; align-items:flex-start; gap:0.75rem; text-align:left; cursor:pointer; margin-bottom:2rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:16px; border:1px solid rgba(255,255,255,0.05);">
         <input type="checkbox" id="sbCheckRisk" style="margin-top:0.2rem; width:18px; height:18px; accent-color:var(--gold-primary);">
         <span style="font-size:0.85rem; color:#fff; font-weight:500;">I have read and understood the Market Risk Notice.</span>
       </label>
       <div style="display:flex; gap:1rem;">
-        <a href="/logout" style="flex:1; padding:1rem; background:rgba(255,255,255,0.05); color:#fff; border-radius:12px; text-decoration:none; font-weight:600; border:1px solid rgba(255,255,255,0.1);">Logout</a>
-        <button id="sbBtnAcceptRisk" disabled style="flex:2; padding:1rem; background:var(--gold-primary); color:#0B1220; font-weight:700; border-radius:12px; border:none; cursor:not-allowed; opacity:0.5; transition:all 0.3s;">Continue to Workspace</button>
+        <a href="/logout" style="flex:1; padding:1rem; background:rgba(255,255,255,0.05); color:#fff; border-radius:16px; text-decoration:none; font-weight:600; border:1px solid rgba(255,255,255,0.1);">Logout</a>
+        <button id="sbBtnAcceptRisk" disabled style="flex:2; padding:1rem; background:var(--gold-primary); color:#000; font-weight:700; border-radius:16px; border:none; cursor:not-allowed; opacity:0.5; transition:all 0.3s;">Enter Workspace</button>
       </div>
     </div>
   </div>
@@ -71,7 +73,7 @@
         }
       });
       btnAccept.addEventListener('click', async () => {
-        btnAccept.textContent = 'Saving...';
+        btnAccept.textContent = 'Authenticating...';
         try {
           const res = await fetch('/api/accept-risk', { method: 'POST' });
           if(res.ok) {
@@ -88,286 +90,221 @@
 </script>
 {% endif %}
 
-
-<div class="workspace-layout">
+<div class="lux-container">
   
-  <!-- 1. TOP MEMBER HEADER -->
-  <header class="ws-header reveal">
-    <div class="ws-hero-card">
-      <div class="ws-avatar-group">
-        <div class="ws-avatar">{{ name[:1]|upper if name else 'T' }}</div>
-        <div>
-          <div class="ws-greeting">Good Morning, {{ name.split(' ')[0] if name else 'Trader' }}</div>
-          <div class="ws-quote">"Trade with patience. Protect your capital."</div>
+  <!-- 1. PREMIUM MEMBER HERO -->
+  <header class="lux-hero reveal">
+    <div class="lux-hero-left">
+      <div class="lh-avatar-wrap">
+        <div class="lh-avatar-ring"></div>
+        <div class="lh-avatar">{{ name[:1]|upper if name else 'T' }}</div>
+        <div class="lh-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg>
         </div>
       </div>
-      <div class="ws-header-stats">
-        <div class="ws-hs-item">
-          <span>Membership</span>
-          <div class="ws-badge">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            {{ plan|capitalize if plan != 'none' else 'Premium' }} Elite
-          </div>
-        </div>
-        <div class="ws-hs-item">
-          <span>Account Status</span>
-          <strong>Protected Session</strong>
-        </div>
+      <div>
+        <h1 class="lh-name">{{ name }}</h1>
+        <div class="lh-tier">{{ plan|capitalize if plan != 'none' else 'Premium' }} Elite</div>
+      </div>
+    </div>
+    <div class="lh-stats">
+      <div class="lh-stat">
+        <span class="lh-stat-lbl">Member Since</span>
+        <span class="lh-stat-val">{{ user.get('createdAt', '2024')[:10] if user else '2024' }}</span>
+      </div>
+      <div class="lh-stat">
+        <span class="lh-stat-lbl">Account Status</span>
+        <span class="lh-stat-val"><div class="lh-dot"></div> Protected</span>
       </div>
     </div>
   </header>
 
-  <!-- QUICK ACTIONS -->
-  <nav class="ws-actions reveal">
-    <a href="#" class="ws-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-      Workspace
+  <!-- 2. QUICK ACTIONS (MOBILE HORIZONTAL SCROLL) -->
+  <nav class="lux-actions reveal">
+    <a href="#signals" class="la-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Signals
     </a>
-    <a href="#fno" class="ws-btn">
+    <a href="#fno" class="la-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-      F&O Intelligence
+      Research
     </a>
-    <a href="/profile" class="ws-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      Profile Settings
-    </a>
-    <a href="#" class="ws-btn" onclick="alert('Join our VIP Telegram community from the links sent to your email upon subscription.')">
+    <a href="#" class="la-btn" onclick="alert('Join the VIP Telegram community from the links sent to your email.')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-      VIP Community
+      Community
+    </a>
+    <a href="/profile" class="la-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile
+    </a>
+    <a href="https://wa.me/message/C2237FUXL3CWE1" class="la-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      Support
     </a>
   </nav>
 
-  <!-- LEFT COLUMN (DISCIPLINE) -->
-  <aside class="ws-left reveal">
-    <div class="ws-side-card">
-      <div class="ws-side-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-        Trading Checklist
-      </div>
-      <div class="ws-rule">
-        <div class="ws-rule-num">01.</div>
-        <div class="ws-rule-text">Is the setup aligned with the overall market trend?</div>
-      </div>
-      <div class="ws-rule">
-        <div class="ws-rule-num">02.</div>
-        <div class="ws-rule-text">Have you defined your strict Stop Loss in the system?</div>
-      </div>
-      <div class="ws-rule">
-        <div class="ws-rule-num">03.</div>
-        <div class="ws-rule-text">Is your position size exactly 2% of total capital?</div>
-      </div>
-      <div class="ws-rule">
-        <div class="ws-rule-num">04.</div>
-        <div class="ws-rule-text">Are you entering at the recommended Entry Zone?</div>
+  <!-- 3. PREMIUM INTELLIGENCE STATUS -->
+  <div class="lux-grid-2 reveal">
+    <div class="ls-card">
+      <div class="ls-lbl">Today's Research</div>
+      <div class="ls-val">
+        {% if (intraday_signals|length + fno_signals|length) > 0 %}
+          {{ intraday_signals|length + fno_signals|length }} Setups
+        {% else %}
+          <span style="color:var(--text-muted); font-weight:500;">Scanning...</span>
+        {% endif %}
       </div>
     </div>
-    
-    <div class="ws-side-card" style="border-color: rgba(74,222,128,0.2); background: rgba(74,222,128,0.02);">
-      <div class="ws-side-title" style="color:var(--emerald);">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-        AI Research Engine
-      </div>
-      <p style="font-size:0.75rem; color:var(--text-muted); line-height:1.5; margin-bottom:1rem;">Our proprietary systems are actively scanning Nifty, BankNifty, and high-liquidity equities for high-probability setups.</p>
-      <div style="display:flex; justify-content:space-between; font-size:0.7rem; font-weight:600; color:#fff; margin-bottom:0.25rem;">
-        <span>Status</span><span>Scanning...</span>
-      </div>
-      <div style="height:2px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden;">
-        <div style="width:100%; height:100%; background:var(--emerald);"></div>
-      </div>
+    <div class="ls-card">
+      <div class="ls-lbl">System Status</div>
+      <div class="ls-val" style="color:var(--accent);">Active</div>
     </div>
-  </aside>
+  </div>
 
-  <!-- MAIN COLUMN -->
-  <main class="ws-main">
-    
-    <!-- PREMIUM STATUS CARDS -->
-    <div class="ws-status-grid reveal">
-      <div class="ws-status-card">
-        <div class="ws-sc-title">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"></polyline></svg>
-          Active Research
+  <!-- 5. SIGNAL HERO CARDS -->
+  <h2 id="signals" class="lux-section-title reveal">Intraday Intelligence</h2>
+  
+  {% if intraday_signals|length == 0 %}
+  <div class="lux-signal reveal" style="text-align:center; padding:4rem 2rem;">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" style="margin-bottom:1rem; opacity:0.5;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+    <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:0.5rem;">No Active Opportunities</h3>
+    <p style="font-size:0.85rem; color:var(--text-muted);">Our research team is analyzing the market.<br>You'll receive a notification when a premium setup is ready.</p>
+  </div>
+  {% else %}
+    {% for sig in intraday_signals %}
+    {% set is_buy = (sig.type|upper == 'BUY') %}
+    <div class="lux-signal reveal">
+      <div class="sig-head">
+        <div class="sig-asset">
+          {{ sig.get('stockName') }}
+          <span class="sig-badge {{ 'buy' if is_buy else 'sell' }}">{{ sig.type|upper }}</span>
         </div>
-        <div class="ws-sc-val {% if (intraday_signals|length + fno_signals|length) == 0 %}waiting{% endif %}">
-          {% if (intraday_signals|length + fno_signals|length) > 0 %}
-            {{ intraday_signals|length + fno_signals|length }} Signals
-          {% else %}
-            Waiting...
-          {% endif %}
-        </div>
-      </div>
-      <div class="ws-status-card">
-        <div class="ws-sc-title">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-          Confidence
-        </div>
-        <div class="ws-sc-val {% if (intraday_signals|length + fno_signals|length) == 0 %}waiting{% endif %}">
-          {% if (intraday_signals|length + fno_signals|length) > 0 %}
-            High
-          {% else %}
-            Scanning...
-          {% endif %}
-        </div>
-      </div>
-      <div class="ws-status-card">
-        <div class="ws-sc-title">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-          Risk Protocol
-        </div>
-        <div class="ws-sc-val">Strict SL</div>
-      </div>
-    </div>
-
-    <!-- INTRADAY SIGNALS -->
-    <div class="ws-section-head reveal">Intraday Intelligence</div>
-    
-    {% if intraday_signals|length == 0 %}
-    <div class="ws-empty reveal">
-      <div class="ws-radar">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-      </div>
-      <h3>No Active Opportunities</h3>
-      <p>Our research team is analyzing the market.<br>You'll receive a notification when a premium setup is ready.</p>
-    </div>
-    {% else %}
-      {% for sig in intraday_signals %}
-      {% set is_buy = (sig.type|upper == 'BUY') %}
-      <div class="ws-signal reveal">
-        <div class="ws-sig-top">
-          <div class="ws-sig-asset">
-            {{ sig.get('stockName') }}
-            <span class="ws-sig-type {{ 'buy' if is_buy else 'sell' }}">{{ sig.type|upper }}</span>
-          </div>
-          <div class="ws-sig-status">
-            <span>{{ sig.status }}</span>
-            Confidence: {{ sig.get('confidence', '85%') }}
-          </div>
-        </div>
-        
-        <div class="ws-sig-grid">
-          <div class="ws-sig-data"><span class="ws-sig-lbl">Entry Zone</span><span class="ws-sig-val entry">₹{{ sig.entry_price }}</span></div>
-          <div class="ws-sig-data"><span class="ws-sig-lbl">Strict SL</span><span class="ws-sig-val sl">₹{{ sig.stop_loss }}</span></div>
-          <div class="ws-sig-data"><span class="ws-sig-lbl">Final Target</span><span class="ws-sig-val tg">₹{{ sig.target3 }}</span></div>
-        </div>
-        
-        <div class="ws-sig-footer">
-          <div>Target 1: ₹{{ sig.target1 }} &nbsp;•&nbsp; Target 2: ₹{{ sig.target2 }}</div>
-          <div>Risk/Reward: <strong>1:2.5</strong></div>
-        </div>
-      </div>
-      {% endfor %}
-    {% endif %}
-
-    <!-- F&O SIGNALS -->
-    <div id="fno" class="ws-section-head reveal" style="margin-top:4rem;">F&O Intelligence</div>
-    
-    {% if fno_signals|length == 0 %}
-    <div class="ws-empty reveal">
-      <div class="ws-radar">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-      </div>
-      <h3>No Active F&O Setups</h3>
-      <p>Waiting for the perfect volatility breakout in Nifty/BankNifty.</p>
-    </div>
-    {% else %}
-      {% for sig in fno_signals %}
-      {% set is_buy = (sig.type|upper == 'BUY') %}
-      <div class="ws-signal reveal">
-        <div class="ws-sig-top">
-          <div class="ws-sig-asset">
-            {{ sig.get('stockName') }}
-            <span class="ws-sig-type {{ 'buy' if is_buy else 'sell' }}">{{ sig.type|upper }}</span>
-          </div>
-          <div class="ws-sig-status">
-            <span>{{ sig.status }}</span>
-            Expiry: {{ sig.get('expiry', 'Current') }}
-          </div>
-        </div>
-        
-        <div class="ws-sig-grid">
-          <div class="ws-sig-data"><span class="ws-sig-lbl">Premium Entry</span><span class="ws-sig-val entry">₹{{ sig.entry_price }}</span></div>
-          <div class="ws-sig-data"><span class="ws-sig-lbl">Option SL</span><span class="ws-sig-val sl">₹{{ sig.stop_loss }}</span></div>
-          <div class="ws-sig-data"><span class="ws-sig-lbl">Max Target</span><span class="ws-sig-val tg">₹{{ sig.target3 }}</span></div>
-        </div>
-        
-        <div class="ws-sig-footer">
-          <div>Target 1: ₹{{ sig.target1 }} &nbsp;•&nbsp; Target 2: ₹{{ sig.target2 }}</div>
-          <div>Risk/Reward: <strong>1:3</strong></div>
-        </div>
-      </div>
-      {% endfor %}
-    {% endif %}
-
-  </main>
-
-  <!-- RIGHT COLUMN (ACTIVITY) -->
-  <aside class="ws-right reveal">
-    <div class="ws-side-card">
-      <div class="ws-side-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-        Activity & Intelligence
-      </div>
-      
-      <div class="ws-feed-item">
-        <div class="ws-feed-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></div>
-        <div class="ws-feed-content">
-          <h4>System Initialized</h4>
-          <p>You have securely authenticated into the research workspace.</p>
+        <div class="sig-status">
+          <div class="sig-status-txt">{{ sig.status }}</div>
         </div>
       </div>
       
-      {% if closed_signals|length > 0 %}
-        {% for sig in closed_signals[:4] %}
-        <div class="ws-feed-item">
-          <div class="ws-feed-icon {{ 'gold' if sig.get('status')|upper == 'TARGET HIT' else '' }}">
-            {% if sig.get('status')|upper == 'TARGET HIT' %}
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            {% else %}
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            {% endif %}
-          </div>
-          <div class="ws-feed-content">
-            <h4>{{ sig.get('stockName') }}</h4>
-            <p>{{ sig.get('status') }} • Closed</p>
-          </div>
-        </div>
-        {% endfor %}
-      {% else %}
-        <div class="ws-feed-item">
-          <div class="ws-feed-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
-          <div class="ws-feed-content">
-            <h4>No Recent Hits</h4>
-            <p>Target hits and closed signals will appear here.</p>
-          </div>
-        </div>
-      {% endif %}
+      <div class="sig-grid">
+        <div class="sig-data"><span class="sig-lbl">Entry Zone</span><span class="sig-val entry">₹{{ sig.entry_price }}</span></div>
+        <div class="sig-data"><span class="sig-lbl">Strict SL</span><span class="sig-val sl">₹{{ sig.stop_loss }}</span></div>
+        <div class="sig-data"><span class="sig-lbl">Final Target</span><span class="sig-val tg">₹{{ sig.target3 }}</span></div>
+        <div class="sig-data"><span class="sig-lbl">Confidence</span><span class="sig-val" style="color:var(--gold-primary);">{{ sig.get('confidence', '85%') }}</span></div>
+      </div>
       
+      <div class="sig-targets">
+        <div class="sig-tgt"><span>Target 1</span><strong>₹{{ sig.target1 }}</strong></div>
+        <div class="sig-tgt"><span>Target 2</span><strong>₹{{ sig.target2 }}</strong></div>
+        <div class="sig-tgt"><span>Target 3</span><strong style="color:var(--accent);">₹{{ sig.target3 }}</strong></div>
+      </div>
+      
+      <div class="sig-footer">
+        <div>Published: {{ sig.get('createdAt', 'Today')[:10] }}</div>
+        <div>Risk/Reward: <strong style="color:#fff;">1:2.5</strong></div>
+      </div>
     </div>
-  </aside>
+    {% endfor %}
+  {% endif %}
+
+  <!-- F&O SIGNALS -->
+  <h2 id="fno" class="lux-section-title reveal">F&O Intelligence</h2>
+  
+  {% if fno_signals|length == 0 %}
+  <div class="lux-signal reveal" style="text-align:center; padding:4rem 2rem;">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" style="margin-bottom:1rem; opacity:0.5;"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+    <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:0.5rem;">No Active F&O Setups</h3>
+    <p style="font-size:0.85rem; color:var(--text-muted);">Waiting for the perfect volatility breakout.</p>
+  </div>
+  {% else %}
+    {% for sig in fno_signals %}
+    {% set is_buy = (sig.type|upper == 'BUY') %}
+    <div class="lux-signal reveal">
+      <div class="sig-head">
+        <div class="sig-asset">
+          {{ sig.get('stockName') }}
+          <span class="sig-badge {{ 'buy' if is_buy else 'sell' }}">{{ sig.type|upper }}</span>
+        </div>
+        <div class="sig-status">
+          <div class="sig-status-txt">{{ sig.status }}</div>
+        </div>
+      </div>
+      
+      <div class="sig-grid">
+        <div class="sig-data"><span class="sig-lbl">Premium Entry</span><span class="sig-val entry">₹{{ sig.entry_price }}</span></div>
+        <div class="sig-data"><span class="sig-lbl">Option SL</span><span class="sig-val sl">₹{{ sig.stop_loss }}</span></div>
+        <div class="sig-data"><span class="sig-lbl">Max Target</span><span class="sig-val tg">₹{{ sig.target3 }}</span></div>
+        <div class="sig-data"><span class="sig-lbl">Expiry</span><span class="sig-val" style="color:var(--gold-primary); font-size:1rem;">{{ sig.get('expiry', 'Current') }}</span></div>
+      </div>
+      
+      <div class="sig-targets">
+        <div class="sig-tgt"><span>Target 1</span><strong>₹{{ sig.target1 }}</strong></div>
+        <div class="sig-tgt"><span>Target 2</span><strong>₹{{ sig.target2 }}</strong></div>
+        <div class="sig-tgt"><span>Target 3</span><strong style="color:var(--accent);">₹{{ sig.target3 }}</strong></div>
+      </div>
+      
+      <div class="sig-footer">
+        <div>Published: {{ sig.get('createdAt', 'Today')[:10] }}</div>
+        <div>Risk/Reward: <strong style="color:#fff;">1:3</strong></div>
+      </div>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- 6. BENTO GRID (PREMIUM BENEFITS) -->
+  <h2 class="lux-section-title reveal">Premium Benefits</h2>
+  <div class="lux-bento reveal">
+    <div class="bento-item large">
+      <svg class="bento-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      <div>
+        <div class="bento-title">Priority AI Alerts</div>
+        <div class="bento-desc">You receive trade setups instantly via WhatsApp and Push Notifications before free users.</div>
+      </div>
+    </div>
+    <div class="bento-item">
+      <svg class="bento-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      <div>
+        <div class="bento-title">Strict Risk Rules</div>
+        <div class="bento-desc">Every setup includes exact SL levels.</div>
+      </div>
+    </div>
+    <div class="bento-item">
+      <svg class="bento-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      <div>
+        <div class="bento-title">VIP Community</div>
+        <div class="bento-desc">Direct access to our analysts.</div>
+      </div>
+    </div>
+  </div>
 
 </div>
 
-<!-- BOTTOM NAV (MOBILE) -->
-<nav class="ws-mobile-nav">
-  <a href="/dashboard" class="ws-mn-item active">
+<!-- BOTTOM NAVIGATION (MOBILE) -->
+<nav class="lux-bottom-nav">
+  <a href="/dashboard" class="lbn-item active">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
     <span>Workspace</span>
   </a>
-  <a href="/profile" class="ws-mn-item">
+  <a href="#signals" class="lbn-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    <span>Signals</span>
+  </a>
+  <a href="/profile" class="lbn-item">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     <span>Account</span>
   </a>
 </nav>
 
 <script>
-// Reveal Animations
+// Hardware Accelerated Reveal Animations (Zero Layout Shift)
 const reveals = document.querySelectorAll('.reveal');
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       entry.target.classList.add('visible');
+      // Unobserve after revealing for performance
+      observer.unobserve(entry.target);
     }
   });
-}, { threshold: 0.05 });
+}, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
 reveals.forEach(el => observer.observe(el));
 </script>
 {% endblock %}
