@@ -1,0 +1,201 @@
+/* ════════════════════════════════════════════════════════════════
+   STOCKBOY PREMIUM — LUXURY LANDING MODULES
+   Apple Bento Grid · Luxury Glass Community · Zero CLS · 60 FPS
+   ════════════════════════════════════════════════════════════════ */
+
+:root {
+  --lux-bg: #06070B;
+  --lux-card: #10141D;
+  --lux-border: rgba(255, 255, 255, 0.06);
+  --lux-border-hover: rgba(255, 255, 255, 0.15);
+  --lux-gold: #F6C453;
+  --lux-gold-dim: rgba(246, 196, 83, 0.1);
+  --lux-accent: #00D084;
+  --lux-accent-dim: rgba(0, 208, 132, 0.1);
+  --lux-text: #FFFFFF;
+  --lux-muted: #8A919E;
+  --lux-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ── PREMIUM INTELLIGENCE CENTER (BENTO GRID) ── */
+.lux-intel-section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 5rem 1.5rem;
+  position: relative;
+}
+
+.lux-intel-header {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+.lux-intel-header h2 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #FFF, var(--lux-muted));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.lux-intel-header p {
+  color: var(--lux-muted);
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.lux-bento {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .lux-bento { grid-template-columns: repeat(4, 1fr); grid-template-rows: auto auto; }
+}
+
+.lux-card {
+  background: var(--lux-card);
+  border: 1px solid var(--lux-border);
+  border-radius: 24px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s var(--lux-ease), box-shadow 0.4s var(--lux-ease), border-color 0.4s;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.lux-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--lux-border-hover);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.02);
+}
+.lux-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 0% 0%, rgba(255,255,255,0.03), transparent 60%);
+  pointer-events: none;
+}
+
+/* Specific Bento Cards */
+.lux-hero-card {
+  grid-column: 1 / -1;
+  background: linear-gradient(145deg, rgba(16,20,29,1), rgba(10,12,18,1));
+  display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+  min-height: 280px;
+}
+@media (min-width: 768px) { .lux-hero-card { grid-column: span 2; grid-row: span 2; } }
+
+.lux-hero-card .lhc-title { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
+.lux-hero-card .lhc-sub { color: var(--lux-gold); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 2rem; }
+.lux-scanner {
+  width: 100%; max-width: 300px; height: 4px; background: rgba(255,255,255,0.05);
+  border-radius: 2px; position: relative; overflow: hidden; margin-bottom: 1rem;
+}
+.lux-scanner-line {
+  position: absolute; top: 0; left: 0; bottom: 0; width: 30%;
+  background: var(--lux-gold);
+  box-shadow: 0 0 20px var(--lux-gold);
+  animation: scan 2.5s ease-in-out infinite alternate;
+}
+@keyframes scan { 0% { transform: translateX(-100%); } 100% { transform: translateX(330%); } }
+
+.lux-small-card {
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+@media (min-width: 768px) { .lux-small-card { grid-column: span 1; } }
+
+.lux-stat-ring {
+  width: 60px; height: 60px; border-radius: 50%;
+  border: 4px solid var(--lux-accent-dim);
+  border-top-color: var(--lux-accent);
+  margin-bottom: 1rem;
+  animation: spinSlow 3s linear infinite;
+  box-shadow: 0 0 20px var(--lux-accent-dim);
+}
+@keyframes spinSlow { 100% { transform: rotate(360deg); } }
+
+.lux-stat-shield {
+  width: 60px; height: 60px; margin-bottom: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--lux-gold);
+  background: var(--lux-gold-dim); border-radius: 16px;
+  animation: pulseShield 2s ease-in-out infinite alternate;
+}
+@keyframes pulseShield { 0% { box-shadow: 0 0 0px var(--lux-gold-dim); } 100% { box-shadow: 0 0 20px rgba(246,196,83,0.2); } }
+
+.lux-wide-card {
+  display: flex; flex-direction: column; justify-content: center;
+}
+@media (min-width: 768px) { .lux-wide-card { grid-column: span 2; } }
+
+.lux-checklist { list-style: none; padding: 0; margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.lux-checklist li { display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: rgba(255,255,255,0.8); }
+.lux-checklist li svg { color: var(--lux-accent); width: 18px; height: 18px; flex-shrink: 0; }
+
+.lux-timeline-card {
+  display: flex; flex-direction: column; justify-content: center;
+}
+@media (min-width: 768px) { .lux-timeline-card { grid-column: span 2; } }
+
+.lux-timeline { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; position: relative; }
+.lux-timeline::before { content: ''; position: absolute; left: 6px; top: 10px; bottom: 10px; width: 2px; background: rgba(255,255,255,0.05); }
+.lux-tl-item { display: flex; align-items: center; gap: 1rem; position: relative; z-index: 2; }
+.lux-tl-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--lux-card); border: 2px solid var(--lux-border); transition: all 0.3s; }
+.lux-tl-item.active .lux-tl-dot { border-color: var(--lux-accent); background: var(--lux-accent); box-shadow: 0 0 10px var(--lux-accent); }
+.lux-tl-text { font-size: 0.85rem; font-weight: 500; color: var(--lux-muted); }
+.lux-tl-item.active .lux-tl-text { color: #fff; }
+
+.lux-card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
+.lux-card-sub { font-size: 0.8rem; color: var(--lux-muted); }
+
+/* ── LUXURY COMMUNITY MODULE ── */
+.lux-community-section {
+  max-width: 900px; margin: 5rem auto; padding: 0 1.5rem; text-align: center;
+}
+.lux-comm-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.4rem 1rem; background: var(--lux-gold-dim); border: 1px solid rgba(246,196,83,0.2);
+  border-radius: 2rem; font-size: 0.75rem; font-weight: 700; color: var(--lux-gold);
+  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem;
+}
+.lux-community-section h2 { font-size: clamp(2rem, 4vw, 2.5rem); font-weight: 800; margin-bottom: 3rem; }
+
+.lux-comm-grid {
+  display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 3rem;
+}
+@media (min-width: 768px) { .lux-comm-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.lux-comm-card {
+  background: var(--lux-card); border: 1px solid var(--lux-border);
+  border-radius: 20px; padding: 2rem 1.5rem; text-align: center; text-decoration: none; color: #fff;
+  transition: all 0.3s var(--lux-ease); position: relative; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center;
+}
+.lux-comm-card:hover, .lux-comm-card:active {
+  transform: translateY(-4px); border-color: var(--lux-border-hover); background: rgba(255,255,255,0.02);
+}
+.lux-comm-icon {
+  width: 64px; height: 64px; border-radius: 16px; margin-bottom: 1.5rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.lux-comm-icon svg { width: 32px; height: 32px; color: #fff; }
+.lcc-tg .lux-comm-icon { background: linear-gradient(135deg, #0088cc, #005580); }
+.lcc-ig .lux-comm-icon { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+.lcc-wa .lux-comm-icon { background: linear-gradient(135deg, #25D366, #128C7E); }
+
+.lux-comm-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+.lux-comm-desc { font-size: 0.8rem; color: var(--lux-muted); margin-bottom: 1rem; }
+.lux-comm-count { font-size: 0.75rem; font-weight: 600; color: var(--lux-gold); display: flex; align-items: center; gap: 0.25rem; }
+
+.lux-cta-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.75rem;
+  padding: 1.25rem 3rem; background: var(--lux-gold); color: #000;
+  font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+  border-radius: 16px; text-decoration: none; transition: transform 0.2s;
+  box-shadow: 0 10px 30px rgba(246,196,83,0.2);
+}
+.lux-cta-btn:hover, .lux-cta-btn:active { transform: scale(0.98); box-shadow: 0 5px 15px rgba(246,196,83,0.3); }
+
+/* Reveal Animation */
+.lux-reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s var(--lux-ease), transform 0.6s var(--lux-ease); will-change: opacity, transform; }
+.lux-reveal.visible { opacity: 1; transform: translateY(0); }

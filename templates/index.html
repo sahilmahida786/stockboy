@@ -61,6 +61,7 @@
 {% block extra_css %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/trust.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/luxury-landing.css') }}" />
 <style>
 
   
@@ -775,8 +776,6 @@
   .float-btn { position: fixed; right: 1rem; width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 50; transition: transform 0.3s, box-shadow 0.3s; text-decoration: none; }
   .float-btn:hover { transform: scale(1.1); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
   .float-wa { bottom: 1rem; background: #25D366; }
-  .float-tg { bottom: 5rem; background: #0088cc; }
-  .float-ig { bottom: 9rem; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
   .float-btn img, .float-btn svg { width: 26px; height: 26px; fill: white; color: white; }
 
 
@@ -793,10 +792,7 @@
     .trust-item { font-size: 0.7rem; padding: 0.5rem 0.85rem; }
     
     /* Shrink and align floating buttons horizontally on mobile */
-    .float-wa, .float-tg, .float-ig { position: fixed; bottom: 1.5rem !important; transform: scale(0.85); transform-origin: bottom right; }
-    .float-wa { right: 1rem; }
-    .float-tg { right: 4.5rem; }
-    .float-ig { right: 8rem; }
+    .float-wa { position: fixed; bottom: 1.5rem !important; right: 1rem; transform: scale(0.85); transform-origin: bottom right; }
   }
 
   /* ════════════════════════════════════════════════════════
@@ -1635,161 +1631,149 @@
     <div class="sb-carousel-dots" id="sbCarouselDots"></div>
   </div>
 
-  <!-- Live Performance Dashboard -->
-  <div class="sb-perf-dashboard" style="margin-top:4rem;">
-    <div class="section-title reveal-slide-up">
-      <h2 style="font-size:2.5rem; font-weight:800; margin-bottom:1rem; letter-spacing:-0.03em;">Live Performance Dashboard</h2>
-      <p style="color:var(--text-muted); font-size:1.1rem; max-width:600px; margin:0 auto 3rem;">Track our latest premium trading performance and market intelligence.</p>
+  <!-- ════════════════════════════════════════════════════════
+       PREMIUM INTELLIGENCE CENTER (Bento Grid)
+       ════════════════════════════════════════════════════════ -->
+  <section class="lux-intel-section">
+    <div class="lux-intel-header lux-reveal">
+      <h2>Premium Intelligence Center</h2>
+      <p>Inside the exclusive trading workspace. Precision research, strict risk management, and professional market preparation.</p>
+    </div>
+
+    <div class="lux-bento">
+      <!-- Card 1: Large Hero -->
+      <div class="lux-card lux-hero-card lux-reveal" style="transition-delay: 0.1s;">
+        <div class="lhc-sub">Research Engine Status</div>
+        <div class="lhc-title">Today's Premium Research</div>
+        <div class="lux-scanner">
+          <div class="lux-scanner-line"></div>
+        </div>
+        <p style="font-size: 0.9rem; color: var(--lux-muted);">Scanning global markets and F&O data. Protected AI Research.</p>
+      </div>
+
+      <!-- Card 2: Confidence -->
+      <div class="lux-card lux-small-card lux-reveal" style="transition-delay: 0.2s;">
+        <div class="lux-stat-ring"></div>
+        <div>
+          <div class="lux-card-title">Research Confidence</div>
+          <div class="lux-card-sub" style="color: var(--lux-accent); font-weight: 600;">HIGH</div>
+        </div>
+      </div>
+
+      <!-- Card 3: Discipline -->
+      <div class="lux-card lux-small-card lux-reveal" style="transition-delay: 0.3s;">
+        <div class="lux-stat-shield">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div>
+          <div class="lux-card-title">Risk Discipline</div>
+          <div class="lux-card-sub" style="color: var(--lux-gold); font-weight: 600;">STRICT 1:3 RR</div>
+        </div>
+      </div>
+
+      <!-- Card 4: Wide Card -->
+      <div class="lux-card lux-wide-card lux-reveal" style="transition-delay: 0.4s;">
+        <div class="lux-card-title">Premium Research Benefits</div>
+        <div class="lux-card-sub">Exclusive capabilities for members.</div>
+        <ul class="lux-checklist">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Professional Research Output</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Strict Market Discipline</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Capital Protection Focus</li>
+        </ul>
+      </div>
+
+      <!-- Card 5: Timeline -->
+      <div class="lux-card lux-timeline-card lux-reveal" style="transition-delay: 0.5s;">
+        <div class="lux-card-title">Market Preparation</div>
+        <div class="lux-card-sub">Daily institutional-grade workflow.</div>
+        <div class="lux-timeline">
+          <div class="lux-tl-item active">
+            <div class="lux-tl-dot"></div>
+            <div class="lux-tl-text">Pre-Market Scan</div>
+          </div>
+          <div class="lux-tl-item active">
+            <div class="lux-tl-dot"></div>
+            <div class="lux-tl-text">Technical Analysis Complete</div>
+          </div>
+          <div class="lux-tl-item active" style="margin-top: 0.25rem;">
+            <div class="lux-tl-dot"></div>
+            <div class="lux-tl-text" style="color: var(--lux-gold);">Premium Ready</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       LUXURY COMMUNITY SECTION (Glassmorphism)
+       ════════════════════════════════════════════════════════ -->
+  <section class="lux-community-section">
+    <div class="lux-comm-badge lux-reveal">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Verified Premium Community
     </div>
     
-    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:var(--space-3); max-width:1200px; margin:0 auto; padding:0 1.5rem;">
-      
-      <!-- Card 1: Today's Signals -->
-      <div class="sb-perf-card reveal-slide-up" style="animation-delay: 0.1s; background:var(--glass-bg); border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-3); transition:transform 0.3s var(--easing), box-shadow 0.3s var(--easing);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-2);">
-          <h3 style="font-size:1.1rem; font-weight:700;">Today's Signals</h3>
-          <div style="display:flex; align-items:center; gap:0.4rem; background:rgba(0,200,83,0.1); color:var(--success); padding:0.25rem 0.75rem; border-radius:var(--radius-xl); font-size:0.75rem; font-weight:700;">
-            <span style="width:6px; height:6px; border-radius:50%; background:var(--success); display:inline-block; animation:pulse 2s infinite;"></span> Active
-          </div>
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:var(--space-2);">
-          <div>
-            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.25rem;">Active Signals</div>
-            <div style="font-size:3rem; font-weight:800; color:var(--gold); line-height:1;">3</div>
-          </div>
-        </div>
-        <div style="display:flex; gap:var(--space-2); border-top:1px solid var(--border); padding-top:var(--space-2);">
-          <div><span style="font-weight:700; color:#fff;">2</span> <span style="font-size:0.8rem; color:var(--text-muted);">Intraday</span></div>
-          <div><span style="font-weight:700; color:#fff;">1</span> <span style="font-size:0.8rem; color:var(--text-muted);">F&O</span></div>
-        </div>
-      </div>
+    <h2 class="lux-reveal">Join The Stockboy Community</h2>
 
-      <!-- Card 2: Recent Target Hits -->
-      <div class="sb-perf-card reveal-slide-up" style="animation-delay: 0.2s; background:var(--glass-bg); border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-3); transition:transform 0.3s var(--easing), box-shadow 0.3s var(--easing);">
-        <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:var(--space-2);">Recent Target Hits</h3>
-        <div style="display:flex; flex-direction:column; gap:1rem;">
-          <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
-            <div>
-              <div style="font-weight:700; font-size:0.95rem;">MRPL <span style="font-size:0.7rem; background:rgba(0,200,83,0.15); color:var(--success); padding:0.15rem 0.4rem; border-radius:0.25rem; margin-left:0.4rem;">BUY</span></div>
-              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;"><span style="color:var(--gold);">✔ Target Hit</span></div>
-            </div>
-            <div style="font-weight:800; color:var(--success);">+3.6%</div>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
-            <div>
-              <div style="font-weight:700; font-size:0.95rem;">BEL <span style="font-size:0.7rem; background:rgba(0,200,83,0.15); color:var(--success); padding:0.15rem 0.4rem; border-radius:0.25rem; margin-left:0.4rem;">BUY</span></div>
-              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;"><span style="color:var(--gold);">✔ Target Hit</span></div>
-            </div>
-            <div style="font-weight:800; color:var(--success);">+4.1%</div>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <div style="font-weight:700; font-size:0.95rem;">TATA MOTORS <span style="font-size:0.7rem; background:rgba(255,82,82,0.15); color:var(--danger); padding:0.15rem 0.4rem; border-radius:0.25rem; margin-left:0.4rem;">SELL</span></div>
-              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;"><span style="color:var(--gold);">✔ Target Hit</span></div>
-            </div>
-            <div style="font-weight:800; color:var(--success);">+2.8%</div>
-          </div>
+    <div class="lux-comm-grid">
+      <!-- Telegram -->
+      <a href="https://t.me/pennystocksboy" target="_blank" class="lux-comm-card lcc-tg lux-reveal" style="transition-delay: 0.1s;">
+        <div class="lux-comm-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
         </div>
-      </div>
-
-      <!-- Card 3: Monthly Performance -->
-      <div class="sb-perf-card reveal-slide-up" style="animation-delay: 0.3s; background:var(--glass-bg); border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-3); transition:transform 0.3s var(--easing), box-shadow 0.3s var(--easing);">
-        <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:var(--space-2);">Monthly Performance</h3>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-2); margin-bottom:1.5rem;">
-          <div>
-            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.2rem;">Signals Published</div>
-            <div style="font-size:1.5rem; font-weight:800; color:#fff;">58</div>
-          </div>
-          <div>
-            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.2rem;">Target Hit</div>
-            <div style="font-size:1.5rem; font-weight:800; color:var(--gold);">49</div>
-          </div>
+        <div class="lux-comm-title">Telegram</div>
+        <div class="lux-comm-desc">Official Community & Discussion</div>
+        <div class="lux-comm-count">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          5K+ Members
         </div>
-        
-        <div style="margin-bottom:1rem;">
-          <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:0.4rem;">
-            <span style="color:var(--text-muted);">Accuracy</span>
-            <span style="font-weight:700; color:var(--success);">84%</span>
-          </div>
-          <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
-            <div style="width:84%; height:100%; background:var(--success); border-radius:3px;"></div>
-          </div>
-        </div>
-        
-        <div>
-          <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:0.4rem;">
-            <span style="color:var(--text-muted);">Risk Reward Ratio</span>
-            <span style="font-weight:700; color:var(--blue-accent);">1 : 2.7</span>
-          </div>
-          <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
-            <div style="width:70%; height:100%; background:var(--blue-accent); border-radius:3px;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 4: Why Members Choose -->
-      <div class="sb-perf-card reveal-slide-up" style="animation-delay: 0.4s; background:var(--glass-bg); border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-3); transition:transform 0.3s var(--easing), box-shadow 0.3s var(--easing);">
-        <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:var(--space-2);">Why Members Choose Stockboy</h3>
-        <div style="display:flex; flex-direction:column; gap:0.75rem;">
-          <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.9rem; color:var(--text-muted);">
-            <div style="width:20px; height:20px; background:rgba(255,213,74,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); flex-shrink:0;">✔</div> Premium Research
-          </div>
-          <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.9rem; color:var(--text-muted);">
-            <div style="width:20px; height:20px; background:rgba(255,213,74,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); flex-shrink:0;">✔</div> Entry Strategy
-          </div>
-          <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.9rem; color:var(--text-muted);">
-            <div style="width:20px; height:20px; background:rgba(255,213,74,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); flex-shrink:0;">✔</div> Risk Management
-          </div>
-          <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.9rem; color:var(--text-muted);">
-            <div style="width:20px; height:20px; background:rgba(255,213,74,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); flex-shrink:0;">✔</div> Real Time Alerts
-          </div>
-          <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.9rem; color:var(--text-muted);">
-            <div style="width:20px; height:20px; background:rgba(255,213,74,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); flex-shrink:0;">✔</div> Multiple Targets
-          </div>
-          <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.9rem; color:var(--text-muted);">
-            <div style="width:20px; height:20px; background:rgba(255,213,74,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); flex-shrink:0;">✔</div> Capital Protection
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-  <style>
-    .sb-perf-card:hover {
-      transform: translateY(-4px) !important;
-      box-shadow: var(--shadow-glow) !important;
-      border-color: rgba(255,213,74,0.3) !important;
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(0,200,83,0.4); }
-      70% { box-shadow: 0 0 0 6px rgba(0,200,83,0); }
-      100% { box-shadow: 0 0 0 0 rgba(0,200,83,0); }
-    }
-  </style>
-
-
-  <!-- Community Banner -->
-  <div class="sb-community-banner reveal-slide-up" style="animation-delay: 0.4s">
-    <div class="sb-comm-title">Join our Trading Community</div>
-    <div class="sb-comm-subtitle">Connect with thousands of active traders across India.</div>
-    <div class="sb-comm-links">
-      <a href="https://t.me/pennystocksboy" target="_blank" class="sb-comm-btn tg">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-        Telegram
-        <span class="sb-comm-count">5k+ Members</span>
       </a>
-      <a href="https://www.instagram.com/stocks_boy1" target="_blank" class="sb-comm-btn ig">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-        Instagram
-        <span class="sb-comm-count">Verified Page</span>
+
+      <!-- Instagram -->
+      <a href="https://www.instagram.com/stocks_boy1?igsh=MTg4M3owamoxZHNzeg==" target="_blank" class="lux-comm-card lcc-ig lux-reveal" style="transition-delay: 0.2s;">
+        <div class="lux-comm-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+        </div>
+        <div class="lux-comm-title">Instagram</div>
+        <div class="lux-comm-desc">Daily Updates & Education</div>
+        <div class="lux-comm-count">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          Verified Page
+        </div>
       </a>
-      <a href="#" class="sb-comm-btn wa" onclick="event.preventDefault(); window.StockboyToast && window.StockboyToast.show({title: 'Coming Soon', message: 'WhatsApp channel will be available shortly.', type: 'info'})">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg>
-        WhatsApp
-        <span class="sb-comm-count">Coming Soon</span>
+
+      <!-- WhatsApp -->
+      <a href="#" class="lux-comm-card lcc-wa lux-reveal" style="transition-delay: 0.3s;" onclick="event.preventDefault(); window.StockboyToast && window.StockboyToast.show({title: 'Coming Soon', message: 'WhatsApp channel will be available shortly.', type: 'info'})">
+        <div class="lux-comm-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg>
+        </div>
+        <div class="lux-comm-title">WhatsApp</div>
+        <div class="lux-comm-desc">Premium Broadcasts & Alerts</div>
+        <div class="lux-comm-count" style="color: var(--lux-muted);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          Coming Soon
+        </div>
       </a>
     </div>
-  </div>
+    
+    <div class="lux-reveal" style="transition-delay: 0.4s;">
+      <a href="/auth" class="lux-cta-btn">Become a Premium Member</a>
+    </div>
+  </section>
+  <script>
+    // Intersection Observer for Luxury Reveals
+    document.addEventListener("DOMContentLoaded", () => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.lux-reveal').forEach(el => observer.observe(el));
+    });
+  </script>
 
 </section>
 
@@ -1967,15 +1951,9 @@
 <!-- Footer -->
 
 
-<!-- Floating Buttons -->
+<!-- Floating Buttons (Only WhatsApp as requested) -->
 <a href="https://wa.me/918604156679?text=Hello%20I%20need%20premium%20stock%20signals" target="_blank" class="float-btn float-wa" aria-label="WhatsApp">
   <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" loading="lazy" width="26" height="26">
-</a>
-<a href="https://t.me/pennystocksboy" target="_blank" class="float-btn float-tg" aria-label="Telegram">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" loading="lazy" width="26" height="26">
-</a>
-<a href="https://www.instagram.com/stocks_boy1?igsh=MTg4M3owamoxZHNzeg==" target="_blank" class="float-btn float-ig" aria-label="Instagram">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
 </a>
 
 
