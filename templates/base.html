@@ -194,14 +194,39 @@
 </head>
 <body>
 
-  <!-- Enterprise Page Loader -->
+  <!-- Cinematic Premium Splash Screen -->
   <div id="sbGlobalLoader" class="sb-page-loader">
-    <div id="sbLoaderProgress" class="sb-loader-progress"></div>
-    <div class="sb-loader-ring-wrapper">
-      <img src="{{ url_for('static', filename='logo.png') }}" class="sb-loader-logo" alt="Loading...">
-      <div class="sb-loader-ring"></div>
+    <!-- Animated Aurora & Noise Background -->
+    <div class="sb-loader-bg"></div>
+    <div class="sb-loader-noise"></div>
+    
+    <div class="sb-loader-content">
+      <!-- Premium Badge with SVG Progress -->
+      <div class="sb-loader-badge-container">
+        
+        <!-- The hardware accelerated SVG Ring -->
+        <svg class="sb-loader-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#F6C453" />
+              <stop offset="50%" stop-color="#FFD76B" />
+              <stop offset="100%" stop-color="#D4AF37" />
+            </linearGradient>
+          </defs>
+          <circle class="sb-loader-track" cx="60" cy="60" r="54" />
+          <circle class="sb-loader-head" cx="60" cy="60" r="54" />
+        </svg>
+
+        <!-- The perfectly cropped logo inside the luxury ring -->
+        <div class="sb-loader-badge">
+          <img src="{{ url_for('static', filename='logo.png') }}" alt="Stockboy Premium">
+        </div>
+        
+      </div>
+      
+      <!-- Typography -->
+      <div class="sb-loader-text">Initializing Premium Intelligence</div>
     </div>
-    <div class="sb-loader-text">Loading Workspace</div>
   </div>
   <!-- Global Header -->
   <header>
