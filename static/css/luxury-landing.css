@@ -199,3 +199,155 @@
 /* Reveal Animation */
 .lux-reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s var(--lux-ease), transform 0.6s var(--lux-ease); will-change: opacity, transform; }
 .lux-reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── PREMIUM FINAL INVITATION (FINAL CTA) ── */
+.lux-final-cta-wrapper {
+  padding: 2rem 1.5rem 5rem;
+}
+.lux-final-cta {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: var(--lux-card);
+  border: 1px solid var(--lux-border);
+  border-radius: 32px;
+  padding: 5rem 2rem;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+}
+.lux-final-cta::before {
+  content: ''; position: absolute; inset: -50%;
+  background: radial-gradient(circle at 50% 100%, rgba(246, 196, 83, 0.08), transparent 50%);
+  animation: auroraBreath 10s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.lux-final-cta::after {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 32px 32px; opacity: 0.15;
+  pointer-events: none;
+}
+@keyframes auroraBreath { 0% { transform: scale(1) translateY(0); opacity: 0.5; } 100% { transform: scale(1.1) translateY(-20px); opacity: 1; } }
+
+.lfc-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.4rem 1rem; border-radius: 2rem;
+  background: linear-gradient(90deg, rgba(246, 196, 83, 0.1), rgba(246, 196, 83, 0.02));
+  border: 1px solid rgba(246, 196, 83, 0.2);
+  font-size: 0.75rem; font-weight: 700; color: var(--lux-gold);
+  text-transform: uppercase; letter-spacing: 0.15em;
+  margin-bottom: 2rem;
+  position: relative; overflow: hidden;
+}
+.lfc-badge::after {
+  content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: shimmer 3s infinite;
+}
+@keyframes shimmer { 100% { left: 200%; } }
+
+.lfc-heading {
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  position: relative; z-index: 2;
+}
+.lfc-gold-text {
+  background: linear-gradient(135deg, #F6C453, #FFD76B);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.lfc-sub {
+  font-size: 1.1rem; color: var(--lux-muted); max-width: 600px; margin: 0 auto 3rem;
+  line-height: 1.6; position: relative; z-index: 2;
+}
+
+/* Apple Wallet Floating Card */
+.lfc-card-container {
+  display: flex; justify-content: center; margin-bottom: 3rem;
+  position: relative; z-index: 3;
+}
+.lfc-wallet-card {
+  width: 100%; max-width: 380px; height: 240px;
+  background: linear-gradient(145deg, rgba(20, 25, 35, 0.9), rgba(10, 15, 20, 0.9));
+  border-radius: 20px;
+  border: 1px solid rgba(246, 196, 83, 0.3);
+  box-shadow: inset 0 0 40px rgba(246, 196, 83, 0.05), 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  padding: 2rem; display: flex; flex-direction: column; justify-content: space-between;
+  text-align: left;
+  animation: floatCardLux 6s ease-in-out infinite;
+  position: relative; overflow: hidden;
+}
+.lfc-wallet-card::before {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.03), transparent);
+  transform: rotate(45deg); animation: reflection 8s linear infinite;
+}
+@keyframes reflection { 0% { transform: translateX(-50%) rotate(45deg); } 100% { transform: translateX(50%) rotate(45deg); } }
+@keyframes floatCardLux { 0%, 100% { transform: translateY(0) rotateX(0deg); } 50% { transform: translateY(-12px) rotateX(2deg); } }
+
+.lwc-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.lwc-logo-wrap { display: flex; align-items: center; gap: 0.6rem; }
+.lwc-logo-wrap svg { width: 28px; height: 28px; color: var(--lux-gold); }
+.lwc-brand { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; }
+.lwc-chip { width: 40px; height: 28px; background: rgba(255,255,255,0.1); border-radius: 6px; position: relative; overflow: hidden; }
+.lwc-chip::after { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.1); box-shadow: 10px 0 0 rgba(255,255,255,0.1), 20px 0 0 rgba(255,255,255,0.1); }
+.lwc-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+.lwc-label { font-size: 0.65rem; color: var(--lux-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.2rem; }
+.lwc-value { font-size: 0.9rem; font-weight: 600; color: #fff; }
+.lwc-member-tier { color: var(--lux-gold); font-size: 1.2rem; font-weight: 800; }
+
+.lfc-chips {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem;
+  max-width: 650px; margin: 0 auto 3rem; position: relative; z-index: 2;
+}
+.lfc-chip-item {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 1rem; border-radius: 12px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+  font-size: 0.85rem; color: rgba(255,255,255,0.8);
+}
+.lfc-chip-item svg { width: 16px; height: 16px; color: var(--lux-accent); }
+
+.lfc-actions { display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 3rem; position: relative; z-index: 2; }
+.lfc-primary-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  height: 60px; padding: 0 2.5rem; border-radius: 18px;
+  background: var(--lux-gold); color: #000;
+  font-size: 1.1rem; font-weight: 800; text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 10px 30px rgba(246,196,83,0.25);
+}
+.lfc-primary-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(246,196,83,0.35); }
+.lfc-primary-btn svg { transition: transform 0.3s; }
+.lfc-primary-btn:hover svg { transform: translateX(4px); }
+
+.lfc-secondary-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 60px; padding: 0 2.5rem; border-radius: 18px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+  color: #fff; font-size: 1.1rem; font-weight: 600; text-decoration: none;
+  transition: all 0.3s;
+}
+.lfc-secondary-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+
+.lfc-trust-row {
+  display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;
+  position: relative; z-index: 2;
+}
+.lfc-trust-item {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.8rem; color: var(--lux-muted); font-weight: 500;
+}
+.lfc-trust-item svg { width: 16px; height: 16px; color: var(--lux-gold); }
+
+@media (max-width: 768px) {
+  .lux-final-cta { padding: 4rem 1.5rem; border-radius: 24px; }
+  .lfc-actions { flex-direction: column; width: 100%; }
+  .lfc-primary-btn, .lfc-secondary-btn { width: 100%; height: 58px; }
+  .lfc-trust-row { gap: 1rem; }
+}
